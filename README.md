@@ -4,7 +4,7 @@ A lightweight, expandable JSON query language.
 
 Inspired by MongoDB aggregates.
 
-Minified and gzipped size: less than 800 bytes.
+Minified and gzipped size: `0.6 kB`.
 
 # Usage
 
@@ -53,7 +53,7 @@ const data = [
   { name: 'Sarah', age: 31, city: 'New York' }
 ]
 
-const query = [{ $max: { age: 1 } }]
+const query = [{ $max: 'age' }]
 
 const result = jsonquery(query, data, extendedOperations)
 // {
