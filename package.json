@@ -1,0 +1,25 @@
+{
+  "name": "jsonquery",
+  "version": "0.0.1",
+  "description": "A lightweight, expandable JSON query language",
+  "main": "src/jsonquery.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "build": "rollup --config rollup.config.mjs",
+    "lint": "prettier . --check",
+    "format": "prettier . --write"
+  },
+  "keywords": [
+    "json",
+    "query"
+  ],
+  "author": "Jos de Jong",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-terser": "0.4.4",
+    "prettier": "3.3.3",
+    "rollup": "4.18.1",
+    "vitest": "2.0.3"
+  }
+}
