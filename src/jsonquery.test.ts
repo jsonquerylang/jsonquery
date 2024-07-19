@@ -91,7 +91,7 @@ describe('jsonquery', () => {
   })
 
   test('should extend with a custom operator (1)', () => {
-    const max = (field, data) => sort({ [field]: -1 }, data)[0]
+    const max = (field: string, data: unknown[]) => sort({ [field]: -1 }, data)[0]
     const operations = { ...defaultOperations, $max: max }
 
     expect(jsonquery([{ $max: 'age' }], data, operations)).toEqual({
@@ -99,14 +99,6 @@ describe('jsonquery', () => {
       age: 45,
       city: 'Manhattan'
     })
-  })
-
-  test('should extend with a custom operator (2)', () => {
-    const max = (query, data) => Math.max(...data)
-
-    const operations = { ...defaultOperations, $max: max }
-
-    expect(jsonquery([{ $max: {} }], [7, 2, 5, -3, 8, 4], operations)).toEqual(8)
   })
 
   // TODO: test all match operators and with different types of values

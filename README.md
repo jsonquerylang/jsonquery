@@ -1,6 +1,6 @@
 # JSONQuery
 
-A lightweight, expandable JSON query language. 
+A lightweight, expandable JSON query language.
 
 Inspired by MongoDB aggregates.
 
@@ -53,9 +53,7 @@ const data = [
   { name: 'Sarah', age: 31, city: 'New York' }
 ]
 
-const query = [
-  { $max: { age: 1 } }
-]
+const query = [{ $max: { age: 1 } }]
 
 const result = jsonquery(query, data, extendedOperations)
 // {
@@ -69,10 +67,10 @@ const result = jsonquery(query, data, extendedOperations)
 
 ```ts
 function jsonquery(
-  query: JSONQuery, 
-  data: unknown[], 
+  query: JSONQuery,
+  data: unknown[],
   operations: JSONQueryOperation[] = defaultOperations
-) : unknown[]
+): unknown
 ```
 
 Built in operations:
@@ -82,6 +80,6 @@ Built in operations:
 - `$project`
 - `$limit`
 
-# Status
+## License
 
-This is currently a proof of concept
+Released under the [ISC license](LICENSE.md).

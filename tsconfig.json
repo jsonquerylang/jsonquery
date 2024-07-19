@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "es2020",
+    "lib": ["es2020"],
+    "target": "es2020",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowJs": false,
+    "checkJs": false,
+    "strict": false,
+    "noImplicitAny": false,
+    "declaration": true,
+    "declarationDir": "lib",
+    "declarationMap": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["src/**/*.test.ts"]
+}

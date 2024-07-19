@@ -2,24 +2,44 @@
   "name": "jsonquery",
   "version": "0.0.1",
   "description": "A lightweight, expandable JSON query language",
-  "main": "src/jsonquery.js",
-  "type": "module",
-  "scripts": {
-    "test": "vitest",
-    "build": "rollup --config rollup.config.mjs",
-    "lint": "prettier . --check",
-    "format": "prettier . --write"
-  },
   "keywords": [
     "json",
     "query"
   ],
   "author": "Jos de Jong",
+  "type": "module",
+  "sideeffects": false,
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/josdejong/jsonquery.git"
+  },
+  "main": "./lib/jsonquery.cjs",
+  "browser": "./lib/jsonquery.umd.cjs",
+  "module": "./lib/jsonquery.js",
+  "types": "./lib/jsonquery.d.ts",
+  "exports": {
+    ".": {
+      "require": "./lib/jsonquery.cjs",
+      "module": "./lib/jsonquery.js",
+      "types": "./lib/jsonquery.d.ts"
+    }
+  },
+  "files": [
+    "lib",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "build": "vite build && tsc --project tsconfig-types.json",
+    "lint": "prettier . --check",
+    "format": "prettier . --write"
+  },
   "devDependencies": {
-    "@rollup/plugin-terser": "0.4.4",
     "prettier": "3.3.3",
-    "rollup": "4.18.1",
+    "typescript": "5.5.3",
+    "vite": "5.3.4",
     "vitest": "2.0.3"
   }
 }
