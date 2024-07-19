@@ -29,6 +29,13 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should filter data using $gte and $lte', () => {
+    expect(jsonquery([{ $match: { age: { $gte: 23, $lte: 27 } } }], data)).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' }
+    ])
+  })
+
   test('should sort data', () => {
     expect(jsonquery([{ $sort: { age: 1 } }], data)).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },

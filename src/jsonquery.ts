@@ -36,22 +36,19 @@ export function match(
   data: unknown[],
   operations: MatchOperations = matchOperations
 ): unknown[] {
-  const predicate = (item: unknown) => {
-    return Object.keys(query).some((key) => {
-      return Object.keys(query[key]).some((op) => {
-        // TODO: support nested fields
-        const itemValue = item[key]
-        const matchValue = query[key][op]
-        const matchOp = operations[op]
-        if (!matchOp) {
-          throw new SyntaxError(`Unknown match operator "${op}"`)
-        }
-        return matchOp(itemValue, matchValue)
-      })
+  const predicates = Object.keys(query).flatMap((key) => {
+    return Object.keys(query[key]).map((op) => {
+      // TODO: support nested fields
+      const matchValue = query[key][op]
+      const matchOp = operations[op]
+      if (!matchOp) {
+        throw new SyntaxError(`Unknown match operator "${op}"`)
+      }
+      return (item: unknown) => matchOp(item[key], matchValue)
     })
-  }
+  })
 
-  return data.filter(predicate)
+  return predicates.reduce((data, predicate) => data.filter(predicate), data)
 }
 
 const matchOperations: MatchOperations = {
