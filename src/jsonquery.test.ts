@@ -110,6 +110,7 @@ describe('jsonquery', () => {
 
   // TODO: test all match operators and with different types of values
   // TODO: test asc/desc sorting
+  // TODO: test sorting by multiple fields
   // TODO: test sorting with strings
   // TODO: test adding a custom operator
 })
