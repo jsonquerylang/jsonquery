@@ -26,6 +26,18 @@ const nestedData = [
 ]
 
 describe('jsonquery', () => {
+  test('should create an object', () => {
+    expect(
+      jsonquery(data, {
+        names: ['pick', 'name'],
+        count: ['size']
+      })
+    ).toEqual({
+      names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
+      count: 7
+    })
+  })
+
   test('should match data using ==', () => {
     expect(jsonquery(data, ['match', 'city', '==', 'New York'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },

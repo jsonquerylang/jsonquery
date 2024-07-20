@@ -5,7 +5,8 @@ import {
   JSONQueryArray,
   JSONQueryMatchOperator,
   JSONQueryFunction,
-  MatchOperations
+  MatchOperations,
+  JSONQueryObject
 } from './types'
 
 export const all = {
@@ -25,6 +26,12 @@ export function jsonquery(
 ): unknown {
   if (isJSONQueryArray(query)) {
     return query.reduce((data, item) => jsonquery(data, item, functions), data)
+  }
+
+  if (isJSONQueryObject(query)) {
+    const obj = {}
+    Object.keys(query).forEach((key) => (obj[key] = jsonquery(data, query[key], functions)))
+    return obj
   }
 
   const [name, ...args] = query
@@ -120,4 +127,8 @@ export function size(data: unknown[]): number {
 
 function isJSONQueryArray(query: JSONQuery): query is JSONQueryArray {
   return query && Array.isArray(query[0])
+}
+
+function isJSONQueryObject(query: JSONQuery): query is JSONQueryObject {
+  return typeof query === 'object' && query != null && !Array.isArray(query)
 }
