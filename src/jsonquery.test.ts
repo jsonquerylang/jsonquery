@@ -212,6 +212,10 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should sort a list with numbers rather than objects', () => {
+    expect(jsonquery([3, 7, 2, 6], ['sort'])).toEqual([2, 3, 6, 7])
+  })
+
   test('should pick data (single field)', () => {
     expect(jsonquery(data, ['pick', 'name'])).toEqual([
       'Chris',

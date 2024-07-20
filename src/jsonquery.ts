@@ -57,12 +57,9 @@ export function jsonquery(
 export function get(data: unknown, path: string | JSONPath): unknown {
   if (Array.isArray(path)) {
     let value: unknown = data
-    let i = 0
 
-    while (i < path.length) {
-      value = value != undefined ? value[path[i]] : undefined
-
-      i++
+    for (const prop of path) {
+      value = value != undefined ? value[prop] : undefined
     }
 
     return value
@@ -99,7 +96,7 @@ const matchOperations: MatchOperations = {
 
 export function sort(
   data: unknown[],
-  path: string | JSONPath,
+  path: string | JSONPath = [],
   direction?: 'asc' | 'desc'
 ): unknown[] {
   const sign = direction === 'desc' ? -1 : 1
