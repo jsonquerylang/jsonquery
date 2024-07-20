@@ -25,6 +25,12 @@ const nestedData = [
   { name: 'Sarah', age: 31, address: { city: 'New York' } }
 ]
 
+const scoresData = [
+  { name: 'Chris', scores: [5, 7, 3] },
+  { name: 'Emily', scores: [8, 5, 2, 5] },
+  { name: 'Joe', scores: [1, 1, 5, 6] }
+]
+
 describe('jsonquery', () => {
   test('should create an object', () => {
     expect(
@@ -39,14 +45,8 @@ describe('jsonquery', () => {
   })
 
   test('should map over an array', () => {
-    const scores = [
-      { name: 'Chris', scores: [5, 7, 3] },
-      { name: 'Emily', scores: [8, 5, 2, 5] },
-      { name: 'Joe', scores: [1, 1, 5, 6] }
-    ]
-
     expect(
-      jsonquery(scores, [
+      jsonquery(scoresData, [
         [
           'map',
           {
@@ -61,6 +61,18 @@ describe('jsonquery', () => {
       { name: 'Chris', maxScore: 7 },
       { name: 'Joe', maxScore: 6 }
     ])
+  })
+
+  test('should flatten an array', () => {
+    expect(
+      jsonquery(
+        [
+          [1, 2],
+          [3, 4, 5]
+        ],
+        ['flatten']
+      )
+    ).toEqual([1, 2, 3, 4, 5])
   })
 
   test('should match data using ==', () => {
@@ -246,7 +258,7 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should group by a key', () => {
+  test('should group items by a key', () => {
     expect(jsonquery(data, ['groupBy', 'city'])).toEqual({
       'New York': [
         { name: 'Chris', age: 23, city: 'New York' },
@@ -259,6 +271,20 @@ describe('jsonquery', () => {
       ],
       'Los Angeles': [{ name: 'Michelle', age: 27, city: 'Los Angeles' }],
       Manhattan: [{ name: 'Robert', age: 45, city: 'Manhattan' }]
+    })
+  })
+
+  test('should turn an array in an object by key', () => {
+    const users = [
+      { id: 1, name: 'Joe' },
+      { id: 2, name: 'Sarah' },
+      { id: 3, name: 'Chris' }
+    ]
+
+    expect(jsonquery(users, ['keyBy', 'id'])).toEqual({
+      1: { id: 1, name: 'Joe' },
+      2: { id: 2, name: 'Sarah' },
+      3: { id: 3, name: 'Chris' }
     })
   })
 

@@ -15,6 +15,8 @@ export const all = {
   sort,
   pick,
   groupBy,
+  keyBy,
+  flatten,
   uniq,
   size,
   min,
@@ -139,6 +141,21 @@ export function groupBy(data: unknown[], key: string): Record<string, unknown[]>
   })
 
   return res
+}
+
+export function keyBy(data: unknown[], key: string): Record<string, unknown[]> {
+  const res = {}
+
+  data.forEach((item) => {
+    const value = item[key]
+    res[value] = item
+  })
+
+  return res
+}
+
+export function flatten(data: unknown[]): unknown[] {
+  return data.flat()
 }
 
 export function uniq(data: unknown[]): unknown[] {

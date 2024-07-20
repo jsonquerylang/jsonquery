@@ -81,8 +81,10 @@ Built-in functions:
 - `match`
 - `sort`
 - `pick`
+- `keyBy`
 - `groupBy`
 - `map`
+- `flatten`
 - `limit`
 - `uniq`
 - `size`
