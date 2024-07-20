@@ -24,7 +24,7 @@ const data = {
 }
 
 // get the array containing the friends from the object, filter the friends that live in New York,
-// sort them by age, pick just the name out of the objects, and return the first two results.  
+// sort them by age, pick just the name out of the objects, and return the first two results.
 const names = jsonquery(data, [
   ['get', 'friends'],
   ['match', 'city', '==', 'New York'],
@@ -34,19 +34,16 @@ const names = jsonquery(data, [
 ])
 // [ "Chris", "Sarah" ]
 
-// get the array containing the friends from the object, then create an object with 
-// properties `names`, `count`, and `averageAge` containing the results of their query: 
-// a list with names, the total number of array items, and the average value of the 
+// get the array containing the friends from the object, then create an object with
+// properties `names`, `count`, and `averageAge` containing the results of their query:
+// a list with names, the total number of array items, and the average value of the
 // properties `age` in all items.
 const result = jsonquery(data, [
   ['get', 'friends'],
   {
     names: ['pick', 'name'],
     count: ['size'],
-    averageAge: [
-      ['pick', 'age'],
-      ['average']
-    ]
+    averageAge: [['pick', 'age'], ['average']]
   }
 ])
 // {
@@ -109,7 +106,7 @@ Lastly, you can define a `JSONQueryObject` which is an object with property name
   names: ['pick', 'name'],
   count: ['size'],
   averageAge: [
-    ['pick', 'age'], 
+    ['pick', 'age'],
     ['average']
   ]
 }
