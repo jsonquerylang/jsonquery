@@ -1,11 +1,9 @@
 import {
+  JSONPrimitive,
   JSONQuery,
   JSONQueryArray,
-  JSONQueryLimit,
-  JSONQueryMatch,
+  JSONQueryMatchOperator,
   JSONQueryOperation,
-  JSONQueryPick,
-  JSONQuerySort,
   MatchOperations
 } from './types'
 
@@ -25,14 +23,20 @@ export function jsonquery(
     return query.reduce((data, item) => jsonquery(data, item, operations), data)
   }
 
-  const operation = operations[query[0]]
+  const [name, ...args] = query
+  const operation = operations[name]
   if (!operation) {
-    throw new Error(`Unknown query operation "${query[0]}"`)
+    throw new Error(`Unknown query operation "${name}"`)
   }
-  return operation(data, query)
+  return operation(data, ...args)
 }
 
-export function match(data: unknown[], [_, path, op, value]: JSONQueryMatch): unknown[] {
+export function match(
+  data: unknown[],
+  path: string,
+  op: JSONQueryMatchOperator,
+  value: JSONPrimitive
+): unknown[] {
   const matchFn = matchOperations[op]
   if (!matchFn) {
     throw new SyntaxError(`Unknown match operator "${op}"`)
@@ -54,7 +58,7 @@ const matchOperations: MatchOperations = {
   'not in': (a, b) => !(b as Array<unknown>).includes(a)
 }
 
-export function sort(data: unknown[], [_, path, direction]: JSONQuerySort): unknown[] {
+export function sort(data: unknown[], path: string, direction?: 'asc' | 'desc'): unknown[] {
   // TODO: support nested fields
   const sign = direction === 'desc' ? -1 : 1
   const compare = (a: Record<string, unknown>, b: Record<string, unknown>) => {
@@ -66,7 +70,7 @@ export function sort(data: unknown[], [_, path, direction]: JSONQuerySort): unkn
   return data.slice().sort(compare)
 }
 
-export function pick(data: unknown[], [_, ...paths]: JSONQueryPick): unknown[] {
+export function pick(data: unknown[], ...paths: string[]): unknown[] {
   return data.map((item) => {
     const out = {}
     // TODO: support nested fields
@@ -75,7 +79,7 @@ export function pick(data: unknown[], [_, ...paths]: JSONQueryPick): unknown[] {
   })
 }
 
-export function limit(data: unknown[], [_, count]: JSONQueryLimit): unknown[] {
+export function limit(data: unknown[], count: number): unknown[] {
   return data.slice(0, count)
 }
 

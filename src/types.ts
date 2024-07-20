@@ -26,6 +26,7 @@ export type JSONQueryArray = JSONQueryItem[]
 
 export type JSONQuery = JSONQueryItem | JSONQueryArray
 
-export type JSONQueryOperation = (data: unknown[], query: JSONQueryItem) => unknown
+// TODO: improve typings of "...args: unknown[]" and couple it with JSONQueryItem
+export type JSONQueryOperation = (data: unknown[], ...args: unknown[]) => unknown
 
 export type MatchOperations = Record<string, (a: unknown, b: unknown) => boolean>

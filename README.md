@@ -38,7 +38,7 @@ The build in operations can be extended with custom operations, like `$max` in t
 ```js
 import { jsonquery, sort, all } from 'josdejong/jsonquery'
 
-const max = (data, [_, field]) => sort(data, ['sort', field, 'desc'])[0]
+const max = (data, field) => sort(data, field, 'desc')[0]
 const extendedOperations = { ...all, $max: max }
 
 const data = [

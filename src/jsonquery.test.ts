@@ -127,7 +127,7 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should project data', () => {
+  test('should pick data', () => {
     expect(jsonquery(data, ['pick', 'name', 'city'])).toEqual([
       { name: 'Chris', city: 'New York' },
       { name: 'Emily', city: 'Atlanta' },
@@ -158,8 +158,7 @@ describe('jsonquery', () => {
   })
 
   test('should extend with a custom operator (1)', () => {
-    const max = (data: unknown[], [_, field]: ['max', string]) =>
-      sort(data, ['sort', field, 'desc'])[0]
+    const max = (data: unknown[], field: string) => sort(data, field, 'desc')[0]
     const operations = { ...all, max }
 
     expect(jsonquery(data, ['max', 'age'], operations)).toEqual({
