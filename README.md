@@ -4,7 +4,7 @@ A lightweight, expandable JSON query language.
 
 Inspired by MongoDB aggregates and Lodash.
 
-Minified and gzipped size: `0.8 kB`. The reason that `jsonquery` is so small is that it smartly utilizes the built-in JSON parser, JavaScript functions, and JavaScript syntax.
+Minified and gzipped size: `1 kB`. The reason that `jsonquery` is so small is that it smartly utilizes the built-in JSON parser, JavaScript functions, and JavaScript syntax.
 
 # Usage
 
@@ -81,9 +81,16 @@ Built-in functions:
 - `match`
 - `sort`
 - `pick`
+- `groupBy`
+- `map`
 - `limit`
 - `uniq`
 - `size`
+- `sum`
+- `prod`
+- `average`
+- `min`
+- `max`
 - `get`
 
 ## License

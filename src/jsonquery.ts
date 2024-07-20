@@ -14,8 +14,14 @@ export const all = {
   match,
   sort,
   pick,
+  groupBy,
   uniq,
   size,
+  min,
+  max,
+  sum,
+  prod,
+  average,
   limit
 }
 
@@ -35,6 +41,9 @@ export function jsonquery(
   }
 
   const [name, ...args] = query
+  if (name === 'map' && Array.isArray(data)) {
+    return data.map((item) => jsonquery(item, args[0] as JSONQuery, functions))
+  }
   const fn = functions[name]
   if (!fn) {
     throw new Error(`Unknown query function "${name}"`)
@@ -62,7 +71,7 @@ export function get(data: unknown, path: string | JSONPath): unknown {
 
 export function match(
   data: unknown[],
-  path: string,
+  path: string | JSONPath,
   op: JSONQueryMatchOperator,
   value: JSONPrimitive
 ): unknown[] {
@@ -86,7 +95,11 @@ const matchOperations: MatchOperations = {
   'not in': (a, b) => !(b as Array<unknown>).includes(a)
 }
 
-export function sort(data: unknown[], path: string, direction?: 'asc' | 'desc'): unknown[] {
+export function sort(
+  data: unknown[],
+  path: string | JSONPath,
+  direction?: 'asc' | 'desc'
+): unknown[] {
   const sign = direction === 'desc' ? -1 : 1
   const compare = (a: Record<string, unknown>, b: Record<string, unknown>) => {
     const aa = get(a, path)
@@ -97,7 +110,7 @@ export function sort(data: unknown[], path: string, direction?: 'asc' | 'desc'):
   return data.slice().sort(compare)
 }
 
-export function pick(data: unknown[], ...paths: string[]): unknown[] {
+export function pick(data: unknown[], ...paths: JSONPath[]): unknown[] {
   if (paths.length === 1) {
     const path = paths[0]
     return data.map((item) => get(item, path))
@@ -106,11 +119,26 @@ export function pick(data: unknown[], ...paths: string[]): unknown[] {
   return data.map((item) => {
     const out = {}
     paths.forEach((path) => {
-      const outPath: string = Array.isArray(path) ? path[path.length - 1] : path
-      out[outPath] = get(item, path)
+      const outKey: string = Array.isArray(path) ? path[path.length - 1] : path
+      out[outKey] = get(item, path)
     })
     return out
   })
+}
+
+export function groupBy(data: unknown[], key: string): Record<string, unknown[]> {
+  const res = {}
+
+  data.forEach((item) => {
+    const value = item[key]
+    if (res[value]) {
+      res[value].push(item)
+    } else {
+      res[value] = [item]
+    }
+  })
+
+  return res
 }
 
 export function uniq(data: unknown[]): unknown[] {
@@ -119,6 +147,26 @@ export function uniq(data: unknown[]): unknown[] {
 
 export function limit(data: unknown[], count: number): unknown[] {
   return data.slice(0, count)
+}
+
+export function prod(data: number[]): number {
+  return data.reduce((a, b) => a * b)
+}
+
+export function sum(data: number[]): number {
+  return data.reduce((a, b) => a + b)
+}
+
+export function average(data: number[]): unknown {
+  return sum(data) / data.length
+}
+
+export function min(data: number[]): unknown {
+  return Math.min(...data)
+}
+
+export function max(data: number[]): unknown {
+  return Math.max(...data)
 }
 
 export function size(data: unknown[]): number {

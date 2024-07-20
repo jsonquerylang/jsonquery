@@ -38,6 +38,31 @@ describe('jsonquery', () => {
     })
   })
 
+  test('should map over an array', () => {
+    const scores = [
+      { name: 'Chris', scores: [5, 7, 3] },
+      { name: 'Emily', scores: [8, 5, 2, 5] },
+      { name: 'Joe', scores: [1, 1, 5, 6] }
+    ]
+
+    expect(
+      jsonquery(scores, [
+        [
+          'map',
+          {
+            name: ['get', 'name'],
+            maxScore: [['get', 'scores'], ['max']]
+          }
+        ],
+        ['sort', 'maxScore', 'desc']
+      ])
+    ).toEqual([
+      { name: 'Emily', maxScore: 8 },
+      { name: 'Chris', maxScore: 7 },
+      { name: 'Joe', maxScore: 6 }
+    ])
+  })
+
   test('should match data using ==', () => {
     expect(jsonquery(data, ['match', 'city', '==', 'New York'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
@@ -221,12 +246,40 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should group by a key', () => {
+    expect(jsonquery(data, ['groupBy', 'city'])).toEqual({
+      'New York': [
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Sarah', age: 31, city: 'New York' }
+      ],
+      Atlanta: [
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' }
+      ],
+      'Los Angeles': [{ name: 'Michelle', age: 27, city: 'Los Angeles' }],
+      Manhattan: [{ name: 'Robert', age: 45, city: 'Manhattan' }]
+    })
+  })
+
   test('should get nested data from an object', () => {
     expect(jsonquery(friendsData, [['get', 'friends']])).toEqual(data)
   })
 
   test('should get unique values from a list', () => {
     expect(jsonquery([2, 3, 2, 7, 1, 1], ['uniq'])).toEqual([2, 3, 7, 1])
+  })
+
+  test('should calculate the sum', () => {
+    expect(jsonquery([2, 3, 2, 7, 1, 1], ['sum'])).toEqual(16)
+  })
+
+  test('should calculate the product', () => {
+    expect(jsonquery([2, 3, 2, 7, 1, 1], ['prod'])).toEqual(84)
+  })
+
+  test('should calculate the average', () => {
+    expect(jsonquery([2, 3, 2, 7, 1], ['average'])).toEqual(3)
   })
 
   test('should count the size of an array', () => {
