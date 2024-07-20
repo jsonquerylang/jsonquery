@@ -1,4 +1,5 @@
 import {
+  JSONPath,
   JSONPrimitive,
   JSONQuery,
   JSONQueryArray,
@@ -8,6 +9,7 @@ import {
 } from './types'
 
 export const all = {
+  get,
   match,
   sort,
   pick,
@@ -15,7 +17,7 @@ export const all = {
 }
 
 export function jsonquery(
-  data: unknown[],
+  data: unknown,
   query: JSONQuery,
   operations: Record<string, JSONQueryOperation> = all
 ): unknown {
@@ -26,9 +28,27 @@ export function jsonquery(
   const [name, ...args] = query
   const operation = operations[name]
   if (!operation) {
-    throw new Error(`Unknown query operation "${name}"`)
+    throw new Error(`Unknown query function "${name}"`)
   }
+  // @ts-ignore TODO: fix this ts-ignore
   return operation(data, ...args)
+}
+
+export function get(data: unknown, path: string | JSONPath): unknown {
+  if (Array.isArray(path)) {
+    let value: unknown = data
+    let i = 0
+
+    while (i < path.length) {
+      value = value != undefined ? value[path[i]] : undefined
+
+      i++
+    }
+
+    return value
+  } else {
+    return data != undefined ? data[path] : undefined
+  }
 }
 
 export function match(
@@ -42,8 +62,7 @@ export function match(
     throw new SyntaxError(`Unknown match operator "${op}"`)
   }
 
-  // TODO: support nested fields
-  const predicate = (item: unknown) => matchFn(item[path], value)
+  const predicate = (item: unknown) => matchFn(get(item, path), value)
   return data.filter(predicate)
 }
 
@@ -59,11 +78,10 @@ const matchOperations: MatchOperations = {
 }
 
 export function sort(data: unknown[], path: string, direction?: 'asc' | 'desc'): unknown[] {
-  // TODO: support nested fields
   const sign = direction === 'desc' ? -1 : 1
   const compare = (a: Record<string, unknown>, b: Record<string, unknown>) => {
-    const aa = a[path]
-    const bb = b[path]
+    const aa = get(a, path)
+    const bb = get(b, path)
     return aa > bb ? sign : aa < bb ? -sign : 0
   }
 
@@ -71,10 +89,17 @@ export function sort(data: unknown[], path: string, direction?: 'asc' | 'desc'):
 }
 
 export function pick(data: unknown[], ...paths: string[]): unknown[] {
+  if (paths.length === 1) {
+    const path = paths[0]
+    return data.map((item) => get(item, path))
+  }
+
   return data.map((item) => {
     const out = {}
-    // TODO: support nested fields
-    paths.forEach((path) => (out[path] = item[path]))
+    paths.forEach((path) => {
+      const outPath: string = Array.isArray(path) ? path[path.length - 1] : path
+      out[outPath] = get(item, path)
+    })
     return out
   })
 }

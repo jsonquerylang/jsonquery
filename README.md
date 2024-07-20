@@ -2,34 +2,39 @@
 
 A lightweight, expandable JSON query language.
 
-Minified and gzipped size: `0.6 kB`.
+Inspired by MongoDB aggregates and Lodash.
+
+Minified and gzipped size: `0.7 kB`.
 
 # Usage
 
 ```js
 import { jsonquery } from 'josdejong/jsonquery'
 
-const data = [
-  { name: 'Chris', age: 23, city: 'New York' },
-  { name: 'Emily', age: 19, city: 'Atlanta' },
-  { name: 'Joe', age: 32, city: 'New York' },
-  { name: 'Kevin', age: 19, city: 'Atlanta' },
-  { name: 'Michelle', age: 27, city: 'Los Angeles' },
-  { name: 'Robert', age: 45, city: 'Manhattan' },
-  { name: 'Sarah', age: 31, city: 'New York' }
-]
+const data = {
+  friends: [
+    { name: 'Chris', age: 23, city: 'New York' },
+    { name: 'Emily', age: 19, city: 'Atlanta' },
+    { name: 'Joe', age: 32, city: 'New York' },
+    { name: 'Kevin', age: 19, city: 'Atlanta' },
+    { name: 'Michelle', age: 27, city: 'Los Angeles' },
+    { name: 'Robert', age: 45, city: 'Manhattan' },
+    { name: 'Sarah', age: 31, city: 'New York' }
+  ]
+}
 
 const query = [
+  ['get', 'friends'],
   ['match', 'city', '==', 'New York'],
   ['sort', 'age'],
   ['pick', 'name'],
   ['limit', 2]
 ]
 
-const result = jsonquery(query, data)
+const result = jsonquery(data, query)
 // [
-//   { "name": "Chris" },
-//   { "name": "Sarah" }
+//   "Chris",
+//   "Sarah"
 // ]
 ```
 
@@ -51,9 +56,9 @@ const data = [
   { name: 'Sarah', age: 31, city: 'New York' }
 ]
 
-const query = [{ $max: 'age' }]
+const query = ['max', 'age']
 
-const result = jsonquery(query, data, extendedOperations)
+const result = jsonquery(data, query, extendedOperations)
 // {
 //   name: 'Robert',
 //   age: 45,
@@ -77,6 +82,7 @@ Built in operations:
 - `sort`
 - `pick`
 - `limit`
+- `get`
 
 ## License
 

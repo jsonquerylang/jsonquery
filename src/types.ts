@@ -1,5 +1,7 @@
 export type JSONPrimitive = string | number | boolean | null
 
+export type JSONPath = string[]
+
 export type JSONQueryMatchOperator = '==' | '>' | '>=' | '<' | '<=' | '!='
 export type JSONQueryArrayMatchOperator = 'in' | 'not in'
 
