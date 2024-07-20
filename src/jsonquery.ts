@@ -1,102 +1,84 @@
-import type {
+import {
   JSONQuery,
+  JSONQueryArray,
   JSONQueryLimit,
   JSONQueryMatch,
   JSONQueryOperation,
-  JSONQueryProject,
+  JSONQueryPick,
   JSONQuerySort,
   MatchOperations
 } from './types'
 
-export const defaultOperations = {
-  $match: match,
-  $sort: sort,
-  $project: project,
-  $limit: limit
+export const all = {
+  match,
+  sort,
+  pick,
+  limit
 }
 
 export function jsonquery(
-  query: JSONQuery,
   data: unknown[],
-  operations: Record<string, JSONQueryOperation> = defaultOperations
+  query: JSONQuery,
+  operations: Record<string, JSONQueryOperation> = all
 ): unknown {
-  return query.reduce((data, queryItem) => {
-    return Object.keys(queryItem).reduce((data, queryOp) => {
-      const operation = operations[queryOp]
-      if (!operation) {
-        throw new Error(`Unknown query operation "${queryOp}"`)
-      }
-      return operation(queryItem[queryOp], data)
-    }, data)
-  }, data)
+  if (isJSONQueryArray(query)) {
+    return query.reduce((data, item) => jsonquery(data, item, operations), data)
+  }
+
+  const operation = operations[query[0]]
+  if (!operation) {
+    throw new Error(`Unknown query operation "${query[0]}"`)
+  }
+  return operation(data, query)
 }
 
-export function match(
-  query: JSONQueryMatch,
-  data: unknown[],
-  operations: MatchOperations = matchOperations
-): unknown[] {
-  const predicates = Object.keys(query).flatMap((key) => {
-    return Object.keys(query[key]).map((op) => {
-      // TODO: support nested fields
-      const matchValue = query[key][op]
-      const matchOp = operations[op]
-      if (!matchOp) {
-        throw new SyntaxError(`Unknown match operator "${op}"`)
-      }
-      return (item: unknown) => matchOp(item[key], matchValue)
-    })
-  })
+export function match(data: unknown[], [_, path, op, value]: JSONQueryMatch): unknown[] {
+  const matchFn = matchOperations[op]
+  if (!matchFn) {
+    throw new SyntaxError(`Unknown match operator "${op}"`)
+  }
 
-  return predicates.reduce((data, predicate) => data.filter(predicate), data)
+  // TODO: support nested fields
+  const predicate = (item: unknown) => matchFn(item[path], value)
+  return data.filter(predicate)
 }
 
 const matchOperations: MatchOperations = {
-  $eq: (a, b) => a === b,
-  $gt: (a, b) => a > b,
-  $gte: (a, b) => a >= b,
-  $in: (a, b) => (b as Array<unknown>).includes(a),
-  $lt: (a, b) => a < b,
-  $lte: (a, b) => a <= b,
-  $ne: (a, b) => a !== b,
-  $nin: (a, b) => !(b as Array<unknown>).includes(a)
+  '==': (a, b) => a === b,
+  '>': (a, b) => a > b,
+  '>=': (a, b) => a >= b,
+  in: (a, b) => (b as Array<unknown>).includes(a),
+  '<': (a, b) => a < b,
+  '<=': (a, b) => a <= b,
+  '!=': (a, b) => a !== b,
+  'not in': (a, b) => !(b as Array<unknown>).includes(a)
 }
 
-export function sort(query: JSONQuerySort, data: unknown[]): unknown[] {
+export function sort(data: unknown[], [_, path, direction]: JSONQuerySort): unknown[] {
+  // TODO: support nested fields
+  const sign = direction === 'desc' ? -1 : 1
   const compare = (a: Record<string, unknown>, b: Record<string, unknown>) => {
-    const keys = Object.keys(query)
-    for (const key of keys) {
-      // TODO: support nested fields
-      const direction = query[key]
-      const aa = a[key]
-      const bb = b[key]
-
-      if (aa > bb) {
-        return direction > 0 ? 1 : -1
-      }
-
-      if (aa < bb) {
-        return direction < 0 ? 1 : -1
-      }
-    }
-
-    return 0
+    const aa = a[path]
+    const bb = b[path]
+    return aa > bb ? sign : aa < bb ? -sign : 0
   }
 
   return data.slice().sort(compare)
 }
 
-export function project(query: JSONQueryProject, data: unknown[]): unknown[] {
+export function pick(data: unknown[], [_, ...paths]: JSONQueryPick): unknown[] {
   return data.map((item) => {
     const out = {}
-    Object.keys(query).forEach((key) => {
-      // TODO: support nested fields
-      out[key] = item[key]
-    })
+    // TODO: support nested fields
+    paths.forEach((path) => (out[path] = item[path]))
     return out
   })
 }
 
-export function limit(count: JSONQueryLimit, data: unknown[]): unknown[] {
+export function limit(data: unknown[], [_, count]: JSONQueryLimit): unknown[] {
   return data.slice(0, count)
+}
+
+function isJSONQueryArray(query: JSONQuery): query is JSONQueryArray {
+  return query && Array.isArray(query[0])
 }

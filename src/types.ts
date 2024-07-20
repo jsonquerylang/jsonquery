@@ -1,33 +1,31 @@
 export type JSONPrimitive = string | number | boolean | null
 
-export type JSONQueryMatch = Record<
-  string,
-  {
-    $eq?: JSONPrimitive
-    $gt?: JSONPrimitive
-    $gte?: JSONPrimitive
-    $in?: Array<JSONPrimitive>
-    $lt?: JSONPrimitive
-    $lte?: JSONPrimitive
-    $ne?: JSONPrimitive
-    $nin?: JSONPrimitive[]
-  }
->
+export type JSONQueryMatchOperator = '==' | '>' | '>=' | '<' | '<=' | '!='
+export type JSONQueryArrayMatchOperator = 'in' | 'not in'
 
-export type JSONQuerySort = Record<string, 1 | -1>
+export type JSONQueryMatch =
+  | ['match', string, JSONQueryMatchOperator, JSONPrimitive]
+  | ['match', string, JSONQueryArrayMatchOperator, JSONPrimitive[]]
 
-export type JSONQueryProject = Record<string, 1>
+export type JSONQuerySort = ['sort', string] | ['sort', string, 'asc' | 'desc']
 
-export type JSONQueryLimit = number
+export type JSONQueryPick = ['pick', ...string[]]
 
-export type JSONQuery = Array<{
-  $match?: JSONQueryMatch
-  $sort?: JSONQuerySort
-  $project?: JSONQueryProject
-  $limit?: JSONQueryLimit
-  [op: string]: unknown
-}>
+export type JSONQueryLimit = ['limit', number]
 
-export type JSONQueryOperation = (query: unknown, data: unknown[]) => unknown
+export type JSONQueryCustom = [string, ...unknown[]]
+
+export type JSONQueryItem =
+  | JSONQueryMatch
+  | JSONQuerySort
+  | JSONQueryPick
+  | JSONQueryLimit
+  | JSONQueryCustom
+
+export type JSONQueryArray = JSONQueryItem[]
+
+export type JSONQuery = JSONQueryItem | JSONQueryArray
+
+export type JSONQueryOperation = (data: unknown[], query: JSONQueryItem) => unknown
 
 export type MatchOperations = Record<string, (a: unknown, b: unknown) => boolean>

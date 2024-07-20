@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { defaultOperations, jsonquery, sort } from './jsonquery.js'
+import { all, jsonquery, sort } from './jsonquery.js'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -12,16 +12,16 @@ const data = [
 ]
 
 describe('jsonquery', () => {
-  test('should filter data using $eq', () => {
-    expect(jsonquery([{ $match: { city: { $eq: 'New York' } } }], data)).toEqual([
+  test('should filter data using ==', () => {
+    expect(jsonquery(data, ['match', 'city', '==', 'New York'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Sarah', age: 31, city: 'New York' }
     ])
   })
 
-  test('should filter data using $ne', () => {
-    expect(jsonquery([{ $match: { city: { $ne: 'New York' } } }], data)).toEqual([
+  test('should filter data using !=', () => {
+    expect(jsonquery(data, ['match', 'city', '!=', 'New York'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
@@ -29,15 +29,58 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should filter data using $gte and $lte', () => {
-    expect(jsonquery([{ $match: { age: { $gte: 23, $lte: 27 } } }], data)).toEqual([
+  test('should filter data using >', () => {
+    expect(jsonquery(data, ['match', 'age', '>', 45])).toEqual([])
+  })
+
+  test('should filter data using >=', () => {
+    expect(jsonquery(data, ['match', 'age', '>=', 45])).toEqual([
+      { name: 'Robert', age: 45, city: 'Manhattan' }
+    ])
+  })
+
+  test('should filter data using <', () => {
+    expect(jsonquery(data, ['match', 'age', '<', 19])).toEqual([])
+  })
+
+  test('should filter data using <=', () => {
+    expect(jsonquery(data, ['match', 'age', '<=', 19])).toEqual([
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' }
+    ])
+  })
+
+  test('should filter data using >= and <=', () => {
+    expect(
+      jsonquery(data, [
+        ['match', 'age', '>=', 23],
+        ['match', 'age', '<=', 27]
+      ])
+    ).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' }
     ])
   })
 
-  test('should sort data', () => {
-    expect(jsonquery([{ $sort: { age: 1 } }], data)).toEqual([
+  test('should filter data using "in"', () => {
+    expect(jsonquery(data, ['match', 'age', 'in', [19, 23]])).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' }
+    ])
+  })
+
+  test('should filter data using "not in"', () => {
+    expect(jsonquery(data, ['match', 'age', 'not in', [19, 23]])).toEqual([
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' },
+      { name: 'Robert', age: 45, city: 'Manhattan' },
+      { name: 'Sarah', age: 31, city: 'New York' }
+    ])
+  })
+
+  test('should sort data (default direction)', () => {
+    expect(jsonquery(data, ['sort', 'age'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Chris', age: 23, city: 'New York' },
@@ -48,8 +91,44 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should sort data (asc)', () => {
+    expect(jsonquery(data, ['sort', 'age', 'asc'])).toEqual([
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' },
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' },
+      { name: 'Sarah', age: 31, city: 'New York' },
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Robert', age: 45, city: 'Manhattan' }
+    ])
+  })
+
+  test('should sort data (desc)', () => {
+    expect(jsonquery(data, ['sort', 'age', 'desc'])).toEqual([
+      { name: 'Robert', age: 45, city: 'Manhattan' },
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Sarah', age: 31, city: 'New York' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' },
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' }
+    ])
+  })
+
+  test('should sort data (strings)', () => {
+    expect(jsonquery(data, ['sort', 'name'])).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' },
+      { name: 'Robert', age: 45, city: 'Manhattan' },
+      { name: 'Sarah', age: 31, city: 'New York' }
+    ])
+  })
+
   test('should project data', () => {
-    expect(jsonquery([{ $project: { name: 1, city: 1 } }], data)).toEqual([
+    expect(jsonquery(data, ['pick', 'name', 'city'])).toEqual([
       { name: 'Chris', city: 'New York' },
       { name: 'Emily', city: 'Atlanta' },
       { name: 'Joe', city: 'New York' },
@@ -61,7 +140,7 @@ describe('jsonquery', () => {
   })
 
   test('should limit data', () => {
-    expect(jsonquery([{ $limit: 2 }], data)).toEqual([
+    expect(jsonquery(data, ['limit', 2])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' }
     ])
@@ -69,48 +148,24 @@ describe('jsonquery', () => {
 
   test('should process multiple operations', () => {
     expect(
-      jsonquery(
-        [
-          { $match: { city: { $eq: 'New York' } } },
-          { $sort: { age: 1 } },
-          { $project: { name: 1 } },
-          { $limit: 2 }
-        ],
-        data
-      )
-    ).toEqual([{ name: 'Chris' }, { name: 'Sarah' }])
-  })
-
-  test('should combine multiple operations in a single object', () => {
-    expect(
-      jsonquery(
-        [
-          {
-            $match: { city: { $eq: 'New York' } },
-            $sort: { age: 1 },
-            $project: { name: 1 },
-            $limit: 2
-          }
-        ],
-        data
-      )
+      jsonquery(data, [
+        ['match', 'city', '==', 'New York'],
+        ['sort', 'age'],
+        ['pick', 'name'],
+        ['limit', 2]
+      ])
     ).toEqual([{ name: 'Chris' }, { name: 'Sarah' }])
   })
 
   test('should extend with a custom operator (1)', () => {
-    const max = (field: string, data: unknown[]) => sort({ [field]: -1 }, data)[0]
-    const operations = { ...defaultOperations, $max: max }
+    const max = (data: unknown[], [_, field]: ['max', string]) =>
+      sort(data, ['sort', field, 'desc'])[0]
+    const operations = { ...all, max }
 
-    expect(jsonquery([{ $max: 'age' }], data, operations)).toEqual({
+    expect(jsonquery(data, ['max', 'age'], operations)).toEqual({
       name: 'Robert',
       age: 45,
       city: 'Manhattan'
     })
   })
-
-  // TODO: test all match operators and with different types of values
-  // TODO: test asc/desc sorting
-  // TODO: test sorting by multiple fields
-  // TODO: test sorting with strings
-  // TODO: test adding a custom operator
 })

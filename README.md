@@ -2,8 +2,6 @@
 
 A lightweight, expandable JSON query language.
 
-Inspired by MongoDB aggregates.
-
 Minified and gzipped size: `0.6 kB`.
 
 # Usage
@@ -22,10 +20,10 @@ const data = [
 ]
 
 const query = [
-  { $match: { city: { $eq: 'New York' } } },
-  { $sort: { age: 1 } },
-  { $project: { name: 1 } },
-  { $limit: 2 }
+  ['match', 'city', '==', 'New York'],
+  ['sort', 'age'],
+  ['pick', 'name'],
+  ['limit', 2]
 ]
 
 const result = jsonquery(query, data)
@@ -38,10 +36,10 @@ const result = jsonquery(query, data)
 The build in operations can be extended with custom operations, like `$max` in the following example:
 
 ```js
-import { jsonquery, sort, defaultOperations } from 'josdejong/jsonquery'
+import { jsonquery, sort, all } from 'josdejong/jsonquery'
 
-const max = (field, data) => sort({ [field]: -1 }, data)[0]
-const extendedOperations = { ...defaultOperations, $max: max }
+const max = (data, [_, field]) => sort(data, ['sort', field, 'desc'])[0]
+const extendedOperations = { ...all, $max: max }
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -67,18 +65,18 @@ const result = jsonquery(query, data, extendedOperations)
 
 ```ts
 function jsonquery(
-  query: JSONQuery,
   data: unknown[],
-  operations: JSONQueryOperation[] = defaultOperations
+  query: JSONQuery,
+  operations: JSONQueryOperation[] = all
 ): unknown
 ```
 
 Built in operations:
 
-- `$match`
-- `$sort`
-- `$project`
-- `$limit`
+- `match`
+- `sort`
+- `pick`
+- `limit`
 
 ## License
 
