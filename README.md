@@ -38,32 +38,18 @@ const result = jsonquery(data, query)
 // ]
 ```
 
-The build in operations can be extended with custom operations, like `$max` in the following example:
+The build in functions can be extended with custom functions, like `times` in the following example:
 
 ```js
-import { jsonquery, sort, all } from 'josdejong/jsonquery'
+import { jsonquery, all } from 'josdejong/jsonquery'
 
-const max = (data, field) => sort(data, field, 'desc')[0]
-const extendedOperations = { ...all, $max: max }
+const times = (data: number[], value: number) => data.map((item) => item * value)
+const functions = { ...all, times }
 
-const data = [
-  { name: 'Chris', age: 23, city: 'New York' },
-  { name: 'Emily', age: 19, city: 'Atlanta' },
-  { name: 'Joe', age: 32, city: 'New York' },
-  { name: 'Kevin', age: 19, city: 'Atlanta' },
-  { name: 'Michelle', age: 27, city: 'Los Angeles' },
-  { name: 'Robert', age: 45, city: 'Manhattan' },
-  { name: 'Sarah', age: 31, city: 'New York' }
-]
-
-const query = ['max', 'age']
-
-const result = jsonquery(data, query, extendedOperations)
-// {
-//   name: 'Robert',
-//   age: 45,
-//   city: 'Manhattan'
-// }
+const data = [1, 2, 3]
+const query = ['times', 3]
+const result = jsonquery(data, query, functions)
+// [2, 4, 6]
 ```
 
 # API

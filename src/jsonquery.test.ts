@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { all, jsonquery, sort } from './jsonquery.js'
+import { all, jsonquery } from './jsonquery.js'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -333,14 +333,11 @@ describe('jsonquery', () => {
     ).toEqual(['Chris', 'Sarah'])
   })
 
-  test('should extend with a custom operator (1)', () => {
-    const max = (data: unknown[], field: string) => sort(data, field, 'desc')[0]
-    const operations = { ...all, max }
+  test('should extend with a custom operator "times"', () => {
+    const times = (data: number[], value: number) => data.map((item) => item * value)
 
-    expect(jsonquery(data, ['max', 'age'], operations)).toEqual({
-      name: 'Robert',
-      age: 45,
-      city: 'Manhattan'
-    })
+    const functions = { ...all, times }
+
+    expect(jsonquery([1, 2, 3], ['times', 2], functions)).toEqual([2, 4, 6])
   })
 })
