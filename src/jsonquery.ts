@@ -4,7 +4,7 @@ import {
   JSONQuery,
   JSONQueryArray,
   JSONQueryMatchOperator,
-  JSONQueryOperation,
+  JSONQueryFunction,
   MatchOperations
 } from './types'
 
@@ -13,25 +13,27 @@ export const all = {
   match,
   sort,
   pick,
+  uniq,
+  size,
   limit
 }
 
 export function jsonquery(
   data: unknown,
   query: JSONQuery,
-  operations: Record<string, JSONQueryOperation> = all
+  functions: Record<string, JSONQueryFunction> = all
 ): unknown {
   if (isJSONQueryArray(query)) {
-    return query.reduce((data, item) => jsonquery(data, item, operations), data)
+    return query.reduce((data, item) => jsonquery(data, item, functions), data)
   }
 
   const [name, ...args] = query
-  const operation = operations[name]
-  if (!operation) {
+  const fn = functions[name]
+  if (!fn) {
     throw new Error(`Unknown query function "${name}"`)
   }
-  // @ts-ignore TODO: fix this ts-ignore
-  return operation(data, ...args)
+  // @ts-ignore
+  return fn(data, ...args)
 }
 
 export function get(data: unknown, path: string | JSONPath): unknown {
@@ -104,8 +106,16 @@ export function pick(data: unknown[], ...paths: string[]): unknown[] {
   })
 }
 
+export function uniq(data: unknown[]): unknown[] {
+  return [...new Set(data)]
+}
+
 export function limit(data: unknown[], count: number): unknown[] {
   return data.slice(0, count)
+}
+
+export function size(data: unknown[]): number {
+  return data.length
 }
 
 function isJSONQueryArray(query: JSONQuery): query is JSONQueryArray {

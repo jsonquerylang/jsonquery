@@ -213,6 +213,16 @@ describe('jsonquery', () => {
     expect(jsonquery(friendsData, [['get', 'friends']])).toEqual(data)
   })
 
+  test('should get unique values from a list', () => {
+    expect(jsonquery([2, 3, 2, 7, 1, 1], ['uniq'])).toEqual([2, 3, 7, 1])
+  })
+
+  test('should count the size of an array', () => {
+    expect(jsonquery([], ['size'])).toEqual(0)
+    expect(jsonquery([1, 2, 3], ['size'])).toEqual(3)
+    expect(jsonquery([1, 2, 3, 4, 5], ['size'])).toEqual(5)
+  })
+
   test('should limit data', () => {
     expect(jsonquery(data, ['limit', 2])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
