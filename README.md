@@ -69,6 +69,8 @@ const result = jsonquery(data, query, functions)
 
 ## API
 
+The `jsonquery` library has one core function `jsonquery(data, query, functions)`, where you pass the data, the query, and optionally an object with custom or extended functions.
+
 ```ts
 function jsonquery(
   data: unknown,
