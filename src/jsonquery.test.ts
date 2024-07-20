@@ -36,11 +36,13 @@ describe('jsonquery', () => {
     expect(
       jsonquery(data, {
         names: ['pick', 'name'],
-        count: ['size']
+        count: ['size'],
+        averageAge: [['pick', 'age'], ['average']]
       })
     ).toEqual({
       names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
-      count: 7
+      count: 7,
+      averageAge: 28
     })
   })
 
