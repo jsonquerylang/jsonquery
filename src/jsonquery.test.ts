@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { all, jsonquery } from './jsonquery.js'
+import { jsonquery } from './jsonquery.js'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -378,16 +378,26 @@ describe('jsonquery', () => {
     ).toEqual(['Chris', 'Sarah'])
   })
 
-  test('should extend with a custom operator "times"', () => {
-    const times = (data: number[], value: number) => data.map((item) => item * value)
+  test('should extend with a custom function "times"', () => {
+    const customFunctions = {
+      times: (data: number[], value: number) => data.map((item) => item * value)
+    }
 
-    const functions = { ...all, times }
+    expect(jsonquery([1, 2, 3], ['times', 2], customFunctions)).toEqual([2, 4, 6])
+  })
 
-    expect(jsonquery([1, 2, 3], ['times', 2], functions)).toEqual([2, 4, 6])
+  test('should override an existing function', () => {
+    const customFunctions = {
+      sort: (_data: unknown[]) => 'custom sort'
+    }
+
+    expect(jsonquery([2, 3, 1], ['sort'], customFunctions)).toEqual('custom sort')
   })
 
   test('should be able to query the jmespath example', () => {
-    const join = (data: unknown[], separator = ', ') => data.join(separator)
+    const customFunctions = {
+      join: (data: unknown[], separator = ', ') => data.join(separator)
+    }
 
     const data = {
       locations: [
@@ -409,7 +419,7 @@ describe('jsonquery', () => {
           ['sort'],
           { WashingtonCities: ['join'] }
         ],
-        { ...all, join }
+        customFunctions
       )
     ).toEqual({
       WashingtonCities: 'Bellevue, Olympia, Seattle'

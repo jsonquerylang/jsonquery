@@ -6,7 +6,13 @@ Inspired by MongoDB aggregates and Lodash.
 
 Minified and gzipped size: `1 kB`. The reason that `jsonquery` is so small is that it smartly utilizes the built-in JSON parser, JavaScript functions, and JavaScript syntax.
 
-## Usage
+## Install
+
+```
+npm install @josdejong/jsonquery
+```
+
+## Use
 
 ```js
 import { jsonquery } from '@josdejong/jsonquery'
@@ -56,26 +62,27 @@ const result = jsonquery(data, [
 The build in functions can be extended with custom functions, like `times` in the following example:
 
 ```js
-import { jsonquery, all } from '@josdejong/jsonquery'
+import { jsonquery } from '@josdejong/jsonquery'
 
-const times = (data: number[], value: number) => data.map((item) => item * value)
-const functions = { ...all, times }
+const customFunctions = { 
+  times: (data: number[], value: number) => data.map((item) => item * value)
+}
 
 const data = [1, 2, 3]
 const query = ['times', 3]
-const result = jsonquery(data, query, functions)
+const result = jsonquery(data, query, customFunctions)
 // [2, 4, 6]
 ```
 
 ## API
 
-The `jsonquery` library has one core function `jsonquery(data, query, functions)`, where you pass the data, the query, and optionally an object with custom or extended functions.
+The `jsonquery` library has one core function `jsonquery(data, query, functions)`, where you pass the data, the query, and optionally an object with extra functions to extend the built-in functions.
 
 ```ts
 function jsonquery(
   data: unknown,
   query: JSONQuery,
-  functions: Record<string, JSONQueryFunction> = all
+  functions?: Record<string, JSONQueryFunction>
 ): unknown
 
 type JSONQueryItem = [name: string, ...args: unknown[]]
@@ -86,7 +93,7 @@ type JSONQuery = JSONQueryItem | JSONQueryArray | JSONQueryObject
 type JSONQueryFunction = (data: unknown[], ...args: unknown[]) => unknown
 ```
 
-At the core of the query language `JSONQuery`, we have a `JSONQueryItem` which is an array with a function name as first argument, followed by optional function arguments. The following example will take an input array, sort the objects in the array by the property `age`, and return the result:
+At the core of the query language `JSONQuery`, we have a `JSONQueryItem` which is an array with a function name as first argument, followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age')`. Here, `data` is the input and should be an array with objects which will be sorted by the property `age`:
 
 ```
 ['sort', 'age']

@@ -8,7 +8,7 @@ import {
   JSONQueryItem
 } from './types'
 
-export const all = {
+const coreFunctions = {
   get,
   filter,
   sort,
@@ -30,7 +30,7 @@ export const all = {
 export function jsonquery(
   data: unknown,
   query: JSONQuery,
-  functions: Record<string, JSONQueryFunction> = all
+  functions?: Record<string, JSONQueryFunction>
 ): unknown {
   if (isJSONQueryItem(query)) {
     const [name, ...args] = query
@@ -40,7 +40,7 @@ export function jsonquery(
       return (data as unknown[]).map((item) => jsonquery(item, args[0] as JSONQuery, functions))
     }
 
-    const fn = functions[name]
+    const fn = functions?.[name] || coreFunctions[name]
     if (!fn) {
       throw new Error(`Unknown query function "${name}"`)
     }
