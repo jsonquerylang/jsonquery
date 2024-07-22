@@ -68,13 +68,13 @@ The build in functions can be extended with custom functions, like `times` in th
 import { jsonquery } from '@josdejong/jsonquery'
 
 const customFunctions = {
-  times: (data: number[], value: number) => data.map((item) => item * value)
+  times: (data, value) => data.map((item) => item * value)
 }
 
 const data = [1, 2, 3]
 const query = ['times', 3]
 const result = jsonquery(data, query, customFunctions)
-// [2, 4, 6]
+// [3, 6, 9]
 ```
 
 ## API
