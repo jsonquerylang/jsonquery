@@ -5,19 +5,11 @@ A lightweight, expandable JSON query language.
 ## Features
 
 - Small (just `1 kB` when minified and gzipped!)
-- Easy to understand and remember syntax
-- A very expressive syntax
+- Expressive
+- Easy to understand and remember
+- Serializable (it is JSON)
 - Feature rich
-- Serializable and safe (it is JSON)
 - Expandable
-
-## Motivation
-
-There are many powerful query languages out there, so why the need to develop `jsonquery`? There are a couple of reasons for this.
-
-First, most query languages have a syntax that is simple for very basic queries, but complex for more advanced queries. Their syntax is typically very compact but includes special characters and notations (like `@`, `$`, `|`, `?`, `:`, `*`, `&`), almost feeling like Regex which is infamously hard to read. The syntax is hard to remember unless you use the query language on a daily basis. Secondly, most of the query languages are quite big when looking at the bundle size. This can make them unsuitable for use in a web application where every kilobyte counts. Lastly, the expressiveness of most query languages is limited. Since a long time, my favorite query language is JavaScript+Lodash because it is so flexible. The downside however is that it is not safe to store or share queries written in JavaScript from a security point of view.
-
-The `jsonquery` language is inspired by [JavaScript+Lodash](https://jsoneditoronline.org/indepth/query/10-best-json-query-languages/#javascript) and by [MongoDB aggregates](https://www.mongodb.com/docs/manual/aggregation/). It is basically a JSON notation to describe making a series of function calls. It has no magic syntax except for the need to be familiar with JSON, making it flexible and easy to understand. The library is extremely small thanks to smartly utilizing built-in JavaScript functions and the built-in JSON parser, requiring very little code to make the query language work.
 
 ## Install
 
@@ -129,10 +121,7 @@ Lastly, you can define a `JSONQueryObject` which is an object with property name
 {
   "names": ["pick", "name"],
   "count": ["size"],
-  "averageAge": [
-    ["pick", "age"],
-    ["average"]
-  ]
+  "averageAge": [["pick", "age"], ["average"]]
 }
 ```
 
@@ -156,6 +145,24 @@ Note arrays and objects can contain nested arrays and objects.
 - `average`
 - `min`
 - `max`
+
+## Motivation
+
+There are many powerful query languages out there, so why the need to develop `jsonquery`? There are a couple of reasons for this.
+
+1.  **Syntax**
+
+    Most JSON query languages have a syntax that is simple for very basic queries, but complex for more advanced queries. Their syntax is typically very compact but includes special characters and notations (like `@`, `$`, `|`, `?`, `:`, `*`, `&`), almost feeling like Regex which is infamously hard to read. The syntax is hard to remember unless you use the query language on a daily basis.
+
+2.  **Size**
+
+    Most of the JSON query languages are quite big when looking at the bundle size. This can make them unsuitable for use in a web application where every kilobyte counts.
+
+3.  **Expressiveness**
+
+    The expressiveness of most query languages is limited. Since a long time, my favorite JSON query language is JavaScript+Lodash because it is so flexible. The downside however is that it is not safe to store or share queries written in JavaScript from a security point of view.
+
+The `jsonquery` language is inspired by [JavaScript+Lodash](https://jsoneditoronline.org/indepth/query/10-best-json-query-languages/#javascript) and by [MongoDB aggregates](https://www.mongodb.com/docs/manual/aggregation/). It is basically a JSON notation to describe making a series of function calls. It has no magic syntax except for the need to be familiar with JSON, making it flexible and easy to understand. The library is extremely small thanks to smartly utilizing built-in JavaScript functions and the built-in JSON parser, requiring very little code to make the query language work.
 
 ## License
 
