@@ -2,10 +2,10 @@ import {
   JSONPath,
   JSONPrimitive,
   JSONQuery,
-  JSONQueryFunction,
+  JSONQueryFunctionImplementation,
   JSONQueryFilterOperator,
   FilterOperations,
-  JSONQueryItem
+  JSONQueryFunction
 } from './types'
 
 const coreFunctions = {
@@ -30,7 +30,7 @@ const coreFunctions = {
 export function jsonquery(
   data: unknown,
   query: JSONQuery,
-  functions?: Record<string, JSONQueryFunction>
+  functions?: Record<string, JSONQueryFunctionImplementation>
 ): unknown {
   if (isJSONQueryItem(query)) {
     const [name, ...args] = query
@@ -198,6 +198,6 @@ export function size<T>(data: T[]): number {
   return data.length
 }
 
-function isJSONQueryItem(query: JSONQuery): query is JSONQueryItem {
+function isJSONQueryItem(query: JSONQuery): query is JSONQueryFunction {
   return Array.isArray(query) && typeof query[0] === 'string'
 }

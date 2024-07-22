@@ -85,24 +85,24 @@ The `jsonquery` library has one core function `jsonquery(data, query, functions)
 function jsonquery(
   data: unknown,
   query: JSONQuery,
-  customFunctions?: Record<string, JSONQueryFunction>
+  customFunctions?: Record<string, JSONQueryFunctionImplementation>
 ): unknown
 
-type JSONQueryItem = [name: string, ...args: unknown[]]
+type JSONQueryFunction = [name: string, ...args: unknown[]]
 type JSONQueryArray = JSONQuery[]
 type JSONQueryObject = { [key: string]: JSONQuery }
-type JSONQuery = JSONQueryItem | JSONQueryArray | JSONQueryObject
+type JSONQuery = JSONQueryFunction | JSONQueryArray | JSONQueryObject
 
-type JSONQueryFunction = (data: unknown[], ...args: unknown[]) => unknown
+type JSONQueryFunctionImplementation = (data: unknown[], ...args: unknown[]) => unknown
 ```
 
-At the core of the query language `JSONQuery`, we have a `JSONQueryItem` which is an array with a function name as first argument, followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age')`. Here, `data` is the input and should be an array with objects which will be sorted by the property `age`:
+At the core of the query language `JSONQuery`, we have a `JSONQueryFunction` which is an array with a function name as first argument, followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age')`. Here, `data` is the input and should be an array with objects which will be sorted by the property `age`:
 
 ```
 ['sort', 'age']
 ```
 
-Multiple query items can be put in an array, a pipeline, which will execute the query functions one by one and pass the output of the first to the input of the next. The following example will first filter the items of an array that have a property `city` with the value `"New York""`, and next, sort the filtered items by the property `age`:
+Multiple query functions can be put in an array, a pipeline, which will execute the query functions one by one and pass the output of the first to the input of the next. The following example will first filter the items of an array that have a property `city` with the value `"New York""`, and next, sort the filtered items by the property `age`:
 
 ```
 [
