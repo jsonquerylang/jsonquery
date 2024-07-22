@@ -2,11 +2,10 @@ import {
   JSONPath,
   JSONPrimitive,
   JSONQuery,
-  JSONQueryArray,
   JSONQueryFunction,
   JSONQueryFilterOperator,
-  JSONQueryObject,
-  FilterOperations
+  FilterOperations,
+  JSONQueryItem
 } from './types'
 
 export const all = {
@@ -32,27 +31,32 @@ export function jsonquery(
   query: JSONQuery,
   functions: Record<string, JSONQueryFunction> = all
 ): unknown {
-  if (isJSONQueryArray(query)) {
+  if (isJSONQueryItem(query)) {
+    const [name, ...args] = query
+
+    // special case: function 'map'
+    if (name === 'map') {
+      return (data as unknown[]).map((item) => jsonquery(item, args[0] as JSONQuery, functions))
+    }
+
+    const fn = functions[name]
+    if (!fn) {
+      throw new Error(`Unknown query function "${name}"`)
+    }
+    return fn(data, ...args)
+  }
+
+  if (Array.isArray(query)) {
     return query.reduce((data, item) => jsonquery(data, item, functions), data)
   }
 
-  if (isJSONQueryObject(query)) {
+  if (query && typeof query === 'object') {
     const obj = {}
     Object.keys(query).forEach((key) => (obj[key] = jsonquery(data, query[key], functions)))
     return obj
   }
 
-  // we assume query is an JSONQueryItem
-  const [name, ...args] = query
-  if (name === 'map' && Array.isArray(data)) {
-    return data.map((item) => jsonquery(item, args[0] as JSONQuery, functions))
-  }
-  const fn = functions[name]
-  if (!fn) {
-    throw new Error(`Unknown query function "${name}"`)
-  }
-  // @ts-ignore
-  return fn(data, ...args)
+  throw new Error('Unknown type of query')
 }
 
 export function get(data: unknown, path: string | JSONPath): unknown {
@@ -189,10 +193,6 @@ export function size(data: unknown[]): number {
   return data.length
 }
 
-function isJSONQueryArray(query: JSONQuery): query is JSONQueryArray {
-  return query && Array.isArray(query[0])
-}
-
-function isJSONQueryObject(query: JSONQuery): query is JSONQueryObject {
-  return typeof query === 'object' && query != null && !Array.isArray(query)
+function isJSONQueryItem(query: JSONQuery): query is JSONQueryItem {
+  return Array.isArray(query) && typeof query[0] === 'string'
 }
