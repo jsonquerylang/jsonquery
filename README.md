@@ -30,15 +30,18 @@ const data = {
 }
 
 // get the array containing the friends from the object, filter the friends that live in New York,
-// sort them by age, pick just the name out of the objects, and return the first two results.
+// sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
   ['get', 'friends'],
   ['filter', 'city', '==', 'New York'],
   ['sort', 'age'],
-  ['pick', 'name'],
-  ['limit', 2]
+  ['pick', 'name', 'age']
 ])
-// [ "Chris", "Sarah" ]
+// [ 
+//   { name: 'Chris', age: 23 },
+//   { name: 'Sarah', age: 31 },
+//   { name: 'Joe', age: 32 }
+// ]
 
 // get the array containing the friends from the object, then create an object with
 // properties `names`, `count`, and `averageAge` containing the results of their query:
@@ -47,9 +50,9 @@ const names = jsonquery(data, [
 const result = jsonquery(data, [
   ['get', 'friends'],
   {
-    names: ['pick', 'name'],
+    names: ['get', 'name'],
     count: ['size'],
-    averageAge: [['pick', 'age'], ['average']]
+    averageAge: [['get', 'age'], ['average']]
   }
 ])
 // {
@@ -76,13 +79,13 @@ const result = jsonquery(data, query, customFunctions)
 
 ## API
 
-The `jsonquery` library has one core function `jsonquery(data, query, functions)`, where you pass the data, the query, and optionally an object with extra functions to extend the built-in functions.
+The `jsonquery` library has one core function `jsonquery(data, query, functions)`, where you pass the data, the query, and optionally an object with custom functions to extend the built-in functions.
 
 ```ts
 function jsonquery(
   data: unknown,
   query: JSONQuery,
-  functions?: Record<string, JSONQueryFunction>
+  customFunctions?: Record<string, JSONQueryFunction>
 ): unknown
 
 type JSONQueryItem = [name: string, ...args: unknown[]]
