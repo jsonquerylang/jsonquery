@@ -27,7 +27,7 @@ const data = {
 // sort them by age, pick just the name out of the objects, and return the first two results.
 const names = jsonquery(data, [
   ['get', 'friends'],
-  ['match', 'city', '==', 'New York'],
+  ['filter', 'city', '==', 'New York'],
   ['sort', 'age'],
   ['pick', 'name'],
   ['limit', 2]
@@ -96,7 +96,7 @@ Multiple query items can be put in an array, a pipeline, which will execute the 
 
 ```
 [
-  ['match', 'city', '==', 'New York'],
+  ['filter', 'city', '==', 'New York'],
   ['sort', 'age']
 ]
 ```
@@ -118,7 +118,7 @@ Note arrays and objects can contain nested arrays and objects.
 
 ### Built-in functions:
 
-- `match`
+- `filter`
 - `sort`
 - `pick`
 - `keyBy`

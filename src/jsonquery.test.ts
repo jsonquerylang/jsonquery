@@ -90,24 +90,24 @@ describe('jsonquery', () => {
     ).toEqual([1, 2, 3, 4, 5])
   })
 
-  test('should match data using ==', () => {
-    expect(jsonquery(data, ['match', 'city', '==', 'New York'])).toEqual([
+  test('should filter data using ==', () => {
+    expect(jsonquery(data, ['filter', 'city', '==', 'New York'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Sarah', age: 31, city: 'New York' }
     ])
   })
 
-  test('should match nested data using ==', () => {
-    expect(jsonquery(nestedData, ['match', ['address', 'city'], '==', 'New York'])).toEqual([
+  test('should filter nested data using ==', () => {
+    expect(jsonquery(nestedData, ['filter', ['address', 'city'], '==', 'New York'])).toEqual([
       { name: 'Chris', age: 23, address: { city: 'New York' } },
       { name: 'Joe', age: 32, address: { city: 'New York' } },
       { name: 'Sarah', age: 31, address: { city: 'New York' } }
     ])
   })
 
-  test('should match data using !=', () => {
-    expect(jsonquery(data, ['match', 'city', '!=', 'New York'])).toEqual([
+  test('should filter data using !=', () => {
+    expect(jsonquery(data, ['filter', 'city', '!=', 'New York'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
@@ -115,32 +115,32 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should match data using >', () => {
-    expect(jsonquery(data, ['match', 'age', '>', 45])).toEqual([])
+  test('should filter data using >', () => {
+    expect(jsonquery(data, ['filter', 'age', '>', 45])).toEqual([])
   })
 
-  test('should match data using >=', () => {
-    expect(jsonquery(data, ['match', 'age', '>=', 45])).toEqual([
+  test('should filter data using >=', () => {
+    expect(jsonquery(data, ['filter', 'age', '>=', 45])).toEqual([
       { name: 'Robert', age: 45, city: 'Manhattan' }
     ])
   })
 
-  test('should match data using <', () => {
-    expect(jsonquery(data, ['match', 'age', '<', 19])).toEqual([])
+  test('should filter data using <', () => {
+    expect(jsonquery(data, ['filter', 'age', '<', 19])).toEqual([])
   })
 
-  test('should match data using <=', () => {
-    expect(jsonquery(data, ['match', 'age', '<=', 19])).toEqual([
+  test('should filter data using <=', () => {
+    expect(jsonquery(data, ['filter', 'age', '<=', 19])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' }
     ])
   })
 
-  test('should match data using >= and <=', () => {
+  test('should filter data using >= and <=', () => {
     expect(
       jsonquery(data, [
-        ['match', 'age', '>=', 23],
-        ['match', 'age', '<=', 27]
+        ['filter', 'age', '>=', 23],
+        ['filter', 'age', '<=', 27]
       ])
     ).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
@@ -148,16 +148,16 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should match data using "in"', () => {
-    expect(jsonquery(data, ['match', 'age', 'in', [19, 23]])).toEqual([
+  test('should filter data using "in"', () => {
+    expect(jsonquery(data, ['filter', 'age', 'in', [19, 23]])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' }
     ])
   })
 
-  test('should match data using "not in"', () => {
-    expect(jsonquery(data, ['match', 'age', 'not in', [19, 23]])).toEqual([
+  test('should filter data using "not in"', () => {
+    expect(jsonquery(data, ['filter', 'age', 'not in', [19, 23]])).toEqual([
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
       { name: 'Robert', age: 45, city: 'Manhattan' },
@@ -361,7 +361,7 @@ describe('jsonquery', () => {
     expect(
       jsonquery(friendsData, [
         ['get', 'friends'],
-        ['match', 'city', '==', 'New York'],
+        ['filter', 'city', '==', 'New York'],
         ['sort', 'age'],
         ['get', 'name'],
         ['limit', 2]
@@ -395,7 +395,7 @@ describe('jsonquery', () => {
         data,
         [
           ['get', 'locations'],
-          ['match', 'state', '==', 'WA'],
+          ['filter', 'state', '==', 'WA'],
           ['get', 'name'],
           ['sort'],
           { WashingtonCities: ['join'] }

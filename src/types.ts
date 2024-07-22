@@ -2,7 +2,7 @@ export type JSONPrimitive = string | number | boolean | null
 
 export type JSONPath = string[]
 
-export type JSONQueryMatchOperator = '==' | '>' | '>=' | '<' | '<=' | '!=' | 'in' | 'not in'
+export type JSONQueryFilterOperator = '==' | '>' | '>=' | '<' | '<=' | '!=' | 'in' | 'not in'
 
 export type JSONQueryItem = [name: string, ...args: unknown[]]
 export type JSONQueryArray = JSONQuery[]
@@ -12,4 +12,4 @@ export type JSONQuery = JSONQueryItem | JSONQueryArray | JSONQueryObject
 // TODO: improve typings of "...args: unknown[]" and couple it with JSONQueryItem
 export type JSONQueryFunction = (data: unknown[], ...args: unknown[]) => unknown
 
-export type MatchOperations = Record<string, (a: unknown, b: unknown) => boolean>
+export type FilterOperations = Record<string, (a: unknown, b: unknown) => boolean>

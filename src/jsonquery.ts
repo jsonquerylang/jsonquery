@@ -4,14 +4,14 @@ import {
   JSONQuery,
   JSONQueryArray,
   JSONQueryFunction,
-  JSONQueryMatchOperator,
+  JSONQueryFilterOperator,
   JSONQueryObject,
-  MatchOperations
+  FilterOperations
 } from './types'
 
 export const all = {
   get,
-  match,
+  filter,
   sort,
   pick,
   groupBy,
@@ -73,22 +73,22 @@ export function get(data: unknown, path: string | JSONPath): unknown {
   }
 }
 
-export function match(
+export function filter(
   data: unknown[],
   path: string | JSONPath,
-  op: JSONQueryMatchOperator,
+  op: JSONQueryFilterOperator,
   value: JSONPrimitive
 ): unknown[] {
-  const matchFn = matchOperations[op]
-  if (!matchFn) {
-    throw new SyntaxError(`Unknown match operator "${op}"`)
+  const filterFn = filterOperations[op]
+  if (!filterFn) {
+    throw new SyntaxError(`Unknown filter operator "${op}"`)
   }
 
-  const predicate = (item: unknown) => matchFn(get(item, path), value)
+  const predicate = (item: unknown) => filterFn(get(item, path), value)
   return data.filter(predicate)
 }
 
-const matchOperations: MatchOperations = {
+const filterOperations: FilterOperations = {
   '==': (a, b) => a === b,
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
