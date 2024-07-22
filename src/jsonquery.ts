@@ -56,6 +56,10 @@ export function jsonquery(
 }
 
 export function get(data: unknown, path: string | JSONPath): unknown {
+  if (Array.isArray(data)) {
+    return data.map((item) => get(item, path))
+  }
+
   if (Array.isArray(path)) {
     let value: unknown = data
 
@@ -110,24 +114,17 @@ export function sort(
   return data.slice().sort(compare)
 }
 
-export function pick<T extends unknown[] | unknown>(data: T, ...paths: JSONPath[]): T {
-  if (!Array.isArray(data)) {
-    return pick([data], ...paths)[0]
+export function pick(data: unknown, ...paths: JSONPath[]): unknown {
+  if (Array.isArray(data)) {
+    return data.map((item) => pick(item, ...paths))
   }
 
-  if (paths.length === 1) {
-    const path = paths[0]
-    return data.map((item) => get(item, path)) as T
-  }
-
-  return data.map((item) => {
-    const out = {}
-    paths.forEach((path) => {
-      const outKey: string = Array.isArray(path) ? path[path.length - 1] : path
-      out[outKey] = get(item, path)
-    })
-    return out
-  }) as T
+  const out = {}
+  paths.forEach((path) => {
+    const outKey: string = Array.isArray(path) ? path[path.length - 1] : path
+    out[outKey] = get(data, path)
+  })
+  return out
 }
 
 export function groupBy(data: unknown[], key: string): Record<string, unknown[]> {

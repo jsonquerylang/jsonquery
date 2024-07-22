@@ -35,9 +35,9 @@ describe('jsonquery', () => {
   test('should create an object', () => {
     expect(
       jsonquery(data, {
-        names: ['pick', 'name'],
+        names: ['get', 'name'],
         count: ['size'],
-        averageAge: [['pick', 'age'], ['average']]
+        averageAge: [['get', 'age'], ['average']]
       })
     ).toEqual({
       names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
@@ -68,13 +68,13 @@ describe('jsonquery', () => {
 
   test('should map over an array using pick', () => {
     expect(jsonquery(data, ['map', ['pick', 'name']])).toEqual([
-      'Chris',
-      'Emily',
-      'Joe',
-      'Kevin',
-      'Michelle',
-      'Robert',
-      'Sarah'
+      { name: 'Chris' },
+      { name: 'Emily' },
+      { name: 'Joe' },
+      { name: 'Kevin' },
+      { name: 'Michelle' },
+      { name: 'Robert' },
+      { name: 'Sarah' }
     ])
   })
 
@@ -231,18 +231,18 @@ describe('jsonquery', () => {
 
   test('should pick data (single field)', () => {
     expect(jsonquery(data, ['pick', 'name'])).toEqual([
-      'Chris',
-      'Emily',
-      'Joe',
-      'Kevin',
-      'Michelle',
-      'Robert',
-      'Sarah'
+      { name: 'Chris' },
+      { name: 'Emily' },
+      { name: 'Joe' },
+      { name: 'Kevin' },
+      { name: 'Michelle' },
+      { name: 'Robert' },
+      { name: 'Sarah' }
     ])
   })
 
   test('should pick data from an object', () => {
-    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b'])).toEqual(2)
+    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b'])).toEqual({ b: 2 })
     expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b', 'a'])).toEqual({ b: 2, a: 1 })
   })
 
@@ -260,13 +260,13 @@ describe('jsonquery', () => {
 
   test('should pick data (a single nested field)', () => {
     expect(jsonquery(nestedData, ['pick', ['address', 'city']])).toEqual([
-      'New York',
-      'Atlanta',
-      'New York',
-      'Atlanta',
-      'Los Angeles',
-      'Manhattan',
-      'New York'
+      { city: 'New York' },
+      { city: 'Atlanta' },
+      { city: 'New York' },
+      { city: 'Atlanta' },
+      { city: 'Los Angeles' },
+      { city: 'Manhattan' },
+      { city: 'New York' }
     ])
   })
 
@@ -316,6 +316,18 @@ describe('jsonquery', () => {
     expect(jsonquery(friendsData, [['get', 'friends']])).toEqual(data)
   })
 
+  test('should get nested data from an array with objects', () => {
+    expect(jsonquery(nestedData, ['get', ['address', 'city']])).toEqual([
+      'New York',
+      'Atlanta',
+      'New York',
+      'Atlanta',
+      'Los Angeles',
+      'Manhattan',
+      'New York'
+    ])
+  })
+
   test('should get unique values from a list', () => {
     expect(jsonquery([2, 3, 2, 7, 1, 1], ['uniq'])).toEqual([2, 3, 7, 1])
   })
@@ -351,7 +363,7 @@ describe('jsonquery', () => {
         ['get', 'friends'],
         ['match', 'city', '==', 'New York'],
         ['sort', 'age'],
-        ['pick', 'name'],
+        ['get', 'name'],
         ['limit', 2]
       ])
     ).toEqual(['Chris', 'Sarah'])
@@ -384,7 +396,7 @@ describe('jsonquery', () => {
         [
           ['get', 'locations'],
           ['match', 'state', '==', 'WA'],
-          ['pick', 'name'],
+          ['get', 'name'],
           ['sort'],
           { WashingtonCities: ['join'] }
         ],
