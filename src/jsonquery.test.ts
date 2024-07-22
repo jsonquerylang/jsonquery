@@ -53,15 +53,28 @@ describe('jsonquery', () => {
           'map',
           {
             name: ['get', 'name'],
-            maxScore: [['get', 'scores'], ['max']]
+            maxScore: [['get', 'scores'], ['max']],
+            minScore: [['get', 'scores'], ['min']]
           }
         ],
         ['sort', 'maxScore', 'desc']
       ])
     ).toEqual([
-      { name: 'Emily', maxScore: 8 },
-      { name: 'Chris', maxScore: 7 },
-      { name: 'Joe', maxScore: 6 }
+      { name: 'Emily', maxScore: 8, minScore: 2 },
+      { name: 'Chris', maxScore: 7, minScore: 3 },
+      { name: 'Joe', maxScore: 6, minScore: 1 }
+    ])
+  })
+
+  test('should map over an array using pick', () => {
+    expect(jsonquery(data, ['map', ['pick', 'name']])).toEqual([
+      'Chris',
+      'Emily',
+      'Joe',
+      'Kevin',
+      'Michelle',
+      'Robert',
+      'Sarah'
     ])
   })
 
@@ -228,6 +241,11 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should pick data from an object', () => {
+    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b'])).toEqual(2)
+    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b', 'a'])).toEqual({ b: 2, a: 1 })
+  })
+
   test('should pick data (multiple fields)', () => {
     expect(jsonquery(data, ['pick', 'name', 'city'])).toEqual([
       { name: 'Chris', city: 'New York' },
@@ -345,5 +363,35 @@ describe('jsonquery', () => {
     const functions = { ...all, times }
 
     expect(jsonquery([1, 2, 3], ['times', 2], functions)).toEqual([2, 4, 6])
+  })
+
+  test('should be able to query the jmespath example', () => {
+    const join = (data: unknown[], separator = ', ') => data.join(separator)
+
+    const data = {
+      locations: [
+        { name: 'Seattle', state: 'WA' },
+        { name: 'New York', state: 'NY' },
+        { name: 'Bellevue', state: 'WA' },
+        { name: 'Olympia', state: 'WA' }
+      ]
+    }
+
+    // locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}
+    expect(
+      jsonquery(
+        data,
+        [
+          ['get', 'locations'],
+          ['match', 'state', '==', 'WA'],
+          ['pick', 'name'],
+          ['sort'],
+          { WashingtonCities: ['join'] }
+        ],
+        { ...all, join }
+      )
+    ).toEqual({
+      WashingtonCities: 'Bellevue, Olympia, Seattle'
+    })
   })
 })

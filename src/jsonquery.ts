@@ -3,10 +3,10 @@ import {
   JSONPrimitive,
   JSONQuery,
   JSONQueryArray,
-  JSONQueryMatchOperator,
   JSONQueryFunction,
-  MatchOperations,
-  JSONQueryObject
+  JSONQueryMatchOperator,
+  JSONQueryObject,
+  MatchOperations
 } from './types'
 
 export const all = {
@@ -42,6 +42,7 @@ export function jsonquery(
     return obj
   }
 
+  // we assume query is an JSONQueryItem
   const [name, ...args] = query
   if (name === 'map' && Array.isArray(data)) {
     return data.map((item) => jsonquery(item, args[0] as JSONQuery, functions))
@@ -109,10 +110,14 @@ export function sort(
   return data.slice().sort(compare)
 }
 
-export function pick(data: unknown[], ...paths: JSONPath[]): unknown[] {
+export function pick<T extends unknown[] | unknown>(data: T, ...paths: JSONPath[]): T {
+  if (!Array.isArray(data)) {
+    return pick([data], ...paths)[0]
+  }
+
   if (paths.length === 1) {
     const path = paths[0]
-    return data.map((item) => get(item, path))
+    return data.map((item) => get(item, path)) as T
   }
 
   return data.map((item) => {
@@ -122,7 +127,7 @@ export function pick(data: unknown[], ...paths: JSONPath[]): unknown[] {
       out[outKey] = get(item, path)
     })
     return out
-  })
+  }) as T
 }
 
 export function groupBy(data: unknown[], key: string): Record<string, unknown[]> {
