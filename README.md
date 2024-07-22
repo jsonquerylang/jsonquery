@@ -37,7 +37,7 @@ const names = jsonquery(data, [
   ['sort', 'age'],
   ['pick', 'name', 'age']
 ])
-// [ 
+// [
 //   { name: 'Chris', age: 23 },
 //   { name: 'Sarah', age: 31 },
 //   { name: 'Joe', age: 32 }
@@ -67,7 +67,7 @@ The build in functions can be extended with custom functions, like `times` in th
 ```js
 import { jsonquery } from '@josdejong/jsonquery'
 
-const customFunctions = { 
+const customFunctions = {
   times: (data: number[], value: number) => data.map((item) => item * value)
 }
 
