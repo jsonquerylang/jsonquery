@@ -17,6 +17,7 @@ export const all = {
   keyBy,
   flatten,
   uniq,
+  uniqBy,
   size,
   min,
   max,
@@ -163,6 +164,10 @@ export function flatten(data: unknown[]): unknown[] {
 
 export function uniq(data: unknown[]): unknown[] {
   return [...new Set(data)]
+}
+
+export function uniqBy(data: unknown[], key: string): unknown[] {
+  return Object.values(groupBy(data, key)).map((groups) => groups[0])
 }
 
 export function limit(data: unknown[], count: number): unknown[] {

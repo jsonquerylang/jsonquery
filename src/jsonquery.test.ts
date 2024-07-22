@@ -332,6 +332,15 @@ describe('jsonquery', () => {
     expect(jsonquery([2, 3, 2, 7, 1, 1], ['uniq'])).toEqual([2, 3, 7, 1])
   })
 
+  test('should get unique objects by key', () => {
+    expect(jsonquery(data, ['uniqBy', 'city'])).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' },
+      { name: 'Robert', age: 45, city: 'Manhattan' }
+    ])
+  })
+
   test('should calculate the sum', () => {
     expect(jsonquery([2, 3, 2, 7, 1, 1], ['sum'])).toEqual(16)
   })

@@ -118,22 +118,22 @@ Note arrays and objects can contain nested arrays and objects.
 
 ### Built-in functions:
 
+- `get`
 - `filter`
 - `sort`
 - `pick`
-- `keyBy`
-- `groupBy`
 - `map`
-- `flatten`
 - `limit`
+- `groupBy`
+- `flatten`
 - `uniq`
+- `uniqBy`
 - `size`
 - `sum`
 - `prod`
 - `average`
 - `min`
 - `max`
-- `get`
 
 ## License
 
