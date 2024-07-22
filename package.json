@@ -34,7 +34,8 @@
     "test": "vitest",
     "build": "vite build && tsc --project tsconfig-types.json",
     "lint": "prettier . --check",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "prepublishOnly": "npm test && npm run lint && npm run build"
   },
   "devDependencies": {
     "prettier": "3.3.3",
