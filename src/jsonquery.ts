@@ -78,12 +78,12 @@ export function get(data: unknown, path: string | JSONPath): unknown {
   }
 }
 
-export function filter(
-  data: unknown[],
+export function filter<T>(
+  data: T[],
   path: string | JSONPath,
   op: JSONQueryFilterOperator,
   value: JSONPrimitive
-): unknown[] {
+): T[] {
   const filterFn = filterOperations[op]
   if (!filterFn) {
     throw new SyntaxError(`Unknown filter operator "${op}"`)
@@ -104,13 +104,13 @@ const filterOperations: FilterOperations = {
   'not in': (a, b) => !(b as Array<unknown>).includes(a)
 }
 
-export function sort(
-  data: unknown[],
+export function sort<T>(
+  data: Record<string, T>[],
   path: string | JSONPath = [],
   direction?: 'asc' | 'desc'
-): unknown[] {
+): Record<string, T>[] {
   const sign = direction === 'desc' ? -1 : 1
-  const compare = (a: Record<string, unknown>, b: Record<string, unknown>) => {
+  const compare = (a: Record<string, T>, b: Record<string, T>) => {
     const aa = get(a, path)
     const bb = get(b, path)
     return aa > bb ? sign : aa < bb ? -sign : 0
@@ -132,7 +132,7 @@ export function pick(data: unknown, ...paths: JSONPath[]): unknown {
   return out
 }
 
-export function groupBy(data: unknown[], key: string): Record<string, unknown[]> {
+export function groupBy<T>(data: T[], key: string): Record<string, T[]> {
   const res = {}
 
   data.forEach((item) => {
@@ -147,7 +147,7 @@ export function groupBy(data: unknown[], key: string): Record<string, unknown[]>
   return res
 }
 
-export function keyBy(data: unknown[], key: string): Record<string, unknown[]> {
+export function keyBy<T>(data: T[], key: string): Record<string, T[]> {
   const res = {}
 
   data.forEach((item) => {
@@ -162,15 +162,15 @@ export function flatten(data: unknown[]): unknown[] {
   return data.flat()
 }
 
-export function uniq(data: unknown[]): unknown[] {
+export function uniq<T>(data: T[]): T[] {
   return [...new Set(data)]
 }
 
-export function uniqBy(data: unknown[], key: string): unknown[] {
+export function uniqBy<T>(data: T[], key: string): T[] {
   return Object.values(groupBy(data, key)).map((groups) => groups[0])
 }
 
-export function limit(data: unknown[], count: number): unknown[] {
+export function limit<T>(data: T[], count: number): T[] {
   return data.slice(0, count)
 }
 
@@ -182,11 +182,11 @@ export function sum(data: number[]): number {
   return data.reduce((a, b) => a + b)
 }
 
-export function average(data: number[]): unknown {
+export function average(data: number[]): number {
   return sum(data) / data.length
 }
 
-export function min(data: number[]): unknown {
+export function min(data: number[]): number {
   return Math.min(...data)
 }
 
@@ -194,7 +194,7 @@ export function max(data: number[]): unknown {
   return Math.max(...data)
 }
 
-export function size(data: unknown[]): number {
+export function size<T>(data: T[]): number {
   return data.length
 }
 
