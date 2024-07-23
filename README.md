@@ -4,11 +4,11 @@ A lightweight, expandable JSON query language.
 
 ## Features
 
-- Small (just `1 kB` when minified and gzipped!)
+- Small (just `1.2 kB` when minified and gzipped!)
 - Expressive
 - Easy to understand and remember
 - Serializable (it is JSON)
-- Feature rich
+- Feature rich (20 powerful functions built-in)
 - Expandable
 
 ## Install
@@ -127,14 +127,12 @@ Lastly, you can define a `JSONQueryObject` which is an object with property name
 
 Note arrays and objects can contain nested arrays and objects.
 
-### Built-in functions:
+### Built-in functions
 
 - `get`
 - `filter`
 - `sort`
 - `pick`
-- `map`
-- `limit`
 - `groupBy`
 - `keyBy`
 - `keys`
@@ -142,12 +140,15 @@ Note arrays and objects can contain nested arrays and objects.
 - `flatten`
 - `uniq`
 - `uniqBy`
+- `limit`
 - `size`
 - `sum`
-- `prod`
-- `average`
 - `min`
 - `max`
+- `prod`
+- `average`
+- `round`
+- `map`
 
 ## Motivation
 

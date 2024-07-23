@@ -365,6 +365,18 @@ describe('jsonquery', () => {
     expect(jsonquery([2, 3, 2, 7, 1, 1], ['sum'])).toEqual(16)
   })
 
+  test('should round a value', () => {
+    expect(jsonquery(23.1345, ['round'])).toEqual(23)
+    expect(jsonquery(23.1345, ['round', 2])).toEqual(23.13)
+    expect(jsonquery(23.1345, ['round', 3])).toEqual(23.135)
+    expect(jsonquery(23.761, ['round'])).toEqual(24)
+  })
+
+  test('should round an array with values', () => {
+    expect(jsonquery([2.24, 3.77, 4.49], ['round'])).toEqual([2, 4, 4])
+    expect(jsonquery([2.24, 3.77, 4.49], ['round', 1])).toEqual([2.2, 3.8, 4.5])
+  })
+
   test('should calculate the product', () => {
     expect(jsonquery([2, 3, 2, 7, 1, 1], ['prod'])).toEqual(84)
   })

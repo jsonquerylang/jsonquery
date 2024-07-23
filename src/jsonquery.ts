@@ -64,14 +64,14 @@ export function filter<T>(
   path: string | JSONPath,
   op: JSONQueryFilterOperator,
   value: JSONPrimitive,
-  regexFlags?: string
+  regexOptions?: string
 ): T[] {
   const filterFn = filterOperations[op]
   if (!filterFn) {
     throw new SyntaxError(`Unknown filter operator "${op}"`)
   }
 
-  const _value = op === 'regex' ? new RegExp(value as string, regexFlags) : value
+  const _value = op === 'regex' ? new RegExp(value as string, regexOptions) : value
 
   return data.filter((item) => filterFn(get(item, path), _value))
 }
@@ -94,10 +94,11 @@ export function sort<T>(
   direction?: 'asc' | 'desc'
 ): Record<string, T>[] {
   const sign = direction === 'desc' ? -1 : 1
-  const compare = (a: Record<string, T>, b: Record<string, T>) => {
-    const aa = get(a, path)
-    const bb = get(b, path)
-    return aa > bb ? sign : aa < bb ? -sign : 0
+
+  function compare(itemA: Record<string, T>, itemB: Record<string, T>) {
+    const a = get(itemA, path)
+    const b = get(itemB, path)
+    return a > b ? sign : a < b ? -sign : 0
   }
 
   return data.slice().sort(compare)
@@ -165,6 +166,16 @@ export const min = (data: number[]) => Math.min(...data)
 
 export const max = (data: number[]) => Math.max(...data)
 
+export function round(data: number | number[], digits = 0) {
+  if (Array.isArray(data)) {
+    return data.map((item) => round(item, digits))
+  }
+
+  // @ts-ignore
+  const num = Math.round(data + 'e' + digits)
+  return Number(num + 'e' + -digits)
+}
+
 export const size = <T>(data: T[]) => data.length
 
 const coreFunctions = {
@@ -179,13 +190,14 @@ const coreFunctions = {
   flatten,
   uniq,
   uniqBy,
+  limit,
   size,
+  sum,
   min,
   max,
-  sum,
   prod,
   average,
-  limit
+  round
 }
 
 function isJSONQueryFunction(query: JSONQuery): query is JSONQueryFunction {
