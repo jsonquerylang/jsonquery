@@ -139,48 +139,30 @@ export function keyBy<T>(data: T[], key: string): Record<string, T[]> {
   return res
 }
 
-export function flatten(data: unknown[]): unknown[] {
-  return data.flat()
-}
+export const flatten = (data: unknown[]) => data.flat()
 
-export function uniq<T>(data: T[]): T[] {
-  return [...new Set(data)]
-}
+export const uniq = <T>(data: T[]) => [...new Set(data)]
 
-export function uniqBy<T>(data: T[], key: string): T[] {
-  return values(groupBy(data, key)).map((groups) => groups[0])
-}
+export const uniqBy = <T>(data: T[], key: string): T[] =>
+  values(groupBy(data, key)).map((groups) => groups[0])
 
-export function limit<T>(data: T[], count: number): T[] {
-  return data.slice(0, count)
-}
+export const limit = <T>(data: T[], count: number) => data.slice(0, count)
 
 export const keys = Object.keys
+
 export const values = Object.values
 
-export function prod(data: number[]): number {
-  return data.reduce((a, b) => a * b)
-}
+export const prod = (data: number[]) => data.reduce((a, b) => a * b)
 
-export function sum(data: number[]): number {
-  return data.reduce((a, b) => a + b)
-}
+export const sum = (data: number[]) => data.reduce((a, b) => a + b)
 
-export function average(data: number[]): number {
-  return sum(data) / data.length
-}
+export const average = (data: number[]) => sum(data) / data.length
 
-export function min(data: number[]): number {
-  return Math.min(...data)
-}
+export const min = (data: number[]) => Math.min(...data)
 
-export function max(data: number[]): unknown {
-  return Math.max(...data)
-}
+export const max = (data: number[]) => Math.max(...data)
 
-export function size<T>(data: T[]): number {
-  return data.length
-}
+export const size = <T>(data: T[]) => data.length
 
 const coreFunctions = {
   get,
