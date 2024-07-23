@@ -94,13 +94,13 @@ export function filter<T>(
 }
 
 const filterOperations: FilterOperations = {
-  '==': (a, b) => a === b,
+  '==': (a, b) => a == b,
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
   in: (a, b) => (b as Array<unknown>).includes(a),
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
-  '!=': (a, b) => a !== b,
+  '!=': (a, b) => a != b,
   'not in': (a, b) => !(b as Array<unknown>).includes(a)
 }
 
