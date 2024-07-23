@@ -8,25 +8,6 @@ import {
   JSONQueryFunction
 } from './types'
 
-const coreFunctions = {
-  get,
-  filter,
-  sort,
-  pick,
-  groupBy,
-  keyBy,
-  flatten,
-  uniq,
-  uniqBy,
-  size,
-  min,
-  max,
-  sum,
-  prod,
-  average,
-  limit
-}
-
 export function jsonquery(
   data: unknown,
   query: JSONQuery,
@@ -53,7 +34,7 @@ export function jsonquery(
 
   if (query && typeof query === 'object') {
     const obj = {}
-    Object.keys(query).forEach((key) => (obj[key] = jsonquery(data, query[key], functions)))
+    keys(query).forEach((key) => (obj[key] = jsonquery(data, query[key], functions)))
     return obj
   }
 
@@ -167,12 +148,15 @@ export function uniq<T>(data: T[]): T[] {
 }
 
 export function uniqBy<T>(data: T[], key: string): T[] {
-  return Object.values(groupBy(data, key)).map((groups) => groups[0])
+  return values(groupBy(data, key)).map((groups) => groups[0])
 }
 
 export function limit<T>(data: T[], count: number): T[] {
   return data.slice(0, count)
 }
+
+export const keys = Object.keys
+export const values = Object.values
 
 export function prod(data: number[]): number {
   return data.reduce((a, b) => a * b)
@@ -196,6 +180,27 @@ export function max(data: number[]): unknown {
 
 export function size<T>(data: T[]): number {
   return data.length
+}
+
+const coreFunctions = {
+  get,
+  filter,
+  sort,
+  pick,
+  groupBy,
+  keyBy,
+  keys,
+  values,
+  flatten,
+  uniq,
+  uniqBy,
+  size,
+  min,
+  max,
+  sum,
+  prod,
+  average,
+  limit
 }
 
 function isJSONQueryItem(query: JSONQuery): query is JSONQueryFunction {

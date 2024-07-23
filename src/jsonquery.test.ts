@@ -359,6 +359,14 @@ describe('jsonquery', () => {
     expect(jsonquery([1, 2, 3, 4, 5], ['size'])).toEqual(5)
   })
 
+  test('should extract the keys of an object', () => {
+    expect(jsonquery({ a: 2, b: 3 }, ['keys'])).toEqual(['a', 'b'])
+  })
+
+  test('should extract the values of an object', () => {
+    expect(jsonquery({ a: 2, b: 3 }, ['values'])).toEqual([2, 3])
+  })
+
   test('should limit data', () => {
     expect(jsonquery(data, ['limit', 2])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },

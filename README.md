@@ -137,6 +137,8 @@ Note arrays and objects can contain nested arrays and objects.
 - `limit`
 - `groupBy`
 - `keyBy`
+- `keys`
+- `values`
 - `flatten`
 - `uniq`
 - `uniqBy`
