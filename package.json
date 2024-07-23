@@ -16,14 +16,14 @@
     "type": "git",
     "url": "https://github.com/josdejong/jsonquery.git"
   },
-  "main": "./lib/jsonquery.cjs",
-  "browser": "./lib/jsonquery.umd.cjs",
   "module": "./lib/jsonquery.js",
+  "main": "./lib/jsonquery.cjs",
   "types": "./lib/jsonquery.d.ts",
+  "browser": "./lib/jsonquery.umd.cjs",
   "exports": {
     ".": {
+      "import": "./lib/jsonquery.js",
       "require": "./lib/jsonquery.cjs",
-      "module": "./lib/jsonquery.js",
       "types": "./lib/jsonquery.d.ts"
     }
   },
