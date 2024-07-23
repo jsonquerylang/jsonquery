@@ -2,13 +2,10 @@
 export default {
   build: {
     lib: {
-      name: 'JSONQuery',
       entry: 'src/jsonquery.ts',
-      formats: ['es'],
-      fileName: 'jsonquery'
+      formats: ['es']
     },
     outDir: './lib',
-    sourcemap: true,
-    minify: true
+    sourcemap: true
   }
 }

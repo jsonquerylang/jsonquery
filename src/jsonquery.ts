@@ -28,7 +28,7 @@ export function jsonquery(
     return fn(data, ...args)
   }
 
-  if (Array.isArray(query)) {
+  if (isArray(query)) {
     return query.reduce((data, item) => jsonquery(data, item, functions), data)
   }
 
@@ -42,11 +42,11 @@ export function jsonquery(
 }
 
 export function get(data: unknown, path: string | JSONPath): unknown {
-  if (Array.isArray(data)) {
+  if (isArray(data)) {
     return data.map((item) => get(item, path))
   }
 
-  if (Array.isArray(path)) {
+  if (isArray(path)) {
     let value: unknown = data
 
     for (const prop of path) {
@@ -105,13 +105,13 @@ export function sort<T>(
 }
 
 export function pick(data: unknown, ...paths: JSONPath[]): unknown {
-  if (Array.isArray(data)) {
+  if (isArray(data)) {
     return data.map((item) => pick(item, ...paths))
   }
 
   const out = {}
   paths.forEach((path) => {
-    const outKey: string = Array.isArray(path) ? path[path.length - 1] : path
+    const outKey: string = isArray(path) ? path[path.length - 1] : path
     out[outKey] = get(data, path)
   })
   return out
@@ -167,7 +167,7 @@ export const min = (data: number[]) => Math.min(...data)
 export const max = (data: number[]) => Math.max(...data)
 
 export function round(data: number | number[], digits = 0) {
-  if (Array.isArray(data)) {
+  if (isArray(data)) {
     return data.map((item) => round(item, digits))
   }
 
@@ -201,5 +201,7 @@ const coreFunctions = {
 }
 
 function isJSONQueryFunction(query: JSONQuery): query is JSONQueryFunction {
-  return Array.isArray(query) && typeof query[0] === 'string'
+  return isArray(query) && typeof query[0] === 'string'
 }
+
+const isArray = Array.isArray
