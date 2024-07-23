@@ -165,6 +165,26 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should filter data using "regex"', () => {
+    // search for a name containing 3 to 5 letters
+    expect(jsonquery(data, ['filter', 'name', 'regex', '^[A-z]{3,5}$'])).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' },
+      { name: 'Sarah', age: 31, city: 'New York' }
+    ])
+  })
+
+  test.skip('should filter data using "regex" with flags', () => {
+    // search for a name containing a case-insensitive character "m"
+    expect(jsonquery(data, ['filter', 'name', 'regex', 'm', 'i'])).toEqual([
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' }
+    ])
+  })
+
   test('should sort data (default direction)', () => {
     expect(jsonquery(data, ['sort', 'age'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },

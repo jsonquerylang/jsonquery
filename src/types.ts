@@ -2,7 +2,16 @@ export type JSONPrimitive = string | number | boolean | null
 
 export type JSONPath = string[]
 
-export type JSONQueryFilterOperator = '==' | '>' | '>=' | '<' | '<=' | '!=' | 'in' | 'not in'
+export type JSONQueryFilterOperator =
+  | '=='
+  | '>'
+  | '>='
+  | '<'
+  | '<='
+  | '!='
+  | 'in'
+  | 'not in'
+  | 'regex'
 
 export type JSONQueryFunction = [name: string, ...args: unknown[]]
 export type JSONQueryArray = JSONQuery[]

@@ -1,11 +1,11 @@
 import {
+  FilterOperations,
   JSONPath,
   JSONPrimitive,
   JSONQuery,
-  JSONQueryFunctionImplementation,
   JSONQueryFilterOperator,
-  FilterOperations,
-  JSONQueryFunction
+  JSONQueryFunction,
+  JSONQueryFunctionImplementation
 } from './types'
 
 export function jsonquery(
@@ -13,7 +13,7 @@ export function jsonquery(
   query: JSONQuery,
   functions?: Record<string, JSONQueryFunctionImplementation>
 ): unknown {
-  if (isJSONQueryItem(query)) {
+  if (isJSONQueryFunction(query)) {
     const [name, ...args] = query
 
     // special case: function 'map'
@@ -63,15 +63,17 @@ export function filter<T>(
   data: T[],
   path: string | JSONPath,
   op: JSONQueryFilterOperator,
-  value: JSONPrimitive
+  value: JSONPrimitive,
+  regexFlags?: string
 ): T[] {
   const filterFn = filterOperations[op]
   if (!filterFn) {
     throw new SyntaxError(`Unknown filter operator "${op}"`)
   }
 
-  const predicate = (item: unknown) => filterFn(get(item, path), value)
-  return data.filter(predicate)
+  const _value = op === 'regex' ? new RegExp(value as string, regexFlags) : value
+
+  return data.filter((item) => filterFn(get(item, path), _value))
 }
 
 const filterOperations: FilterOperations = {
@@ -82,7 +84,8 @@ const filterOperations: FilterOperations = {
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
   '!=': (a, b) => a != b,
-  'not in': (a, b) => !(b as Array<unknown>).includes(a)
+  'not in': (a, b) => !(b as Array<unknown>).includes(a),
+  regex: (a: string, regex: RegExp) => regex.test(a)
 }
 
 export function sort<T>(
@@ -185,6 +188,6 @@ const coreFunctions = {
   limit
 }
 
-function isJSONQueryItem(query: JSONQuery): query is JSONQueryFunction {
+function isJSONQueryFunction(query: JSONQuery): query is JSONQueryFunction {
   return Array.isArray(query) && typeof query[0] === 'string'
 }
