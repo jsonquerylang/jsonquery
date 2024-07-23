@@ -4,7 +4,7 @@ export default {
     lib: {
       name: 'JSONQuery',
       entry: 'src/jsonquery.ts',
-      formats: ['es', 'cjs', 'umd'],
+      formats: ['es'],
       fileName: 'jsonquery'
     },
     outDir: './lib',
