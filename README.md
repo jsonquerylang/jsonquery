@@ -81,53 +81,81 @@ const result = jsonquery(data, ['times', 3], customFunctions)
 // [3, 6, 9]
 ```
 
-## API
+## JavaScript API
 
-The `jsonquery` library has one core function `jsonquery(data, query, functions)`, where you pass the data, the query, and optionally an object with custom functions to extend the built-in functions.
+The `jsonquery` library has one core function where you pass the data, the query, and optionally an object with custom functions to extend the built-in functions:
 
-```ts
-function jsonquery(
-  data: unknown,
-  query: JSONQuery,
-  customFunctions?: Record<string, JSONQueryFunctionImplementation>
-): unknown
-
-type JSONQueryFunction = [name: string, ...args: unknown[]]
-type JSONQueryArray = JSONQuery[]
-type JSONQueryObject = { [key: string]: JSONQuery }
-type JSONQuery = JSONQueryFunction | JSONQueryArray | JSONQueryObject
-
-type JSONQueryFunctionImplementation = (data: unknown[], ...args: unknown[]) => unknown
+```
+jsonquery(data, query [, customFunctions])
 ```
 
-At the core of the query language `JSONQuery`, we have a `JSONQueryFunction` which is an array with a function name as first argument, followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age')`. Here, `data` is the input and should be an array with objects which will be sorted by the property `age`:
+Here:
 
-```json
-["sort", "age"]
-```
+- `data` is an arbitrary JSON document.
+- `query` is a JSON document containing a `jsonquery` as described in the section below.
+- `customFunctions` is an optional map with extra functions.
 
-Multiple query functions can be put in an array, a pipeline, which will execute the query functions one by one and pass the output of the first to the input of the next. The following example will first filter the items of an array that have a property `city` with the value `"New York""`, and next, sort the filtered items by the property `age`:
+## Syntax
+
+The `jsonquery` query language is written as JSON and has tree building blocks: _functions_, _pipes_, _objects_.
+
+The examples in the following sections are based on querying the following data:
 
 ```json
 [
-  ["filter", "city", "==", "New York"],
+  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
+  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
+  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
+  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
+  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
+]
+```
+
+### Functions
+
+At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
+
+```json
+["sort", "age", "asc"]
+```
+
+Most of the functions use property names like `age` in the example above. Nested properties can be specified using an array. The following example will sort an array by a nested property `city` inside an object `address`:
+
+```json
+["sort", ["address", "city"], "asc"]
+```
+
+### Pipes
+
+A _pipe_ is an array containing multiple _functions_, _objects_, or _pipes_. The items in the pipeline are executed one by one, and the output of the first is the input of the next. The following example will first filter the items of an array that have a property `city` with the value `"New York""`, and next, sort the filtered items by the property `age`:
+
+```json
+[
+  ["filter", ["address", "city"], "==", "New York"],
   ["sort", "age"]
 ]
 ```
 
-Lastly, you can define a `JSONQueryObject` which is an object with property names as keys, and a JSONQuery as value. The following example will output an object with properties `names`, `count`, and `averageAge` containing the results of their query: a list with names, the total number of array items, and the average value of the properties `age` in all items:
+### Objects
+
+An _object_ is defined as a regular JSON object with a property name as key, and a _function_, _pipe_, or _object_ as value. Objects can be used to executed multiple query pipelines in parallel. The following example will output an object with properties `names`, `count`, and `averageAge` containing the results of their query: a list with names, the total number of array items, and the average value of the properties `age` in all items:
 
 ```json
 {
   "names": ["pick", "name"],
   "count": ["size"],
-  "averageAge": [["pick", "age"], ["average"]]
+  "averageAge": [
+    ["pick", "age"], 
+    ["average"]
+  ]
 }
 ```
 
-Note arrays and objects can contain nested arrays and objects.
-
 ### Built-in functions
+
+The following functions are available:
 
 - `get`
 - `filter`
@@ -166,7 +194,7 @@ There are many powerful query languages out there, so why the need to develop `j
 
     The expressiveness of most query languages is limited. Since a long time, my favorite JSON query language is JavaScript+Lodash because it is so flexible. The downside however is that it is not safe to store or share queries written in JavaScript from a security point of view.
 
-The `jsonquery` language is inspired by [JavaScript+Lodash](https://jsoneditoronline.org/indepth/query/10-best-json-query-languages/#javascript) and by [MongoDB aggregates](https://www.mongodb.com/docs/manual/aggregation/). It is basically a JSON notation to describe making a series of function calls. It has no magic syntax except for the need to be familiar with JSON, making it flexible and easy to understand. The library is extremely small thanks to smartly utilizing built-in JavaScript functions and the built-in JSON parser, requiring very little code to make the query language work.
+The `jsonquery` language is inspired by [JavaScript+Lodash](https://jsoneditoronline.org/indepth/query/10-best-json-query-languages/#javascript), [JSON Patch](https://jsonpatch.com/), and [MongoDB aggregates](https://www.mongodb.com/docs/manual/aggregation/). It is basically a JSON notation to describe making a series of function calls. It has no magic syntax except for the need to be familiar with JSON, making it flexible and easy to understand. The library is extremely small thanks to smartly utilizing built-in JavaScript functions and the built-in JSON parser, requiring very little code to make the query language work.
 
 ## License
 

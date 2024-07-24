@@ -46,6 +46,24 @@ describe('jsonquery', () => {
     })
   })
 
+  test('should create a nested object', () => {
+    expect(
+      jsonquery(data, {
+        names: ['get', 'name'],
+        stats: {
+          count: ['size'],
+          averageAge: [['get', 'age'], ['average']]
+        }
+      })
+    ).toEqual({
+      names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
+      stats: {
+        count: 7,
+        averageAge: 28
+      }
+    })
+  })
+
   test('should map over an array', () => {
     expect(
       jsonquery(scoresData, [
