@@ -146,7 +146,10 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 {
   "names": ["pick", "name"],
   "count": ["size"],
-  "averageAge": [["pick", "age"], ["average"]]
+  "averageAge": [
+    ["pick", "age"], 
+    ["average"]
+  ]
 }
 ```
 
