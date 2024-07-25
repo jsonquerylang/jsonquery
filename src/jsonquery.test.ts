@@ -267,6 +267,20 @@ describe('jsonquery', () => {
     expect(jsonquery([3, 7, 2, 6], ['sort'])).toEqual([2, 3, 6, 7])
   })
 
+  test('should not crash when sorting a list with nested arrays', () => {
+    expect(jsonquery([[3], [7], [4]], ['sort'])).toEqual([[3], [4], [7]])
+    expect(jsonquery([[], [], []], ['sort'])).toEqual([[], [], []])
+  })
+
+  test('should not crash when sorting a list with nested objects', () => {
+    expect(jsonquery([{ a: 1 }, { c: 3 }, { b: 2 }], ['sort'])).toEqual([
+      { a: 1 },
+      { c: 3 },
+      { b: 2 }
+    ])
+    expect(jsonquery([{}, {}, {}], ['sort'])).toEqual([{}, {}, {}])
+  })
+
   test('should pick data (single field)', () => {
     expect(jsonquery(data, ['pick', 'name'])).toEqual([
       { name: 'Chris' },
