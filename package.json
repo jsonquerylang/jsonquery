@@ -35,6 +35,7 @@
     "build": "vite build && tsc --project tsconfig-types.json",
     "lint": "prettier . --check",
     "format": "prettier . --write",
+    "format:readme": "prettier README.md --write --ignore-path notneeded",
     "prepublishOnly": "npm run test-ci && npm run lint && npm run build"
   },
   "devDependencies": {
