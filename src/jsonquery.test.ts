@@ -32,6 +32,37 @@ const scoresData = [
 ]
 
 describe('jsonquery', () => {
+  test('should execute a function', () => {
+    expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
+  })
+
+  test('should execute an operator', () => {
+    expect(jsonquery({ a: 2, b: 3 }, ['a', '==', 2])).toEqual(true)
+    expect(jsonquery({ a: 2, b: 3 }, ['a', '==', 3])).toEqual(false)
+    expect(jsonquery({ a: 2, b: 3 }, ['a', '<', ['get', 'b']])).toEqual(true)
+    expect(jsonquery({ a: 2, b: 3 }, [2, '==', ['get', 'a']])).toEqual(true)
+    expect(jsonquery({ a: 2, b: 3 }, [2, '==', ['get', 'a']])).toEqual(true)
+    // expect(jsonquery({ a: 2, b: 3 }, ['a', '<', ['b']])).toEqual(true) // FIXME
+    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 2], 'and', ['b', '==', 3]])).toEqual(true)
+    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 3], 'and', ['b', '==', 3]])).toEqual(false)
+    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 2], 'and', ['b', '==', 4]])).toEqual(false)
+    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 2], 'or', ['b', '==', 4]])).toEqual(true)
+    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 1], 'or', ['b', '==', 4]])).toEqual(false)
+    expect(jsonquery({ message: 'hello' }, ['message', '==', 'hello'])).toEqual(true)
+    expect(jsonquery({ message: 'hello' }, [['value', 'hello'], '==', ['get', 'message']])).toEqual(
+      true
+    )
+  })
+
+  test('should execute a pipeline', () => {
+    expect(
+      jsonquery({ user: { name: 'Joe' } }, [
+        ['get', 'user'],
+        ['get', 'name']
+      ])
+    ).toEqual('Joe')
+  })
+
   test('should create an object', () => {
     expect(
       jsonquery(data, {

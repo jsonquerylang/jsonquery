@@ -1,11 +1,12 @@
 import {
-  FilterOperations,
+  JSONQueryOperatorImplementation,
   JSONPath,
   JSONPrimitive,
   JSONQuery,
-  JSONQueryFilterOperator,
+  JSONQueryOperatorName,
   JSONQueryFunction,
-  JSONQueryFunctionImplementation
+  JSONQueryFunctionImplementation,
+  JSONQueryOperator
 } from './types'
 
 export function jsonquery(
@@ -13,7 +14,14 @@ export function jsonquery(
   query: JSONQuery,
   functions?: Record<string, JSONQueryFunctionImplementation>
 ): unknown {
-  if (isJSONQueryFunction(query)) {
+  if (isJSONQueryOperator(query, coreOperations)) {
+    const [left, op, right] = query
+    const leftValue = jsonquery(data, left as JSONQuery, functions) // FIXME: cleanup casting
+    const rightValue = isArray(right) ? jsonquery(data, right, functions) : right
+    return coreOperations[op](leftValue, rightValue)
+  }
+
+  if (isJSONQueryFunction(query, { ...coreFunctions, ...functions })) {
     const [name, ...args] = query
 
     // special case: function 'map'
@@ -28,7 +36,8 @@ export function jsonquery(
     return fn(data, ...args)
   }
 
-  if (isArray(query)) {
+  // pipeline
+  if (isArray(query) && (query.length === 0 || isArray(query[0]))) {
     return query.reduce((data, item) => jsonquery(data, item, functions), data)
   }
 
@@ -38,7 +47,16 @@ export function jsonquery(
     return obj
   }
 
-  throw new Error('Unknown type of query')
+  // JSONPath
+  if (
+    (isArray(query) && query.every((path) => typeof path === 'string')) ||
+    typeof query === 'string'
+  ) {
+    return get(data, query)
+  }
+
+  // value
+  return query
 }
 
 export function get(data: unknown, path: string | JSONPath): unknown {
@@ -62,11 +80,12 @@ export function get(data: unknown, path: string | JSONPath): unknown {
 export function filter<T>(
   data: T[],
   path: string | JSONPath,
-  op: JSONQueryFilterOperator,
+  op: JSONQueryOperatorName,
   value: JSONPrimitive,
   regexOptions?: string
 ): T[] {
-  const filterFn = filterOperations[op]
+  // FIXME: implement support for evaluating a pipeline with multiple conditions
+  const filterFn = coreOperations[op]
   if (!filterFn) {
     throw new SyntaxError(`Unknown filter operator "${op}"`)
   }
@@ -74,18 +93,6 @@ export function filter<T>(
   const _value = op === 'regex' ? new RegExp(value as string, regexOptions) : value
 
   return data.filter((item) => filterFn(get(item, path), _value))
-}
-
-const filterOperations: FilterOperations = {
-  '==': (a, b) => a == b,
-  '>': (a, b) => a > b,
-  '>=': (a, b) => a >= b,
-  in: (a, b) => (b as Array<unknown>).includes(a),
-  '<': (a, b) => a < b,
-  '<=': (a, b) => a <= b,
-  '!=': (a, b) => a != b,
-  'not in': (a, b) => !(b as Array<unknown>).includes(a),
-  regex: (a: string, regex: RegExp) => regex.test(a)
 }
 
 export function sort<T>(
@@ -143,6 +150,9 @@ export function keyBy<T>(data: T[], key: string): Record<string, T[]> {
   return res
 }
 
+// FIXME: test function value
+export const value = (_data: unknown, value: unknown): unknown => value
+
 export const flatten = (data: unknown[]) => data.flat()
 
 export const uniq = <T>(data: T[]) => [...new Set(data)]
@@ -178,8 +188,9 @@ export function round(data: number | number[], digits = 0) {
 
 export const size = <T>(data: T[]) => data.length
 
-const coreFunctions = {
+const coreFunctions: Record<string, JSONQueryFunctionImplementation> = {
   get,
+  value,
   filter,
   sort,
   pick,
@@ -200,8 +211,37 @@ const coreFunctions = {
   round
 }
 
-function isJSONQueryFunction(query: JSONQuery): query is JSONQueryFunction {
+// TODO: make the coreOperations extendable, like with functions
+const coreOperations: Record<string, JSONQueryOperatorImplementation> = {
+  '==': (a, b) => a == b,
+  '>': (a, b) => a > b,
+  '>=': (a, b) => a >= b,
+  in: (a, b) => (b as Array<unknown>).includes(a),
+  '<': (a, b) => a < b,
+  '<=': (a, b) => a <= b,
+  '!=': (a, b) => a != b,
+  'not in': (a, b) => !(b as Array<unknown>).includes(a),
+  and: (a, b) => !!a && !!b, // TODO: test operator and
+  or: (a, b) => !!a || !!b, // TODO: test operator or
+  regex: (a: string, regex: RegExp) => regex.test(a)
+}
+
+function isJSONQueryFunction(
+  query: JSONQuery,
+  functions: Record<string, JSONQueryFunctionImplementation>
+): query is JSONQueryFunction {
   return isArray(query) && typeof query[0] === 'string'
+  // return isArray(query) && Object.keys(functions).includes(query[0] as string) // FIXME
+}
+
+function isJSONQueryOperator(
+  query: JSONQuery,
+  operators: Record<
+    JSONQueryOperatorName,
+    (left: JSONQuery, op: JSONQueryOperatorName, right: JSONQuery) => unknown
+  >
+): query is JSONQueryOperator {
+  return isArray(query) && query.length === 3 && Object.keys(operators).includes(query[1] as string)
 }
 
 const isArray = Array.isArray
