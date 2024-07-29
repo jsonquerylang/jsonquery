@@ -38,7 +38,7 @@ const data = {
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
   ['friends'],
-  ['filter', ['city'], '==', 'New York'],
+  ['filter', [['city'], '==', 'New York']],
   ['sort', ['age']],
   ['map', ['pick', ['name'], ['age']]]
 ])
@@ -136,7 +136,7 @@ A _pipe_ is an array containing multiple _functions_, _objects_, or _pipes_. The
 
 ```json
 [
-  ["filter", ["address", "city"], "==", "New York"],
+  ["filter", [["address", "city"], "==", "New York"]],
   ["sort", ["age"]]
 ]
 ```
@@ -147,10 +147,10 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 
 ```json
 {
-  "names": ["pick", ["name"]],
+  "names": ["map", ["name"]],
   "count": ["size"],
   "averageAge": [
-    ["pick", ["age"]], 
+    ["map", ["age"]], 
     ["average"]
   ]
 }

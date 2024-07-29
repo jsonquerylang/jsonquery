@@ -110,21 +110,6 @@ export const filter =
     return data.filter(predicate)
   }
 
-const operators: Record<string, Operator> = {
-  '==': (a, b) => a == b,
-  '>': (a, b) => a > b,
-  '>=': (a, b) => a >= b,
-  in: (a, ...b) => (b as Array<unknown>).includes(a),
-  '<': (a, b) => a < b,
-  '<=': (a, b) => a <= b,
-  '!=': (a, b) => a != b,
-  'not in': (a, ...b) => !(b as Array<unknown>).includes(a),
-  and: (a, b) => (a as boolean) && (b as boolean),
-  or: (a, b) => (a as boolean) || (b as boolean),
-  regex: (a: string, regex: string, regexOptions?: string) =>
-    new RegExp(regex, regexOptions).test(a)
-}
-
 export const sort = <T>(
   getter: (item: Record<string, T>) => unknown = (item) => item,
   direction?: 'asc' | 'desc'
@@ -247,6 +232,25 @@ const coreFunctions: Record<string, FunctionCompiler> = {
   prod,
   average,
   round
+}
+
+const operators: Record<string, Operator> = {
+  '==': (a, b) => a == b,
+  '>': (a, b) => a > b,
+  '>=': (a, b) => a >= b,
+  in: (a, ...b) => (b as Array<unknown>).includes(a),
+  '<': (a, b) => a < b,
+  '<=': (a, b) => a <= b,
+  '!=': (a, b) => a != b,
+  'not in': (a, ...b) => !(b as Array<unknown>).includes(a),
+  and: (a, b) => (a as boolean) && (b as boolean),
+  or: (a, b) => (a as boolean) || (b as boolean),
+  regex: (a: string, regex: string, regexOptions?: string) =>
+    new RegExp(regex, regexOptions).test(a), // FIXME: creating a new RegExp for every item in the array is probably slow, test this
+  '+': (a: number, b: number) => a + b,
+  '-': (a: number, b: number) => a - b,
+  '*': (a: number, b: number) => a * b,
+  '/': (a: number, b: number) => a / b
 }
 
 const isArray = <T>(value: unknown): value is T[] => Array.isArray(value)
