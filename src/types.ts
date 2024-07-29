@@ -24,10 +24,17 @@ export type JSONFilterOperatorName =
   | 'regex'
 
 export type JSONQueryFunction = [name: string, ...args: unknown[]]
+export type JSONQueryOperator = [left: string, op: string, ...right: unknown[]]
 export type JSONQueryArray = JSONQuery[]
 export type JSONQueryObject = { [key: string]: JSONQuery }
-export type JSONQuery = JSONQueryFunction | JSONQueryArray | JSONQueryObject
+export type JSONQuery =
+  | JSONQueryFunction
+  | JSONQueryOperator
+  | JSONQueryArray
+  | JSONQueryObject
+  | JSONProperty
+  | JSONPrimitive
 
-export type JSONQueryFunctionImplementation = (data: unknown, ...args: unknown[]) => unknown
-
-export type JSONQueryOperatorImplementation = (a: unknown, b: unknown) => unknown
+export type Evaluator = ((data: unknown) => unknown) | JSONProperty
+export type FunctionCompiler = (...args: unknown[]) => Evaluator
+export type OperatorCompiler = (...args: unknown[]) => Evaluator
