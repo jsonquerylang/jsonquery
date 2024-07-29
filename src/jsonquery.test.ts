@@ -167,22 +167,6 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should filter multiple conditions (or)', () => {
-    expect(
-      jsonquery(nestedData, [
-        'concat',
-        ['filter', ['address', 'city'], '==', 'New York'],
-        ['filter', ['address', 'city'], '==', 'Atlanta']
-      ])
-    ).toEqual([
-      { name: 'Chris', age: 23, address: { city: 'New York' } },
-      { name: 'Joe', age: 32, address: { city: 'New York' } },
-      { name: 'Sarah', age: 31, address: { city: 'New York' } },
-      { name: 'Emily', age: 19, address: { city: 'Atlanta' } },
-      { name: 'Kevin', age: 19, address: { city: 'Atlanta' } }
-    ])
-  })
-
   test('should filter data using !=', () => {
     expect(jsonquery(data, ['filter', 'city', '!=', 'New York'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },

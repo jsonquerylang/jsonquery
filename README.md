@@ -159,7 +159,6 @@ The following functions are available:
 
 - `get`
 - `filter`
-- `concat`,
 - `sort`
 - `pick`
 - `groupBy`
