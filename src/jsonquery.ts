@@ -1,11 +1,10 @@
 import {
-  JSONQuery,
-  JSONFilterCondition,
-  JSONProperty,
-  FunctionCompiler,
   Evaluator,
-  OperatorCompiler,
-  JSONPrimitive
+  FunctionCompiler,
+  JSONPrimitive,
+  JSONProperty,
+  JSONQuery,
+  Operator
 } from './types'
 
 export function jsonquery(
@@ -13,14 +12,16 @@ export function jsonquery(
   query: JSONQuery | JSONQuery[],
   functions?: Record<string, FunctionCompiler>
 ): unknown {
-  return compile(query, { ...coreFunctions, ...functions })(data)
+  const compiled = compile(query, functions)
+
+  return typeof compiled === 'function' ? compiled(data) : compiled
 }
 
 export function compile(
   query: JSONQuery | JSONQuery[],
-  functions: Record<string, FunctionCompiler>
+  functions?: Record<string, FunctionCompiler>
 ): Evaluator {
-  console.log('compile', query) // FIXME: cleanup
+  // console.log('compile', query) // FIXME: cleanup
 
   // object
   if (isObject(query)) {
@@ -30,7 +31,9 @@ export function compile(
 
     return (data) => {
       const obj = {}
-      getters.forEach(([key, getter]) => (obj[key] = getter(data)))
+      getters.forEach(
+        ([key, getter]) => (obj[key] = typeof getter === 'function' ? getter(data) : getter)
+      )
       return obj
     }
   }
@@ -38,16 +41,9 @@ export function compile(
   if (isArray(query)) {
     // function
     const [name, ...args] = query
-    const fn = functions[name as string]
+    const fn = functions?.[name as string] ?? coreFunctions[name as string]
     if (fn) {
       const compiledArgs = args.map((arg) => compile(arg as JSONQuery, functions))
-      // return (data) => {
-      //   const evaluatedArgs = compiledArgs.map((arg) => arg(data))
-      //   console.log('evaluatedArgs', name, JSON.stringify(evaluatedArgs))
-      //   return fn(...evaluatedArgs)
-      // }
-
-      // console.log('compiledArgs', name, compiledArgs)
       return fn(...compiledArgs)
     }
 
@@ -56,8 +52,11 @@ export function compile(
     const op = operators[opName as string]
     if (op) {
       // TODO: try to merge function and operator logic
-      const args = [left, ...right]
-      return op(...args.map((arg) => compile(arg as JSONQuery, functions)))
+      const args = [left, ...right].map((arg) => compile(arg as JSONQuery, functions))
+      return (data) => {
+        const evaluatedArgs = args.map((arg) => (typeof arg === 'function' ? arg(data) : arg)) as []
+        return op(...evaluatedArgs)
+      }
     }
 
     // property
@@ -69,17 +68,22 @@ export function compile(
     // pipe
     // @ts-ignore
     const pipe: Evaluator[] = query.map((item: JSONQuery) => compile(item, functions))
-    return (data) => pipe.reduce((data: unknown, evaluator: Evaluator) => evaluator(data), data)
+    return (data) =>
+      pipe.reduce(
+        (data: unknown, evaluator: Evaluator) =>
+          typeof evaluator === 'function' ? evaluator(data) : evaluator,
+        data
+      )
   }
 
   // value
-  // console.log('compile value', JSON.stringify(query)) // FIXME: cleanup
+  // FIXME: return should a getter for the value, and remove the checks on whether to evaluate or not
+  // @ts-ignore
   return query as JSONPrimitive
 }
 
 export const get = (...property: JSONProperty) => {
   const getter = (data: unknown) => {
-    console.log('get', JSON.stringify(property))
     let value = data
 
     for (const prop of property) {
@@ -89,93 +93,42 @@ export const get = (...property: JSONProperty) => {
     return value
   }
 
+  // TODO: this is ugly
   getter.property = property
 
   return getter
 }
 
-export const map = (callback: Evaluator) => (data: unknown[]) => data.map(callback)
+export const map =
+  <T, U>(callback: (item: T) => U) =>
+  (data: T[]) =>
+    data.map(callback)
 
-// FIXME: refactor function filter
-export function filter<T>(data: T[], ...condition: JSONFilterCondition): T[] {
-  return data.filter(createPredicate(condition))
-}
-
-function createPredicate<T>(
-  condition: JSONFilterCondition | JSONFilterCondition[]
-): (item: T) => unknown {
-  if (condition.length === 1) {
-    return createPredicate(condition[0])
+export const filter =
+  <T>(predicate: (item: T) => boolean) =>
+  (data: T[]): T[] => {
+    return data.filter(predicate)
   }
 
-  const [left, op, right, ...rest] = condition as
-    | [unknown, string, unknown]
-    | [unknown, string, unknown, unknown[]]
-
-  // TODO: try to simplify the following heuristics. Or at least write out the rules here in a comment
-
-  const filterFn = operators[op]
-  if (!filterFn) {
-    throw new SyntaxError(`Unknown filter operator "${op}"`)
-  }
-
-  const leftPredicate = isFilterCondition(left)
-    ? createPredicate(left)
-    : isProperty(left)
-      ? (item: T) => get(item, left)
-      : () => left
-
-  // FIXME: change "regex", "in", and "not in" into regular functions
-  const rightPredicate = isFilterCondition(right)
-    ? createPredicate([right, ...(rest as JSONFilterCondition[])])
-    : op === 'regex'
-      ? () => new RegExp(right as string, (rest as string[])[0])
-      : isProperty(right) && op !== 'in' && op !== 'not in'
-        ? (item: T) => get(item, right)
-        : () => right
-
-  // TODO: cleanup
-  // console.log('predicate', condition, {
-  //   left: leftPredicate.toString(),
-  //   right: rightPredicate.toString(),
-  //   filterFn: filterFn.toString()
-  // })
-
-  return (item: T) => {
-    // TODO: cleanup
-    // console.log('item', item, {
-    //   left: leftPredicate(item),
-    //   right: rightPredicate(item),
-    //   result: filterFn(leftPredicate(item), rightPredicate(item))
-    // })
-    return filterFn(leftPredicate(item), rightPredicate(item))
-  }
-}
-
-function isFilterCondition(condition: unknown): condition is JSONFilterCondition {
-  return condition && condition[1] in operators
-}
-
-const operators: Record<string, OperatorCompiler> = {
+const operators: Record<string, Operator> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
-  in: (a, b) => (b as Array<unknown>).includes(a),
+  in: (a, ...b) => (b as Array<unknown>).includes(a),
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
   '!=': (a, b) => a != b,
-  'not in': (a, b) => !(b as Array<unknown>).includes(a),
+  'not in': (a, ...b) => !(b as Array<unknown>).includes(a),
   and: (a, b) => (a as boolean) && (b as boolean),
   or: (a, b) => (a as boolean) || (b as boolean),
-  regex: (a: string, regex: RegExp) => regex.test(a)
+  regex: (a: string, regex: string, regexOptions?: string) =>
+    new RegExp(regex, regexOptions).test(a)
 }
 
 export const sort = <T>(
   getter: (item: Record<string, T>) => unknown = (item) => item,
   direction?: 'asc' | 'desc'
 ) => {
-  console.log('sort', getter?.toString(), direction?.toString()) // FIXME: cleanup
-
   const sign = direction === 'desc' ? -1 : 1
 
   function compare(itemA: Record<string, T>, itemB: Record<string, T>) {
@@ -192,6 +145,7 @@ export const pick =
   (object: Record<string, unknown>): unknown => {
     const out = {}
     getters.forEach((getter) => {
+      // @ts-ignore
       const property = getter.property as JSONProperty
       const outKey: string = property[property.length - 1]
       out[outKey] = getter(object)
@@ -276,9 +230,7 @@ const coreFunctions: Record<string, FunctionCompiler> = {
   get,
   sort,
   map,
-  size,
-  // FIXME
-  // filter,
+  filter,
   pick,
   groupBy,
   keyBy,
@@ -287,6 +239,7 @@ const coreFunctions: Record<string, FunctionCompiler> = {
   flatten,
   uniq,
   uniqBy,
+  size,
   limit,
   sum,
   min,
@@ -302,5 +255,3 @@ const isObject = (value: unknown): value is object =>
   value && typeof value === 'object' && !isArray(value)
 
 const isString = (value: unknown): value is string => typeof value === 'string'
-
-const isProperty = (value: unknown): value is JSONProperty => isArray(value)

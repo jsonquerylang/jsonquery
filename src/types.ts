@@ -37,4 +37,4 @@ export type JSONQuery =
 
 export type Evaluator = ((data: unknown) => unknown) | JSONProperty
 export type FunctionCompiler = (...args: unknown[]) => Evaluator
-export type OperatorCompiler = (...args: unknown[]) => Evaluator
+export type Operator = (...args: unknown[]) => unknown
