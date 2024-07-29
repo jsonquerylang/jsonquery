@@ -160,6 +160,7 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 
 The following functions are available:
 
+- `get`
 - `filter`
 - `sort`
 - `pick`

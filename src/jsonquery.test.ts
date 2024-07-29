@@ -40,6 +40,14 @@ describe('jsonquery', () => {
     expect(jsonquery({ user: { name: 'Joe' } }, ['user', 'name'])).toEqual('Joe')
   })
 
+  test('should get a property that has the same name as a function', () => {
+    expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
+  })
+
+  test('should get a nested property that has the same name as a function', () => {
+    expect(jsonquery({ user: { in: 'Joe' } }, ['get', ['user', 'in']])).toEqual('Joe')
+  })
+
   test('should execute a function', () => {
     expect(jsonquery([3, 1, 2], ['sort'])).toEqual([1, 2, 3])
   })

@@ -25,6 +25,7 @@ export function jsonquery(
 
     // special case: function 'map'
     if (name === 'map') {
+      // @ts-ignore
       return data.map((item: JSONQuery) =>
         // TODO: decide whether to support optional brackets for the arguments of functions map and filter
         // @ts-ignore
@@ -222,6 +223,7 @@ export function round(data: number, digits = 0) {
 export const size = <T>(data: T[]) => data.length
 
 const coreFunctions: Record<string, JSONQueryFunctionImplementation> = {
+  get,
   filter,
   sort,
   pick,
