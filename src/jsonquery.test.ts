@@ -36,24 +36,6 @@ describe('jsonquery', () => {
     expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
   })
 
-  test('should execute an operator', () => {
-    expect(jsonquery({ a: 2, b: 3 }, ['a', '==', 2])).toEqual(true)
-    expect(jsonquery({ a: 2, b: 3 }, ['a', '==', 3])).toEqual(false)
-    expect(jsonquery({ a: 2, b: 3 }, ['a', '<', ['get', 'b']])).toEqual(true)
-    expect(jsonquery({ a: 2, b: 3 }, [2, '==', ['get', 'a']])).toEqual(true)
-    expect(jsonquery({ a: 2, b: 3 }, [2, '==', ['get', 'a']])).toEqual(true)
-    // expect(jsonquery({ a: 2, b: 3 }, ['a', '<', ['b']])).toEqual(true) // FIXME
-    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 2], 'and', ['b', '==', 3]])).toEqual(true)
-    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 3], 'and', ['b', '==', 3]])).toEqual(false)
-    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 2], 'and', ['b', '==', 4]])).toEqual(false)
-    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 2], 'or', ['b', '==', 4]])).toEqual(true)
-    expect(jsonquery({ a: 2, b: 3 }, [['a', '==', 1], 'or', ['b', '==', 4]])).toEqual(false)
-    expect(jsonquery({ message: 'hello' }, ['message', '==', 'hello'])).toEqual(true)
-    expect(jsonquery({ message: 'hello' }, [['value', 'hello'], '==', ['get', 'message']])).toEqual(
-      true
-    )
-  })
-
   test('should execute a pipeline', () => {
     expect(
       jsonquery({ user: { name: 'Joe' } }, [
@@ -243,6 +225,45 @@ describe('jsonquery', () => {
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' }
     ])
+  })
+
+  test('should filter multiple conditions using "and" and "or"', () => {
+    const item1 = { a: 1, b: 1 }
+    const item2 = { a: 2, b: 22 }
+    const item3 = { a: 3, b: 33 }
+    const data = [item1, item2, item3]
+
+    expect(jsonquery(data, ['filter', 'a', '==', 2])).toEqual([item2])
+    expect(jsonquery(data, ['filter', 'a', '==', 3])).toEqual([item3])
+    expect(jsonquery(data, ['filter', 3, '==', 'a'])).toEqual([item3])
+    expect(jsonquery(data, ['filter', [3, '==', 'a']])).toEqual([item3])
+
+    expect(jsonquery(data, ['filter', ['a'], '==', ['b']])).toEqual([item1])
+    expect(jsonquery(data, ['filter', 2, '>=', ['a']])).toEqual([item1, item2])
+
+    expect(jsonquery(data, ['filter', ['a', '==', 2], 'and', ['b', '==', 22]])).toEqual([item2])
+    expect(jsonquery(data, ['filter', [['a', '==', 2], 'and', ['b', '==', 22]]])).toEqual([item2])
+    expect(jsonquery(data, ['filter', ['a', '==', 1], 'or', ['b', '==', 22]])).toEqual([
+      item1,
+      item2
+    ])
+    expect(jsonquery(data, ['filter', ['a', '==', 1], 'or', ['b', '==', 4]])).toEqual([item1])
+    expect(
+      jsonquery(data, [
+        'filter',
+        [['a', '==', 1], 'and', ['b', '==', 1]],
+        'or',
+        [['a', '==', 2], 'and', ['b', '==', 22]]
+      ])
+    ).toEqual([item1, item2])
+    expect(
+      jsonquery(data, ['filter', ['a', '==', 1], 'or', ['a', '==', 2], 'or', ['a', '==', 3]])
+    ).toEqual([item1, item2, item3])
+    // FIXME: test precedence of "and" and "or"
+
+    const dataMsg = [{ message: 'hello' }]
+    expect(jsonquery(dataMsg, ['filter', 'message', '==', 'hello'])).toEqual(dataMsg)
+    expect(jsonquery(dataMsg, ['filter', 'hello', '==', ['message']])).toEqual(dataMsg)
   })
 
   test('should sort data (default direction)', () => {

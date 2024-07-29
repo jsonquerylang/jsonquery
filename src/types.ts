@@ -1,8 +1,19 @@
 export type JSONPrimitive = string | number | boolean | null
 
 export type JSONPath = string[]
+export type JSONProperty = JSONPath | string
 
-export type JSONQueryOperatorName =
+export type JSONFilterCondition =
+  | [left: JSONFilterCondition, 'and' | 'or', right: JSONFilterCondition]
+  | [left: JSONProperty, op: JSONFilterOperatorName, right: JSONPrimitive]
+  | [left: JSONProperty, op: JSONFilterOperatorName, right: JSONProperty]
+  | [
+      left: number | boolean | null | ['string', string],
+      op: JSONFilterOperatorName,
+      right: JSONProperty
+    ]
+
+export type JSONFilterOperatorName =
   | '=='
   | '>'
   | '>='
@@ -14,15 +25,10 @@ export type JSONQueryOperatorName =
   | 'regex'
 
 export type JSONQueryFunction = [name: string, ...args: unknown[]]
-export type JSONQueryOperator = [
-  left: JSONQuery | JSONPrimitive,
-  op: string,
-  right: JSONQuery | JSONPrimitive
-]
 export type JSONQueryArray = JSONQuery[]
 export type JSONQueryObject = { [key: string]: JSONQuery }
-export type JSONQuery = JSONQueryFunction | JSONQueryOperator | JSONQueryArray | JSONQueryObject
+export type JSONQuery = JSONQueryFunction | JSONQueryArray | JSONQueryObject
 
 export type JSONQueryFunctionImplementation = (data: unknown, ...args: unknown[]) => unknown
 
-export type JSONQueryOperatorImplementation = (a: unknown, b: unknown) => boolean
+export type JSONQueryOperatorImplementation = (a: unknown, b: unknown) => unknown
