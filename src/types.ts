@@ -1,7 +1,6 @@
 export type JSONPrimitive = string | number | boolean | null
 
-export type JSONPath = string[]
-export type JSONProperty = JSONPath | string
+export type JSONProperty = string[]
 
 export type JSONFilterCondition =
   | [left: JSONFilterCondition, 'and' | 'or', right: JSONFilterCondition]

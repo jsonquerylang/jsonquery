@@ -1,8 +1,6 @@
 import {
   JSONQueryOperatorImplementation,
-  JSONPath,
   JSONQuery,
-  JSONQueryFunction,
   JSONQueryFunctionImplementation,
   JSONFilterCondition,
   JSONProperty
@@ -13,49 +11,58 @@ export function jsonquery(
   query: JSONQuery,
   functions?: Record<string, JSONQueryFunctionImplementation>
 ): unknown {
-  if (isJSONQueryFunction(query)) {
-    const [name, ...args] = query
-
-    // special case: function 'map'
-    if (name === 'map') {
-      return (data as unknown[]).map((item) => jsonquery(item, args[0] as JSONQuery, functions))
-    }
-
-    const fn = functions?.[name] || coreFunctions[name]
-    if (!fn) {
-      throw new Error(`Unknown query function "${name}"`)
-    }
-    return fn(data, ...args)
-  }
-
-  if (isArray(query)) {
-    return query.reduce((data, item) => jsonquery(data, item, functions), data)
-  }
-
-  if (query && typeof query === 'object') {
+  // object
+  if (isObject(query)) {
     const obj = {}
     keys(query).forEach((key) => (obj[key] = jsonquery(data, query[key], functions)))
     return obj
   }
 
-  throw new Error('Unknown type of query')
-}
+  // function
+  if (isArray(query)) {
+    const [name, ...args] = query as [string, ...unknown[]]
+    const fn = functions?.[name] || coreFunctions[name]
 
-export function get(data: unknown, path: string | JSONPath): unknown {
-  if (isArray(data)) {
-    return data.map((item) => get(item, path))
+    // special case: function 'map'
+    if (name === 'map') {
+      return data.map((item: JSONQuery) =>
+        // TODO: decide whether to support optional brackets for the arguments of functions map and filter
+        // @ts-ignore
+        jsonquery(item, args.length === 1 && isArray(args[0]) ? args[0] : args, functions)
+      )
+    }
+
+    if (fn) {
+      return fn(data, ...args)
+    }
   }
 
-  if (isArray(path)) {
+  // property
+  // @ts-ignore
+  if (isArray(query) && query.every(isString)) {
+    return get(data, query as string[])
+  }
+
+  // pipe
+  if (isArray(query)) {
+    // @ts-ignore
+    return query.reduce((data: unknown, item: JSONQuery) => jsonquery(data, item, functions), data)
+  }
+
+  throw new Error(`Unknown type of query ${JSON.stringify(query)}`)
+}
+
+export function get(data: unknown, property: JSONProperty): unknown {
+  if (isArray(property)) {
     let value: unknown = data
 
-    for (const prop of path) {
+    for (const prop of property) {
       value = value != undefined ? value[prop] : undefined
     }
 
     return value
   } else {
-    return data != undefined ? data[path] : undefined
+    return data != undefined ? data[property] : undefined
   }
 }
 
@@ -83,20 +90,18 @@ function createPredicate<T>(
 
   const leftPredicate = isFilterCondition(left)
     ? createPredicate(left)
-    : isArray(left) ||
-        (typeof left === 'string' && (!isArray(right) || op === 'in' || op === 'not in'))
+    : isProperty(left)
       ? (item: T) => get(item, left)
       : () => left
 
+  // FIXME: change "regex", "in", and "not in" into regular functions
   const rightPredicate = isFilterCondition(right)
     ? createPredicate([right, ...(rest as JSONFilterCondition[])])
-    : op === 'in' || op === 'not in'
-      ? () => right
-      : isJSONProperty(right) && (!isJSONProperty(left) || isArray(right))
+    : op === 'regex'
+      ? () => new RegExp(right as string, (rest as string[])[0])
+      : isProperty(right) && op !== 'in' && op !== 'not in'
         ? (item: T) => get(item, right)
-        : op === 'regex'
-          ? () => new RegExp(right as string, (rest as string[])[0])
-          : () => right
+        : () => right
 
   // TODO: cleanup
   // console.log('predicate', condition, {
@@ -120,10 +125,6 @@ function isFilterCondition(condition: unknown): condition is JSONFilterCondition
   return condition && condition[1] in operators
 }
 
-function isJSONProperty(value: unknown): value is JSONProperty {
-  return isArray(value) || typeof value === 'string'
-}
-
 const operators: Record<string, JSONQueryOperatorImplementation> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
@@ -140,29 +141,25 @@ const operators: Record<string, JSONQueryOperatorImplementation> = {
 
 export function sort<T>(
   data: Record<string, T>[],
-  path: string | JSONPath = [],
+  property: JSONProperty = [],
   direction?: 'asc' | 'desc'
 ): Record<string, T>[] {
   const sign = direction === 'desc' ? -1 : 1
 
   function compare(itemA: Record<string, T>, itemB: Record<string, T>) {
-    const a = get(itemA, path)
-    const b = get(itemB, path)
+    const a = get(itemA, property)
+    const b = get(itemB, property)
     return a > b ? sign : a < b ? -sign : 0
   }
 
   return data.slice().sort(compare)
 }
 
-export function pick(data: unknown, ...paths: JSONPath[]): unknown {
-  if (isArray(data)) {
-    return data.map((item) => pick(item, ...paths))
-  }
-
+export function pick(object: Record<string, unknown>, ...properties: JSONProperty[]): unknown {
   const out = {}
-  paths.forEach((path) => {
-    const outKey: string = isArray(path) ? path[path.length - 1] : path
-    out[outKey] = get(data, path)
+  properties.forEach((properties) => {
+    const outKey: string = isArray(properties) ? properties[properties.length - 1] : properties
+    out[outKey] = get(object, properties)
   })
   return out
 }
@@ -216,11 +213,7 @@ export const min = (data: number[]) => Math.min(...data)
 
 export const max = (data: number[]) => Math.max(...data)
 
-export function round(data: number | number[], digits = 0) {
-  if (isArray(data)) {
-    return data.map((item) => round(item, digits))
-  }
-
+export function round(data: number, digits = 0) {
   // @ts-ignore
   const num = Math.round(data + 'e' + digits)
   return Number(num + 'e' + -digits)
@@ -229,7 +222,6 @@ export function round(data: number | number[], digits = 0) {
 export const size = <T>(data: T[]) => data.length
 
 const coreFunctions: Record<string, JSONQueryFunctionImplementation> = {
-  get,
   filter,
   sort,
   pick,
@@ -250,8 +242,11 @@ const coreFunctions: Record<string, JSONQueryFunctionImplementation> = {
   round
 }
 
-function isJSONQueryFunction(query: JSONQuery): query is JSONQueryFunction {
-  return isArray(query) && typeof query[0] === 'string'
-}
+const isArray = <T>(value: unknown): value is T[] => Array.isArray(value)
 
-const isArray = Array.isArray
+const isObject = (value: unknown): value is object =>
+  value && typeof value === 'object' && !isArray(value)
+
+const isString = (value: unknown): value is string => typeof value === 'string'
+
+const isProperty = (value: unknown): value is JSONProperty => isArray(value)

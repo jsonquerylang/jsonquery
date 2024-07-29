@@ -37,10 +37,10 @@ const data = {
 // get the array containing the friends from the object, filter the friends that live in New York,
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
-  ['get', 'friends'],
-  ['filter', 'city', '==', 'New York'],
-  ['sort', 'age'],
-  ['pick', 'name', 'age']
+  ['friends'],
+  ['filter', ['city'], '==', 'New York'],
+  ['sort', ['age']],
+  ['map', ['pick', ['name'], ['age']]]
 ])
 // [
 //   { name: 'Chris', age: 23 },
@@ -53,11 +53,14 @@ const names = jsonquery(data, [
 // a list with names, the total number of array items, and the average value of the
 // properties `age` in all items.
 const result = jsonquery(data, [
-  ['get', 'friends'],
+  ['friends'],
   {
-    names: ['get', 'name'],
+    names: ['map', ['name']],
     count: ['size'],
-    averageAge: [['get', 'age'], ['average']]
+    averageAge: [
+      ['map', ['age']], 
+      ['average']
+    ]
   }
 ])
 // {
@@ -118,7 +121,7 @@ The examples in the following sections are based on querying the following data:
 At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
 
 ```json
-["sort", "age", "asc"]
+["sort", ["age"], "asc"]
 ```
 
 Most of the functions use property names like `age` in the example above. Nested properties can be specified using an array. The following example will sort an array by a nested property `city` inside an object `address`:
@@ -134,7 +137,7 @@ A _pipe_ is an array containing multiple _functions_, _objects_, or _pipes_. The
 ```json
 [
   ["filter", ["address", "city"], "==", "New York"],
-  ["sort", "age"]
+  ["sort", ["age"]]
 ]
 ```
 
@@ -144,10 +147,10 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 
 ```json
 {
-  "names": ["pick", "name"],
+  "names": ["pick", ["name"]],
   "count": ["size"],
   "averageAge": [
-    ["pick", "age"], 
+    ["pick", ["age"]], 
     ["average"]
   ]
 }
@@ -157,7 +160,6 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 
 The following functions are available:
 
-- `get`
 - `filter`
 - `sort`
 - `pick`
