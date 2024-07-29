@@ -8,7 +8,7 @@ A lightweight, expandable JSON query language.
 - Expressive
 - Easy to understand and remember
 - Serializable (it is JSON)
-- Feature rich (20 powerful functions)
+- Feature rich (20+ powerful functions)
 - Expandable
 
 ## Install
@@ -159,6 +159,7 @@ The following functions are available:
 
 - `get`
 - `filter`
+- `concat`,
 - `sort`
 - `pick`
 - `groupBy`

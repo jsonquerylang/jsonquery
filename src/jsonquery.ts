@@ -29,6 +29,11 @@ export function jsonquery(
       return (data as unknown[]).map((item) => jsonquery(item, args[0] as JSONQuery, functions))
     }
 
+    // special case: function 'concat'
+    if (name === 'concat') {
+      return [].concat(...args.map((arg) => jsonquery(data, arg as JSONQuery, functions)))
+    }
+
     const fn = functions?.[name] || coreFunctions[name]
     if (!fn) {
       throw new Error(`Unknown query function "${name}"`)

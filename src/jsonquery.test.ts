@@ -155,6 +155,34 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should filter multiple conditions (and)', () => {
+    expect(
+      jsonquery(nestedData, [
+        ['filter', 'age', '>', 30],
+        ['filter', ['address', 'city'], '==', 'New York']
+      ])
+    ).toEqual([
+      { name: 'Joe', age: 32, address: { city: 'New York' } },
+      { name: 'Sarah', age: 31, address: { city: 'New York' } }
+    ])
+  })
+
+  test('should filter multiple conditions (or)', () => {
+    expect(
+      jsonquery(nestedData, [
+        'concat',
+        ['filter', ['address', 'city'], '==', 'New York'],
+        ['filter', ['address', 'city'], '==', 'Atlanta']
+      ])
+    ).toEqual([
+      { name: 'Chris', age: 23, address: { city: 'New York' } },
+      { name: 'Joe', age: 32, address: { city: 'New York' } },
+      { name: 'Sarah', age: 31, address: { city: 'New York' } },
+      { name: 'Emily', age: 19, address: { city: 'Atlanta' } },
+      { name: 'Kevin', age: 19, address: { city: 'Atlanta' } }
+    ])
+  })
+
   test('should filter data using !=', () => {
     expect(jsonquery(data, ['filter', 'city', '!=', 'New York'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
@@ -225,11 +253,10 @@ describe('jsonquery', () => {
     ])
   })
 
-  test.skip('should filter data using "regex" with flags', () => {
+  test('should filter data using "regex" with flags', () => {
     // search for a name containing a case-insensitive character "m"
     expect(jsonquery(data, ['filter', 'name', 'regex', 'm', 'i'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' }
     ])
   })
