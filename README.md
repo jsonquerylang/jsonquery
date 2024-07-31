@@ -4,7 +4,7 @@ A lightweight, expandable JSON query language.
 
 ## Features
 
-- Small (just `1.2 kB` when minified and gzipped!)
+- Small (just `1.5 kB` when minified and gzipped!)
 - Expressive
 - Easy to understand and remember
 - Serializable (it is JSON)
