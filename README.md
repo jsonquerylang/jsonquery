@@ -38,11 +38,11 @@ const data = {
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
   ['friends'],
-  ['filter', [['city'], '==', 'New York']],
-  ['sort', ['age']],
-  ['map', ['pick', ['name'], ['age']]]
+  ['filter', ['city', '==', ['string', 'New York']]],
+  ['sort', 'age'],
+  ['pick', 'name', 'age']
 ])
-// [
+// names = [
 //   { name: 'Chris', age: 23 },
 //   { name: 'Sarah', age: 31 },
 //   { name: 'Joe', age: 32 }
@@ -55,15 +55,15 @@ const names = jsonquery(data, [
 const result = jsonquery(data, [
   ['friends'],
   {
-    names: ['map', ['name']],
+    names: ['map', 'name'],
     count: ['size'],
     averageAge: [
-      ['map', ['age']], 
+      ['map', 'age'], 
       ['average']
     ]
   }
 ])
-// {
+// result = {
 //   names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
 //   count: 7,
 //   averageAge: 28
@@ -75,7 +75,7 @@ const shoppingCart = [
     { name: 'milk', price: 1.2, quantity: 3 }
 ]
 const totalPrice = jsonquery(shoppingCart, [
-  ['map', [['price'], '*', ['quantity']]], 
+  ['map', ['price', '*', 'quantity']], 
   ['sum']
 ])
 // totalPrice = 8.6
@@ -132,7 +132,7 @@ The examples in the following sections are based on querying the following data:
 At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
 
 ```json
-["sort", ["age"], "asc"]
+["sort", "age", "asc"]
 ```
 
 Most of the functions use property names like `age` in the example above. Nested properties can be specified using an array. The following example will sort an array by a nested property `city` inside an object `address`:
@@ -147,8 +147,8 @@ A _pipe_ is an array containing multiple _functions_, _objects_, or _pipes_. The
 
 ```json
 [
-  ["filter", [["address", "city"], "==", "New York"]],
-  ["sort", ["age"]]
+  ["filter", [["address", "city"], "==", ["string", "New York"]]],
+  ["sort", "age"]
 ]
 ```
 
@@ -158,10 +158,10 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 
 ```json
 {
-  "names": ["map", ["name"]],
+  "names": ["map", "name"],
   "count": ["size"],
   "averageAge": [
-    ["map", ["age"]], 
+    ["map", "age"], 
     ["average"]
   ]
 }
@@ -172,6 +172,7 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 The following functions are available:
 
 - `get`
+- `string`
 - `filter`
 - `sort`
 - `pick`

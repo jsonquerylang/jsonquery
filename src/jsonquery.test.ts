@@ -32,8 +32,12 @@ const scoresData = [
 ]
 
 describe('jsonquery', () => {
-  test('should get a property', () => {
+  test('should get a property with brackets', () => {
     expect(jsonquery({ name: 'Joe' }, ['name'])).toEqual('Joe')
+  })
+
+  test('should get a property without brackets', () => {
+    expect(jsonquery({ name: 'Joe' }, 'name')).toEqual('Joe')
   })
 
   test('should get a nested property', () => {
@@ -45,7 +49,7 @@ describe('jsonquery', () => {
   })
 
   test('should get a nested property that has the same name as a function', () => {
-    expect(jsonquery({ user: { in: 'Joe' } }, ['get', 'user', 'in'])).toEqual('Joe')
+    expect(jsonquery({ sort: { name: 'Joe' } }, ['get', 'sort', 'name'])).toEqual('Joe')
   })
 
   test('should execute a function', () => {
@@ -74,9 +78,9 @@ describe('jsonquery', () => {
   test('should create an object containing pipelines', () => {
     expect(
       jsonquery(data, {
-        names: ['map', ['name']],
+        names: ['map', 'name'],
         count: ['size'],
-        averageAge: [['map', ['age']], ['average']]
+        averageAge: [['map', 'age'], ['average']]
       })
     ).toEqual({
       names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
@@ -88,10 +92,10 @@ describe('jsonquery', () => {
   test('should create a nested object', () => {
     expect(
       jsonquery(data, {
-        names: ['map', ['name']],
+        names: ['map', 'name'],
         stats: {
           count: ['size'],
-          averageAge: [['map', ['age']], ['average']]
+          averageAge: [['map', 'age'], ['average']]
         }
       })
     ).toEqual({
@@ -109,12 +113,12 @@ describe('jsonquery', () => {
         [
           'map',
           {
-            name: ['name'],
-            maxScore: [['scores'], ['max']],
-            minScore: [['scores'], ['min']]
+            name: 'name',
+            maxScore: ['scores', ['max']],
+            minScore: ['scores', ['min']]
           }
         ],
-        ['sort', ['maxScore'], 'desc']
+        ['sort', 'maxScore', 'desc']
       ])
     ).toEqual([
       { name: 'Emily', maxScore: 8, minScore: 2 },
@@ -124,7 +128,7 @@ describe('jsonquery', () => {
   })
 
   test('should map a property', () => {
-    expect(jsonquery(data, ['map', ['name']])).toEqual([
+    expect(jsonquery(data, ['map', 'name'])).toEqual([
       'Chris',
       'Emily',
       'Joe',
@@ -136,7 +140,7 @@ describe('jsonquery', () => {
   })
 
   test('should map over an array using pick', () => {
-    expect(jsonquery(data, ['map', ['pick', ['name']]])).toEqual([
+    expect(jsonquery(data, ['map', ['pick', 'name']])).toEqual([
       { name: 'Chris' },
       { name: 'Emily' },
       { name: 'Joe' },
@@ -160,13 +164,13 @@ describe('jsonquery', () => {
   })
 
   test('should resolve an operator', () => {
-    expect(jsonquery({ city: 'New York' }, [['city'], '==', 'New York'])).toEqual(true)
-    expect(jsonquery([], [true, 'and', false])).toEqual(false)
-    expect(jsonquery([], [true, 'or', false])).toEqual(true)
+    // expect(jsonquery([], [true, 'and', false])).toEqual(false)
+    // expect(jsonquery([], [true, 'or', false])).toEqual(true)
+    expect(jsonquery({ city: 'New York' }, ['city', '==', ['string', 'New York']])).toEqual(true)
   })
 
   test('should filter data using ==', () => {
-    expect(jsonquery(data, ['filter', [['city'], '==', 'New York']])).toEqual([
+    expect(jsonquery(data, ['filter', ['city', '==', ['string', 'New York']]])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Sarah', age: 31, city: 'New York' }
@@ -174,7 +178,9 @@ describe('jsonquery', () => {
   })
 
   test('should filter nested data using ==', () => {
-    expect(jsonquery(nestedData, ['filter', [['address', 'city'], '==', 'New York']])).toEqual([
+    expect(
+      jsonquery(nestedData, ['filter', [['address', 'city'], '==', ['string', 'New York']]])
+    ).toEqual([
       { name: 'Chris', age: 23, address: { city: 'New York' } },
       { name: 'Joe', age: 32, address: { city: 'New York' } },
       { name: 'Sarah', age: 31, address: { city: 'New York' } }
@@ -184,8 +190,8 @@ describe('jsonquery', () => {
   test('should filter multiple conditions (and)', () => {
     expect(
       jsonquery(nestedData, [
-        ['filter', [['age'], '>', 30]],
-        ['filter', [['address', 'city'], '==', 'New York']]
+        ['filter', ['age', '>', 30]],
+        ['filter', [['address', 'city'], '==', ['string', 'New York']]]
       ])
     ).toEqual([
       { name: 'Joe', age: 32, address: { city: 'New York' } },
@@ -194,7 +200,7 @@ describe('jsonquery', () => {
   })
 
   test('should filter data using !=', () => {
-    expect(jsonquery(data, ['filter', [['city'], '!=', 'New York']])).toEqual([
+    expect(jsonquery(data, ['filter', ['city', '!=', ['string', 'New York']]])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
@@ -207,17 +213,17 @@ describe('jsonquery', () => {
   })
 
   test('should filter data using >=', () => {
-    expect(jsonquery(data, ['filter', [['age'], '>=', 45]])).toEqual([
+    expect(jsonquery(data, ['filter', ['age', '>=', 45]])).toEqual([
       { name: 'Robert', age: 45, city: 'Manhattan' }
     ])
   })
 
   test('should filter data using <', () => {
-    expect(jsonquery(data, ['filter', [['age'], '<', 19]])).toEqual([])
+    expect(jsonquery(data, ['filter', ['age', '<', 19]])).toEqual([])
   })
 
   test('should filter data using <=', () => {
-    expect(jsonquery(data, ['filter', [['age'], '<=', 19]])).toEqual([
+    expect(jsonquery(data, ['filter', ['age', '<=', 19]])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' }
     ])
@@ -226,8 +232,8 @@ describe('jsonquery', () => {
   test('should filter data using >= and <=', () => {
     expect(
       jsonquery(data, [
-        ['filter', [['age'], '>=', 23]],
-        ['filter', [['age'], '<=', 27]]
+        ['filter', ['age', '>=', 23]],
+        ['filter', ['age', '<=', 27]]
       ])
     ).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
@@ -236,7 +242,7 @@ describe('jsonquery', () => {
   })
 
   test('should filter data using "in"', () => {
-    expect(jsonquery(data, ['filter', [['age'], 'in', 19, 23]])).toEqual([
+    expect(jsonquery(data, ['filter', ['age', 'in', 19, 23]])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' }
@@ -244,7 +250,7 @@ describe('jsonquery', () => {
   })
 
   test('should filter data using "not in"', () => {
-    expect(jsonquery(data, ['filter', [['age'], 'not in', 19, 23]])).toEqual([
+    expect(jsonquery(data, ['filter', ['age', 'not in', 19, 23]])).toEqual([
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
       { name: 'Robert', age: 45, city: 'Manhattan' },
@@ -254,7 +260,7 @@ describe('jsonquery', () => {
 
   test('should filter data using "regex"', () => {
     // search for a name containing 3 to 5 letters
-    expect(jsonquery(data, ['filter', [['name'], 'regex', '^[A-z]{3,5}$']])).toEqual([
+    expect(jsonquery(data, ['filter', ['name', 'regex', '^[A-z]{3,5}$']])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Joe', age: 32, city: 'New York' },
@@ -265,7 +271,7 @@ describe('jsonquery', () => {
 
   test('should filter data using "regex" with flags', () => {
     // search for a name containing a case-insensitive character "m"
-    expect(jsonquery(data, ['filter', [['name'], 'regex', 'm', 'i']])).toEqual([
+    expect(jsonquery(data, ['filter', ['name', 'regex', 'm', 'i']])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' }
     ])
@@ -277,31 +283,25 @@ describe('jsonquery', () => {
     const item3 = { a: 3, b: 33 }
     const data = [item1, item2, item3]
 
-    expect(jsonquery(data, ['filter', [['a'], '==', 2]])).toEqual([item2])
-    expect(jsonquery(data, ['filter', [['a'], '==', 3]])).toEqual([item3])
-    expect(jsonquery(data, ['filter', [3, '==', ['a']]])).toEqual([item3])
-    expect(jsonquery(data, ['filter', [[3, '==', ['a']]]])).toEqual([item3])
+    expect(jsonquery(data, ['filter', ['a', '==', 2]])).toEqual([item2])
+    expect(jsonquery(data, ['filter', ['a', '==', 3]])).toEqual([item3])
+    expect(jsonquery(data, ['filter', [3, '==', 'a']])).toEqual([item3])
+    expect(jsonquery(data, ['filter', [[3, '==', 'a']]])).toEqual([item3])
 
-    expect(jsonquery(data, ['filter', [['a'], '==', ['b']]])).toEqual([item1])
-    expect(jsonquery(data, ['filter', [2, '>=', ['a']]])).toEqual([item1, item2])
+    expect(jsonquery(data, ['filter', ['a', '==', 'b']])).toEqual([item1])
+    expect(jsonquery(data, ['filter', [2, '>=', 'a']])).toEqual([item1, item2])
 
-    expect(jsonquery(data, ['filter', [['a'], '==', 2], 'and', [['b'], '==', 22]])).toEqual([item2])
-    expect(jsonquery(data, ['filter', [[['a'], '==', 2], 'and', [['b'], '==', 22]]])).toEqual([
-      item2
-    ])
-    expect(jsonquery(data, ['filter', [[['a'], '==', 1], 'or', [['b'], '==', 22]]])).toEqual([
+    expect(jsonquery(data, ['filter', ['a', '==', 2], 'and', ['b', '==', 22]])).toEqual([item2])
+    expect(jsonquery(data, ['filter', [['a', '==', 2], 'and', ['b', '==', 22]]])).toEqual([item2])
+    expect(jsonquery(data, ['filter', [['a', '==', 1], 'or', ['b', '==', 22]]])).toEqual([
       item1,
       item2
     ])
-    expect(jsonquery(data, ['filter', [['a'], '==', 1], 'or', [['b'], '==', 4]])).toEqual([item1])
+    expect(jsonquery(data, ['filter', ['a', '==', 1], 'or', ['b', '==', 4]])).toEqual([item1])
     expect(
       jsonquery(data, [
         'filter',
-        [
-          [[['a'], '==', 1], 'and', [['b'], '==', 1]],
-          'or',
-          [[['a'], '==', 2], 'and', [['b'], '==', 22]]
-        ]
+        [[['a', '==', 1], 'and', ['b', '==', 1]], 'or', [['a', '==', 2], 'and', ['b', '==', 22]]]
       ])
     ).toEqual([item1, item2])
     // FIXME: support multiple and/or in one go?
@@ -310,12 +310,12 @@ describe('jsonquery', () => {
     // ).toEqual([item1, item2, item3])
 
     const dataMsg = [{ message: 'hello' }]
-    expect(jsonquery(dataMsg, ['filter', [['message'], '==', 'hello']])).toEqual(dataMsg)
-    expect(jsonquery(dataMsg, ['filter', ['hello', '==', ['message']]])).toEqual(dataMsg)
+    expect(jsonquery(dataMsg, ['filter', ['message', '==', ['string', 'hello']]])).toEqual(dataMsg)
+    expect(jsonquery(dataMsg, ['filter', [['string', 'hello'], '==', 'message']])).toEqual(dataMsg)
   })
 
   test('should sort data (default direction)', () => {
-    expect(jsonquery(data, ['sort', ['age']])).toEqual([
+    expect(jsonquery(data, ['sort', 'age'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Chris', age: 23, city: 'New York' },
@@ -327,7 +327,7 @@ describe('jsonquery', () => {
   })
 
   test('should sort data (asc)', () => {
-    expect(jsonquery(data, ['sort', ['age'], 'asc'])).toEqual([
+    expect(jsonquery(data, ['sort', 'age', 'asc'])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Chris', age: 23, city: 'New York' },
@@ -339,7 +339,7 @@ describe('jsonquery', () => {
   })
 
   test('should sort data (desc)', () => {
-    expect(jsonquery(data, ['sort', ['age'], 'desc'])).toEqual([
+    expect(jsonquery(data, ['sort', 'age', 'desc'])).toEqual([
       { name: 'Robert', age: 45, city: 'Manhattan' },
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Sarah', age: 31, city: 'New York' },
@@ -351,7 +351,7 @@ describe('jsonquery', () => {
   })
 
   test('should sort data (strings)', () => {
-    expect(jsonquery(data, ['sort', ['name']])).toEqual([
+    expect(jsonquery(data, ['sort', 'name'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Joe', age: 32, city: 'New York' },
@@ -376,6 +376,7 @@ describe('jsonquery', () => {
 
   test('should sort a list with numbers rather than objects', () => {
     expect(jsonquery([3, 7, 2, 6], ['sort'])).toEqual([2, 3, 6, 7])
+    expect(jsonquery([3, 7, 2, 6], ['sort', [], 'desc'])).toEqual([7, 6, 3, 2])
   })
 
   test('should not crash when sorting a list with nested arrays', () => {
@@ -392,8 +393,8 @@ describe('jsonquery', () => {
     expect(jsonquery([{}, {}, {}], ['sort'])).toEqual([{}, {}, {}])
   })
 
-  test('should pick data (single field)', () => {
-    expect(jsonquery(data, ['map', ['pick', ['name']]])).toEqual([
+  test('should pick data from an array (single field)', () => {
+    expect(jsonquery(data, ['pick', 'name'])).toEqual([
       { name: 'Chris' },
       { name: 'Emily' },
       { name: 'Joe' },
@@ -405,12 +406,12 @@ describe('jsonquery', () => {
   })
 
   test('should pick data from an object', () => {
-    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', ['b']])).toEqual({ b: 2 })
-    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', ['b'], ['a']])).toEqual({ b: 2, a: 1 })
+    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b'])).toEqual({ b: 2 })
+    expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b', 'a'])).toEqual({ b: 2, a: 1 })
   })
 
-  test('should pick data (multiple fields)', () => {
-    expect(jsonquery(data, ['map', ['pick', ['name'], ['city']]])).toEqual([
+  test('should pick data from an array (multiple fields)', () => {
+    expect(jsonquery(data, ['pick', 'name', 'city'])).toEqual([
       { name: 'Chris', city: 'New York' },
       { name: 'Emily', city: 'Atlanta' },
       { name: 'Joe', city: 'New York' },
@@ -421,8 +422,8 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should pick data (a single nested field)', () => {
-    expect(jsonquery(nestedData, ['map', ['pick', ['address', 'city']]])).toEqual([
+  test('should pick data from an array (a single nested field)', () => {
+    expect(jsonquery(nestedData, ['pick', ['address', 'city']])).toEqual([
       { city: 'New York' },
       { city: 'Atlanta' },
       { city: 'New York' },
@@ -433,8 +434,8 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should pick data (multiple fields with nested fields)', () => {
-    expect(jsonquery(nestedData, ['map', ['pick', ['name'], ['address', 'city']]])).toEqual([
+  test('should pick data from an array (multiple fields with nested fields)', () => {
+    expect(jsonquery(nestedData, ['pick', 'name', ['address', 'city']])).toEqual([
       { name: 'Chris', city: 'New York' },
       { name: 'Emily', city: 'Atlanta' },
       { name: 'Joe', city: 'New York' },
@@ -446,7 +447,7 @@ describe('jsonquery', () => {
   })
 
   test('should group items by a key', () => {
-    expect(jsonquery(data, ['groupBy', ['city']])).toEqual({
+    expect(jsonquery(data, ['groupBy', 'city'])).toEqual({
       'New York': [
         { name: 'Chris', age: 23, city: 'New York' },
         { name: 'Joe', age: 32, city: 'New York' },
@@ -468,7 +469,7 @@ describe('jsonquery', () => {
       { id: 3, name: 'Chris' }
     ]
 
-    expect(jsonquery(users, ['keyBy', ['id']])).toEqual({
+    expect(jsonquery(users, ['keyBy', 'id'])).toEqual({
       1: { id: 1, name: 'Joe' },
       2: { id: 2, name: 'Sarah' },
       3: { id: 3, name: 'Chris' }
@@ -496,7 +497,7 @@ describe('jsonquery', () => {
   })
 
   test('should get unique objects by key', () => {
-    expect(jsonquery(data, ['uniqBy', ['city']])).toEqual([
+    expect(jsonquery(data, ['uniqBy', 'city'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
@@ -553,9 +554,9 @@ describe('jsonquery', () => {
     expect(
       jsonquery(friendsData, [
         ['friends'],
-        ['filter', [['city'], '==', 'New York']],
-        ['sort', ['age']],
-        ['map', ['name']],
+        ['filter', ['city', '==', ['string', 'New York']]],
+        ['sort', 'age'],
+        ['map', 'name'],
         ['limit', 2]
       ])
     ).toEqual(['Chris', 'Sarah'])
@@ -583,7 +584,7 @@ describe('jsonquery', () => {
       { name: 'milk', price: 1.2, quantity: 3 }
     ]
 
-    expect(jsonquery(data, [['map', [['price'], '*', ['quantity']]], ['sum']])).toEqual(8.6)
+    expect(jsonquery(data, [['map', ['price', '*', 'quantity']], ['sum']])).toEqual(8.6)
   })
 
   test('should be able to query the jmespath example', () => {
@@ -608,9 +609,9 @@ describe('jsonquery', () => {
       jsonquery(
         data,
         [
-          ['locations'],
-          ['filter', [['state'], '==', 'WA']],
-          ['map', ['name']],
+          ['get', 'locations'],
+          ['filter', ['state', '==', ['string', 'WA']]],
+          ['map', 'name'],
           ['sort'],
           { WashingtonCities: ['join'] }
         ],

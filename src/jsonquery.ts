@@ -43,18 +43,31 @@ export function compile(
     const [name, ...args] = query
     const fn = functions?.[name as string] ?? coreFunctions[name as string]
     if (fn) {
+      // special cases: functions "get" and "string"
+      // FIXME: get rid of these special cases
+      if (fn === get || fn === string || fn === sort) {
+        return fn(...args)
+      }
+
       const compiledArgs = args.map((arg) => compile(arg as JSONQuery, functions))
       return fn(...compiledArgs)
     }
 
     // operator
     const [left, opName, ...right] = query
+    const opArgs = [left, ...right]
+    const opConstructor = operatorCompilers[opName as string]
+    if (opConstructor) {
+      return opConstructor(...opArgs)
+    }
     const op = operators[opName as string]
     if (op) {
-      // TODO: try to merge function and operator logic
-      const args = [left, ...right].map((arg) => compile(arg as JSONQuery, functions))
+      // TODO: try to merge function and operator logic?
+      const compiledArgs = opArgs.map((arg) => compile(arg as JSONQuery, functions))
       return (data) => {
-        const evaluatedArgs = args.map((arg) => (typeof arg === 'function' ? arg(data) : arg)) as []
+        const evaluatedArgs = compiledArgs.map((arg) =>
+          typeof arg === 'function' ? arg(data) : arg
+        ) as []
         return op(...evaluatedArgs)
       }
     }
@@ -74,6 +87,11 @@ export function compile(
           typeof evaluator === 'function' ? evaluator(data) : evaluator,
         data
       )
+  }
+
+  // property without brackets
+  if (isString(query)) {
+    return get(query)
   }
 
   // value
@@ -99,6 +117,8 @@ export const get = (...property: JSONProperty) => {
   return getter
 }
 
+export const string = (text: string) => () => text
+
 export const map =
   <T, U>(callback: (item: T) => U) =>
   (data: T[]) =>
@@ -110,11 +130,11 @@ export const filter =
     return data.filter(predicate)
   }
 
-export const sort = <T>(
-  getter: (item: Record<string, T>) => unknown = (item) => item,
-  direction?: 'asc' | 'desc'
-) => {
+export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc') => {
   const sign = direction === 'desc' ? -1 : 1
+
+  // FIXME: simplify this
+  const getter = isString(property) ? get(property) : get(...property)
 
   function compare(itemA: Record<string, T>, itemB: Record<string, T>) {
     const a = getter(itemA)
@@ -127,16 +147,29 @@ export const sort = <T>(
 
 export const pick =
   (...getters: Array<(item: unknown) => unknown>) =>
-  (object: Record<string, unknown>): unknown => {
-    const out = {}
-    getters.forEach((getter) => {
-      // @ts-ignore
-      const property = getter.property as JSONProperty
-      const outKey: string = property[property.length - 1]
-      out[outKey] = getter(object)
-    })
-    return out
+  (data: Record<string, unknown>): unknown => {
+    if (isArray(data)) {
+      return data.map((item) => _pick(item as Record<string, unknown>, getters))
+    }
+
+    return _pick(data, getters)
   }
+
+const _pick = (
+  object: Record<string, unknown>,
+  getters: Array<(item: unknown) => unknown>
+): unknown => {
+  const out = {}
+
+  getters.forEach((getter) => {
+    // @ts-ignore
+    const property = getter.property as JSONProperty // FIXME: this is ugly!
+    const outKey: string = property[property.length - 1]
+    out[outKey] = getter(object)
+  })
+
+  return out
+}
 
 export const groupBy =
   <T>(getter: (item: T) => unknown) =>
@@ -213,6 +246,7 @@ export const size =
 
 const coreFunctions: Record<string, FunctionCompiler> = {
   get,
+  string,
   sort,
   map,
   filter,
@@ -234,6 +268,16 @@ const coreFunctions: Record<string, FunctionCompiler> = {
   round
 }
 
+const operatorCompilers: Record<string, FunctionCompiler> = {
+  regex: (property: string, expression: string, options?: string) => {
+    const regex = new RegExp(expression, options)
+    const getter = get(property)
+    return (data: unknown) => {
+      return regex.test(getter(data) as string)
+    }
+  }
+}
+
 const operators: Record<string, Operator> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
@@ -245,8 +289,7 @@ const operators: Record<string, Operator> = {
   'not in': (a, ...b) => !(b as Array<unknown>).includes(a),
   and: (a, b) => (a as boolean) && (b as boolean),
   or: (a, b) => (a as boolean) || (b as boolean),
-  regex: (a: string, regex: string, regexOptions?: string) =>
-    new RegExp(regex, regexOptions).test(a), // FIXME: creating a new RegExp for every item in the array is probably slow, test this
+
   '+': (a: number, b: number) => a + b,
   '-': (a: number, b: number) => a - b,
   '*': (a: number, b: number) => a * b,
