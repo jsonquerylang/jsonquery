@@ -579,11 +579,11 @@ describe('jsonquery', () => {
 
   test('should use operators to calculate a shopping cart', () => {
     const data = [
-      { name: 'bread', price: 2.5, count: 2 },
-      { name: 'milk', price: 1.2, count: 3 }
+      { name: 'bread', price: 2.5, quantity: 2 },
+      { name: 'milk', price: 1.2, quantity: 3 }
     ]
 
-    expect(jsonquery(data, [['map', [['price'], '*', ['count']]], ['sum']])).toEqual(8.6)
+    expect(jsonquery(data, [['map', [['price'], '*', ['quantity']]], ['sum']])).toEqual(8.6)
   })
 
   test('should be able to query the jmespath example', () => {

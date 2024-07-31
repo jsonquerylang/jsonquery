@@ -68,6 +68,17 @@ const result = jsonquery(data, [
 //   count: 7,
 //   averageAge: 28
 // }
+
+// use operators + - * / to do calculations
+const shoppingCart = [
+    { name: 'bread', price: 2.5, quantity: 2 },
+    { name: 'milk', price: 1.2, quantity: 3 }
+]
+const totalPrice = jsonquery(shoppingCart, [
+  ['map', [['price'], '*', ['quantity']]], 
+  ['sum']
+])
+// totalPrice = 8.6
 ```
 
 The build in functions can be extended with custom functions, like `times` in the following example:
