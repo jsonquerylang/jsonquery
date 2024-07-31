@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JSONQuery</title>
+    <link rel="stylesheet" href="style.css" />
+    <meta name="description" content="Repair broken JSON documents" />
+    <meta name="keywords" content="json, repair, simple, json-simple-repair, fix, invalid" />
+  </head>
+  <body>
+    <div class="app">
+      <h1>JSONQuery</h1>
+      <div class="info">
+        <p>A lightweight, flexible, and expandable JSON query language.</p>
+        <p>
+          Documentation:
+          <a href="https://github.com/josdejong/jsonquery">
+            https://github.com/josdejong/jsonquery
+          </a>
+        </p>
+      </div>
+      <div class="playground">
+        <div class="column">
+          <label for="input-text">Input</label>
+          <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+{
+  "friends": [
+    { "name": "Chris", "age": 23, "city": "New York" },
+    { "name": "Emily", "age": 19, "city": "Atlanta" },
+    { "name": "Joe", "age": 32, "city": "New York" },
+    { "name": "Kevin", "age": 19, "city": "Atlanta" },
+    { "name": "Michelle", "age": 27, "city": "Los Angeles" },
+    { "name": "Robert", "age": 45, "city": "Manhattan" },
+    { "name": "Sarah", "age": 31, "city": "New York" }
+  ]
+}</textarea
+          >
+        </div>
+        <div class="column">
+          <label for="query-text">Query</label>
+          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+[
+  ["friends"],
+  ["filter", [
+    ["city", "==", ["string", "New York"]],
+    "and",
+    ["age", ">", 30]
+  ]],
+  ["sort", "age"],
+  ["pick", "name", "age"]
+]</textarea
+          >
+        </div>
+        <div class="column">
+          <label for="output-text">Output</label>
+          <textarea id="output-text" readonly>loading...</textarea>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      // import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/+esm'
+      import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/lib/jsonquery.js'
+
+      function go() {
+        try {
+          const input = JSON.parse(inputText.value)
+          const query = JSON.parse(queryText.value)
+          const output = jsonquery(input, query)
+          outputText.value = JSON.stringify(output, null, 2)
+          outputText.classList.remove('error')
+        } catch (err) {
+          outputText.value = err.message
+          outputText.classList.add('error')
+        }
+      }
+
+      const inputText = document.getElementById('input-text')
+      const queryText = document.getElementById('query-text')
+      const outputText = document.getElementById('output-text')
+      inputText.addEventListener('input', go)
+      queryText.addEventListener('input', go)
+      go()
+    </script>
+  </body>
+</html>

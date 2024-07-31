@@ -1,6 +1,6 @@
 # JSONQuery
 
-A lightweight, expandable JSON query language.
+A lightweight, flexible, and expandable JSON query language.
 
 ## Features
 

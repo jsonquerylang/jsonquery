@@ -1,12 +1,16 @@
 {
   "name": "@josdejong/jsonquery",
   "version": "0.0.5",
-  "description": "A lightweight, expandable JSON query language",
+  "description": "A lightweight, flexible, and expandable JSON query language",
   "keywords": [
     "json",
     "query",
+    "language",
     "small",
-    "lightweight"
+    "simple",
+    "lightweight",
+    "flexible",
+    "expandable"
   ],
   "author": "Jos de Jong",
   "type": "module",
