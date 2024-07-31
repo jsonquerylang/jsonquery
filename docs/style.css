@@ -40,6 +40,7 @@ body {
   flex-direction: column;
   margin: 0;
   padding: 0 10px 20px;
+  color: black;
   background: var(--background-color);
   border-style: solid;
   border-color: transparent;
@@ -60,12 +61,17 @@ body {
   width: 100%;
   max-width: 1000px;
   align-self: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
 }
 
 h1 {
   font-size: 150%;
   margin: 0;
-  padding: 20px 0;
+  padding: 0;
 }
 
 .playground {
