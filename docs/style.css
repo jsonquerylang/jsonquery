@@ -14,10 +14,10 @@ textarea {
 }
 
 a {
-  color: dodgerblue;
+  color: #37a4b9;
 }
 a:hover {
-  color: #187ad7;
+  color: #3fbdd6;
 }
 
 body {
@@ -25,38 +25,64 @@ body {
   justify-content: center;
 }
 
-h1 {
-  font-size: 150%;
-  color: dodgerblue;
-  margin: 0;
-  padding: 20px 0;
-}
-
 .app {
-  max-width: 1000px;
   flex: 1;
-  padding: 10px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   overflow: auto;
 }
 
-.info {
-  padding: 0 0 20px 0;
+.header {
+  --background-color: #d5f3bb;
+
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 10px 20px;
+  background: var(--background-color);
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0 0 10px 0;
+  background-color: hsla(0, 0%, 0%, 0);
+  background-image:
+          linear-gradient(var(--background-color), var(--background-color)),
+          linear-gradient(to top right, transparent 50.5%, var(--background-color) 50.5%),
+          linear-gradient(to top left, transparent 50.5%, var(--background-color) 50.5%);
+  background-repeat: repeat, repeat-x, repeat-x;
+  background-position: 0 0, 10px 100%, 10px 100%;
+  background-size: auto auto, 20px 20px, 20px 20px;
+  background-clip: padding-box, border-box, border-box;
+  background-origin: padding-box, border-box, border-box;
+}
+
+.header-contents {
+  width: 100%;
+  max-width: 1000px;
+  align-self: center;
+}
+
+h1 {
+  font-size: 150%;
+  margin: 0;
+  padding: 20px 0;
 }
 
 .playground {
   flex: 1;
   display: flex;
+  margin: 30px 10px 10px;
   gap: 10px;
   flex-wrap: wrap;
+  max-width: 1000px;
+  align-self: center;
 }
 
 .column {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 400px;
+  min-width: min(400px, 90vw);
   min-height: 220px;
 }
 

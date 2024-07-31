@@ -2,6 +2,8 @@
 
 A lightweight, flexible, and expandable JSON query language.
 
+Try it out on the online playground: https://jsonquerylang.org
+
 ## Features
 
 - Small (just `1.5 kB` when minified and gzipped!)
