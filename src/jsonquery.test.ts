@@ -164,8 +164,8 @@ describe('jsonquery', () => {
   })
 
   test('should resolve an operator', () => {
-    // expect(jsonquery([], [true, 'and', false])).toEqual(false)
-    // expect(jsonquery([], [true, 'or', false])).toEqual(true)
+    expect(jsonquery([], [true, 'and', false])).toEqual(false)
+    expect(jsonquery([], [true, 'or', false])).toEqual(true)
     expect(jsonquery({ city: 'New York' }, ['city', '==', ['string', 'New York']])).toEqual(true)
   })
 
