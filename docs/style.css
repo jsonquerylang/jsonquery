@@ -31,6 +31,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  background: #fafafa;
 }
 
 .header {
@@ -74,14 +75,39 @@ h1 {
   padding: 0;
 }
 
+.examples {
+  width: 100vw;
+  max-width: 1000px;
+  margin: 30px 10px 10px;
+  box-sizing: border-box;
+  align-self: center;
+}
+
+button.example {
+  background: #808080;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  margin: 5px 0;
+}
+
+button.example:hover {
+  background: #9c9c9c;
+}
+
 .playground {
   flex: 1;
   display: flex;
-  margin: 30px 10px 10px;
+  margin: 10px 10px 10px;
   gap: 10px;
   flex-wrap: wrap;
   max-width: 1000px;
   align-self: center;
+  box-sizing: border-box;
 }
 
 .column {
@@ -110,10 +136,6 @@ textarea {
   box-sizing: border-box;
   font-family: monospace;
   max-height: 500px;
-}
-
-textarea[readonly] {
-  background: #f5f5f5;
 }
 
 .error {

@@ -27,11 +27,16 @@
           </div>
         </div>
       </div>
+      <div class="examples">
+        <button class="example" id="example1">example 1</button>
+        <button class="example" id="example2">example 2</button>
+        <button class="example" id="example3">example 3</button>
+        <button class="example" id="example4">example 4</button>
+      </div>
       <div class="playground">
         <div class="column">
           <label for="input-text">Input</label>
-          <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">
-{
+          <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">{
   "friends": [
     { "name": "Chris", "age": 23, "city": "New York" },
     { "name": "Emily", "age": 19, "city": "Atlanta" },
@@ -46,14 +51,9 @@
         </div>
         <div class="column">
           <label for="query-text">Query</label>
-          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
-[
+          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">[
   ["friends"],
-  ["filter", [
-    ["city", "==", ["string", "New York"]],
-    "and",
-    ["age", ">", 30]
-  ]],
+  ["filter", ["city", "==", ["string", "New York"]]],
   ["sort", "age"],
   ["pick", "name", "age"]
 ]</textarea
@@ -70,6 +70,47 @@
       // import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/+esm'
       import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/lib/jsonquery.js'
 
+      const inputText = document.getElementById('input-text')
+      const queryText = document.getElementById('query-text')
+      const outputText = document.getElementById('output-text')
+
+      const input1 = inputText.value
+      const query1 = queryText.value
+
+      const input2 = inputText.value
+      const query2 = `[
+  ["friends"],
+  ["filter", [
+    ["city", "==", ["string", "New York"]],
+    "and",
+    ["age", ">", 30]
+  ]],
+  ["sort", "age"],
+  ["pick", "name", "age"]
+]`
+
+      const input3 = inputText.value
+      const query3 = `[
+  ["friends"],
+  {
+    "names": ["map", "name"],
+    "count": ["size"],
+    "averageAge": [
+      ["map", "age"],
+      ["average"]
+    ]
+  }
+]`
+
+      const input4 = `[
+  { "name": "bread", "price": 2.5, "quantity": 2 },
+  { "name": "milk", "price": 1.2, "quantity": 3 }
+]`
+      const query4 = `[
+  ["map", ["price", "*", "quantity"]],
+  ["sum"]
+]`
+
       function go() {
         try {
           const input = JSON.parse(inputText.value)
@@ -83,11 +124,19 @@
         }
       }
 
-      const inputText = document.getElementById('input-text')
-      const queryText = document.getElementById('query-text')
-      const outputText = document.getElementById('output-text')
+      function load(input, query) {
+        inputText.value = input
+        queryText.value = query
+        go()
+      }
+
       inputText.addEventListener('input', go)
       queryText.addEventListener('input', go)
+      document.getElementById('example1').onclick = () => load(input1, query1)
+      document.getElementById('example2').onclick = () => load(input2, query2)
+      document.getElementById('example3').onclick = () => load(input3, query3)
+      document.getElementById('example4').onclick = () => load(input4, query4)
+
       go()
     </script>
   </body>
