@@ -76,11 +76,22 @@ h1 {
 }
 
 .examples {
-  width: 100vw;
-  max-width: 1000px;
-  margin: 30px 10px 10px;
-  box-sizing: border-box;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.examples-inner {
   align-self: center;
+
+  width: 100%;
+  max-width: 1000px;
+  margin: 30px 0 10px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 button.example {
@@ -102,7 +113,7 @@ button.example:hover {
 .playground {
   flex: 1;
   display: flex;
-  margin: 10px 10px 10px;
+  margin: 10px 10px 20px;
   gap: 10px;
   flex-wrap: wrap;
   max-width: 1000px;

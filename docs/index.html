@@ -7,14 +7,21 @@
     <meta name="description" content="Repair broken JSON documents" />
     <meta name="keywords" content="json, repair, simple, json-simple-repair, fix, invalid" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="frog-756900.png">
+    <link rel="icon" type="image/png" href="frog-756900-100.png">
   </head>
   <body>
     <div class="app">
       <div class="header">
         <div class="header-contents">
           <!-- source: https://pixy.org/756900/ -->
-          <img class="header-icon" src="frog-756900.png" width="100" height="98" alt="JSON Query logo" />
+          <img
+            src="frog-756900-100.png"
+            srcset="frog-756900-200.png 2x"
+            alt="JSON Query logo"
+            class="header-icon"
+            width="100"
+            height="98"
+          />
           <div class="header-text">
             <h1>JSON Query</h1>
             <p>A lightweight, flexible, and expandable JSON query language.</p>
@@ -28,23 +35,25 @@
         </div>
       </div>
       <div class="examples">
-        <button class="example" id="example1">example 1</button>
-        <button class="example" id="example2">example 2</button>
-        <button class="example" id="example3">example 3</button>
-        <button class="example" id="example4">example 4</button>
+        <div class="examples-inner">
+          <button class="example" id="example1">example 1</button>
+          <button class="example" id="example2">example 2</button>
+          <button class="example" id="example3">example 3</button>
+          <button class="example" id="example4">example 4</button>
+        </div>
       </div>
       <div class="playground">
         <div class="column">
           <label for="input-text">Input</label>
           <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">{
   "friends": [
-    { "name": "Chris", "age": 23, "city": "New York" },
-    { "name": "Emily", "age": 19, "city": "Atlanta" },
-    { "name": "Joe", "age": 32, "city": "New York" },
-    { "name": "Kevin", "age": 19, "city": "Atlanta" },
-    { "name": "Michelle", "age": 27, "city": "Los Angeles" },
-    { "name": "Robert", "age": 45, "city": "Manhattan" },
-    { "name": "Sarah", "age": 31, "city": "New York" }
+    {"name": "Chris", "age": 23, "city": "New York"},
+    {"name": "Emily", "age": 19, "city": "Atlanta"},
+    {"name": "Joe", "age": 32, "city": "New York"},
+    {"name": "Kevin", "age": 19, "city": "Atlanta"},
+    {"name": "Michelle", "age": 27, "city": "Los Angeles"},
+    {"name": "Robert", "age": 45, "city": "Manhattan"},
+    {"name": "Sarah", "age": 31, "city": "New York"}
   ]
 }</textarea
           >
@@ -67,7 +76,6 @@
     </div>
 
     <script type="module">
-      // import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/+esm'
       import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/lib/jsonquery.js'
 
       const inputText = document.getElementById('input-text')
