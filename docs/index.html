@@ -63,7 +63,7 @@
           <label for="query-text">Query</label>
           <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
 [
-  ["friends"],
+  ["get", "friends"],
   ["filter", ["city", "==", ["string", "New York"]]],
   ["sort", "age"],
   ["pick", "name", "age"]
@@ -89,7 +89,7 @@
 
       const input2 = inputText.value
       const query2 = `[
-  ["friends"],
+  ["get", "friends"],
   ["filter", [
     ["city", "==", ["string", "New York"]],
     "and",
@@ -101,7 +101,7 @@
 
       const input3 = inputText.value
       const query3 = `[
-  ["friends"],
+  ["get", "friends"],
   {
     "names": ["map", "name"],
     "count": ["size"],
