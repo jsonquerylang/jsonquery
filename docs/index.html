@@ -7,7 +7,7 @@
     <meta name="description" content="Repair broken JSON documents" />
     <meta name="keywords" content="json, repair, simple, json-simple-repair, fix, invalid" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="frog-756900-100.png">
+    <link rel="icon" type="image/png" href="frog-756900-100.png" />
   </head>
   <body>
     <div class="app">
@@ -45,7 +45,8 @@
       <div class="playground">
         <div class="column">
           <label for="input-text">Input</label>
-          <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false" >{
+          <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+{
   "friends": [
     {"name": "Chris", "age": 23, "city": "New York"},
     {"name": "Emily", "age": 19, "city": "Atlanta"},
@@ -60,7 +61,8 @@
         </div>
         <div class="column">
           <label for="query-text">Query</label>
-          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">[
+          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+[
   ["friends"],
   ["filter", ["city", "==", ["string", "New York"]]],
   ["sort", "age"],

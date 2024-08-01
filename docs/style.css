@@ -47,13 +47,18 @@ body {
   border-color: transparent;
   border-width: 0 0 10px 0;
   background-color: hsla(0, 0%, 0%, 0);
-  background-image:
-          linear-gradient(var(--background-color), var(--background-color)),
-          linear-gradient(to top right, transparent 50.5%, var(--background-color) 50.5%),
-          linear-gradient(to top left, transparent 50.5%, var(--background-color) 50.5%);
+  background-image: linear-gradient(var(--background-color), var(--background-color)),
+    linear-gradient(to top right, transparent 50.5%, var(--background-color) 50.5%),
+    linear-gradient(to top left, transparent 50.5%, var(--background-color) 50.5%);
   background-repeat: repeat, repeat-x, repeat-x;
-  background-position: 0 0, 10px 100%, 10px 100%;
-  background-size: auto auto, 20px 20px, 20px 20px;
+  background-position:
+    0 0,
+    10px 100%,
+    10px 100%;
+  background-size:
+    auto auto,
+    20px 20px,
+    20px 20px;
   background-clip: padding-box, border-box, border-box;
   background-origin: padding-box, border-box, border-box;
 }
