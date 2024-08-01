@@ -1,6 +1,8 @@
-# JSONQuery
+# JSON Query
 
-A lightweight, flexible, and expandable JSON query language.
+![JSON Query Logo](https://jsonquerylang.org/frog-756900-100.png)
+
+A small, flexible, and expandable JSON query language.
 
 Try it out on the online playground: https://jsonquerylang.org
 

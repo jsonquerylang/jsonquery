@@ -147,6 +147,7 @@ textarea {
   box-sizing: border-box;
   font-family: monospace;
   max-height: 500px;
+  resize: none;
 }
 
 .error {
