@@ -1,6 +1,6 @@
 export type JSONPrimitive = number | boolean | null
 
-export type JSONProperty = string[] // FIXME: define JSONProperty as string | string[]
+export type JSONProperty = string | string[]
 
 export type JSONFilterCondition =
   | [left: JSONFilterCondition, 'and' | 'or', right: JSONFilterCondition]

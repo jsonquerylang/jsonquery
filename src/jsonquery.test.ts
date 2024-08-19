@@ -44,12 +44,16 @@ describe('jsonquery', () => {
     expect(jsonquery({ user: { name: 'Joe' } }, ['user', 'name'])).toEqual('Joe')
   })
 
+  test('should return undefined in case of a non existing property', () => {
+    expect(jsonquery({}, ['foo', 'bar'])).toEqual(undefined)
+  })
+
   test('should get a property that has the same name as a function', () => {
     expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
   })
 
   test('should get a nested property that has the same name as a function', () => {
-    expect(jsonquery({ sort: { name: 'Joe' } }, ['get', 'sort', 'name'])).toEqual('Joe')
+    expect(jsonquery({ sort: { name: 'Joe' } }, ['get', ['sort', 'name']])).toEqual('Joe')
   })
 
   test('should execute a function', () => {

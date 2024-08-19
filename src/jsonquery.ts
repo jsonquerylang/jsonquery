@@ -79,21 +79,18 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
   return () => query
 }
 
-export const get =
-  (...property: JSONProperty) =>
-  (data: unknown) => {
-    let value = data
+export const get = (property: JSONProperty) =>
+  isString(property)
+    ? (data: unknown) => data?.[property]
+    : (data: unknown) => {
+        let value = data
 
-    for (const prop of property) {
-      value = value != undefined ? value[prop] : undefined
-    }
+        for (const prop of property) {
+          value = value?.[prop]
+        }
 
-    return value
-  }
-
-const createGetter = (property: JSONProperty | string): JSONPropertyGetter => {
-  return isString(property) ? get(property) : get(...property)
-}
+        return value
+      }
 
 export const string = (text: string) => () => text
 
@@ -108,23 +105,23 @@ export const filter =
     return data.filter(predicate)
   }
 
-export const sort = <T>(property: JSONProperty | string = [], direction?: 'asc' | 'desc') => {
-  const getter = createGetter(property)
+export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc') => {
+  const getter = get(property)
   const sign = direction === 'desc' ? -1 : 1
 
-  function compare(itemA: Record<string, T>, itemB: Record<string, T>) {
+  function compare(itemA: unknown, itemB: unknown) {
     const a = getter(itemA)
     const b = getter(itemB)
     return a > b ? sign : a < b ? -sign : 0
   }
 
-  return (data: unknown[]) => data.slice().sort(getter ? compare : undefined)
+  return (data: T[]) => data.slice().sort(compare)
 }
 
-export const pick = (...properties: Array<JSONProperty | string>) => {
+export const pick = (...properties: Array<JSONProperty>) => {
   const getters: Array<[key: string, getter: JSONPropertyGetter]> = properties.map((property) => [
     isString(property) ? property : property[property.length - 1],
-    createGetter(property)
+    get(property)
   ])
 
   return (data: Record<string, unknown>): unknown => {
@@ -149,8 +146,8 @@ const _pick = (
   return out
 }
 
-export const groupBy = <T>(property: JSONProperty | string) => {
-  const getter = createGetter(property)
+export const groupBy = <T>(property: JSONProperty) => {
+  const getter = get(property)
 
   return (data: T[]) => {
     const res = {}
@@ -168,8 +165,8 @@ export const groupBy = <T>(property: JSONProperty | string) => {
   }
 }
 
-export const keyBy = <T>(property: JSONProperty | string) => {
-  const getter = createGetter(property)
+export const keyBy = <T>(property: JSONProperty) => {
+  const getter = get(property)
 
   return (data: T[]) => {
     const res = {}
@@ -190,7 +187,7 @@ export const uniq =
   <T>(data: T[]) => [...new Set(data)]
 
 export const uniqBy =
-  <T>(property: JSONProperty | string) =>
+  <T>(property: JSONProperty) =>
   (data: T[]): T[] =>
     Object.values(groupBy(property)(data)).map((groups) => groups[0])
 
