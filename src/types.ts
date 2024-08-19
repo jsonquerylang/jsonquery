@@ -11,11 +11,10 @@ export type JSONQuery =
   | JSONQueryOperator
   | JSONQueryArray
   | JSONQueryObject
-  | (JSONProperty | string)
+  | JSONProperty
   | JSONPrimitive
 
+export type Getter = (item: unknown) => unknown
 export type Evaluator = (data: unknown) => unknown
 export type FunctionCompiler = (...args: unknown[]) => Evaluator
 export type Operator = (...args: unknown[]) => unknown
-
-export type JSONPropertyGetter = (item: unknown) => unknown

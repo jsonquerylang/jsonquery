@@ -1,11 +1,4 @@
-import {
-  Evaluator,
-  FunctionCompiler,
-  JSONProperty,
-  JSONPropertyGetter,
-  JSONQuery,
-  Operator
-} from './types'
+import { Evaluator, FunctionCompiler, JSONProperty, Getter, JSONQuery, Operator } from './types'
 
 export function jsonquery(
   data: unknown,
@@ -79,7 +72,7 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
   return () => query
 }
 
-export const get = (property: JSONProperty) =>
+export const get = (property: JSONProperty): Getter =>
   isString(property)
     ? (data: unknown) => data?.[property]
     : (data: unknown) => {
@@ -119,7 +112,7 @@ export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc')
 }
 
 export const pick = (...properties: Array<JSONProperty>) => {
-  const getters: Array<[key: string, getter: JSONPropertyGetter]> = properties.map((property) => [
+  const getters: Array<[key: string, getter: Getter]> = properties.map((property) => [
     isString(property) ? property : property[property.length - 1],
     get(property)
   ])
@@ -135,7 +128,7 @@ export const pick = (...properties: Array<JSONProperty>) => {
 
 const _pick = (
   object: Record<string, unknown>,
-  getters: Array<[key: string, getter: JSONPropertyGetter]>
+  getters: Array<[key: string, getter: Getter]>
 ): unknown => {
   const out = {}
 
