@@ -3,6 +3,7 @@ import {
   FunctionCompiler,
   JSONPrimitive,
   JSONProperty,
+  JSONPropertyGetter,
   JSONQuery,
   Operator
 } from './types'
@@ -43,14 +44,14 @@ export function compile(
     const [name, ...args] = query
     const fn = functions?.[name as string] ?? coreFunctions[name as string]
     if (fn) {
-      // special cases: functions "get" and "string"
-      // FIXME: get rid of these special cases
-      if (fn === get || fn === string || fn === sort) {
-        return fn(...args)
+      // special cases
+      // FIXME: get rid of these special cases: let map and filter call compile themselves
+      if (fn === map || fn === filter) {
+        const compiledArgs = args.map((arg) => compile(arg as JSONQuery, functions))
+        return fn(...compiledArgs)
       }
 
-      const compiledArgs = args.map((arg) => compile(arg as JSONQuery, functions))
-      return fn(...compiledArgs)
+      return fn(...args)
     }
 
     // operator
@@ -72,11 +73,12 @@ export function compile(
       }
     }
 
-    // property
-    // @ts-ignore
-    if (query.length > 0 && query.every(isString)) {
-      return get(...query)
-    }
+    // FIXME: cleanup
+    // // property
+    // // @ts-ignore
+    // if (query.length > 0 && query.every(isString)) {
+    //   return get(...query)
+    // }
 
     // pipe
     // @ts-ignore
@@ -117,6 +119,10 @@ export const get = (...property: JSONProperty) => {
   return getter
 }
 
+const createGetter = (property: JSONProperty | string): JSONPropertyGetter => {
+  return isString(property) ? get(property) : get(...property)
+}
+
 export const string = (text: string) => () => text
 
 export const map =
@@ -130,11 +136,9 @@ export const filter =
     return data.filter(predicate)
   }
 
-export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc') => {
+export const sort = <T>(property: JSONProperty | string = [], direction?: 'asc' | 'desc') => {
+  const getter = createGetter(property)
   const sign = direction === 'desc' ? -1 : 1
-
-  // FIXME: simplify this
-  const getter = isString(property) ? get(property) : get(...property)
 
   function compare(itemA: Record<string, T>, itemB: Record<string, T>) {
     const a = getter(itemA)
@@ -145,35 +149,38 @@ export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc')
   return (data: unknown[]) => data.slice().sort(getter ? compare : undefined)
 }
 
-export const pick =
-  (...getters: Array<(item: unknown) => unknown>) =>
-  (data: Record<string, unknown>): unknown => {
+export const pick = (...properties: Array<JSONProperty | string>) => {
+  const getters: Array<[key: string, getter: JSONPropertyGetter]> = properties.map((property) => [
+    isString(property) ? property : property[property.length - 1],
+    createGetter(property)
+  ])
+
+  return (data: Record<string, unknown>): unknown => {
     if (isArray(data)) {
       return data.map((item) => _pick(item as Record<string, unknown>, getters))
     }
 
     return _pick(data, getters)
   }
+}
 
 const _pick = (
   object: Record<string, unknown>,
-  getters: Array<(item: unknown) => unknown>
+  getters: Array<[key: string, getter: JSONPropertyGetter]>
 ): unknown => {
   const out = {}
 
-  getters.forEach((getter) => {
-    // @ts-ignore
-    const property = getter.property as JSONProperty // FIXME: this is ugly!
-    const outKey: string = property[property.length - 1]
-    out[outKey] = getter(object)
+  getters.forEach(([key, getter]) => {
+    out[key] = getter(object)
   })
 
   return out
 }
 
-export const groupBy =
-  <T>(getter: (item: T) => unknown) =>
-  (data: T[]) => {
+export const groupBy = <T>(property: JSONProperty | string) => {
+  const getter = createGetter(property)
+
+  return (data: T[]) => {
     const res = {}
 
     for (const item of data) {
@@ -187,10 +194,12 @@ export const groupBy =
 
     return res
   }
+}
 
-export const keyBy =
-  <T>(getter: (item: T) => unknown) =>
-  (data: T[]): Record<string, T[]> => {
+export const keyBy = <T>(property: JSONProperty | string) => {
+  const getter = createGetter(property)
+
+  return (data: T[]): Record<string, T[]> => {
     const res = {}
 
     data.forEach((item) => {
@@ -200,6 +209,7 @@ export const keyBy =
 
     return res
   }
+}
 
 export const flatten = () => (data: unknown[]) => data.flat()
 
@@ -208,9 +218,9 @@ export const uniq =
   <T>(data: T[]) => [...new Set(data)]
 
 export const uniqBy =
-  <T>(getter: (item: T) => unknown) =>
+  <T>(property: JSONProperty | string) =>
   (data: T[]): T[] =>
-    Object.values(groupBy(getter)(data)).map((groups) => groups[0])
+    Object.values(groupBy(property)(data)).map((groups) => groups[0])
 
 export const limit =
   (count: number) =>
