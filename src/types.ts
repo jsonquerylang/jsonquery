@@ -35,7 +35,7 @@ export type JSONQuery =
   | (JSONProperty | string)
   | JSONPrimitive
 
-export type Evaluator = ((data: unknown) => unknown) | JSONProperty
+export type Evaluator = (data: unknown) => unknown
 export type FunctionCompiler = (...args: unknown[]) => Evaluator
 export type Operator = (...args: unknown[]) => unknown
 

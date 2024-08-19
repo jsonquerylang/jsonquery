@@ -1,7 +1,6 @@
 import {
   Evaluator,
   FunctionCompiler,
-  JSONPrimitive,
   JSONProperty,
   JSONPropertyGetter,
   JSONQuery,
@@ -10,20 +9,15 @@ import {
 
 export function jsonquery(
   data: unknown,
-  query: JSONQuery | JSONQuery[],
+  query: JSONQuery,
   functions?: Record<string, FunctionCompiler>
 ): unknown {
   const compiled = compile(query, functions)
 
-  return typeof compiled === 'function' ? compiled(data) : compiled
+  return compiled(data)
 }
 
-export function compile(
-  query: JSONQuery | JSONQuery[],
-  functions?: Record<string, FunctionCompiler>
-): Evaluator {
-  // console.log('compile', query) // FIXME: cleanup
-
+export function compile(query: JSONQuery, functions?: Record<string, FunctionCompiler>): Evaluator {
   // object
   if (isObject(query)) {
     type Getter = [string, Evaluator]
@@ -32,22 +26,20 @@ export function compile(
 
     return (data) => {
       const obj = {}
-      getters.forEach(
-        ([key, getter]) => (obj[key] = typeof getter === 'function' ? getter(data) : getter)
-      )
+      getters.forEach(([key, getter]) => (obj[key] = getter(data)))
       return obj
     }
   }
 
   if (isArray(query)) {
     // function
-    const [name, ...args] = query
-    const fn = functions?.[name as string] ?? coreFunctions[name as string]
+    const [name, ...args] = query as unknown as [string, JSONQuery[]]
+    const fn = functions?.[name] ?? coreFunctions[name]
     if (fn) {
       // special cases
-      // FIXME: get rid of these special cases: let map and filter call compile themselves
+      // FIXME: get rid of these special cases: let map and filter call compile themselves?
       if (fn === map || fn === filter) {
-        const compiledArgs = args.map((arg) => compile(arg as JSONQuery, functions))
+        const compiledArgs = args.map((arg) => compile(arg, functions))
         return fn(...compiledArgs)
       }
 
@@ -55,43 +47,36 @@ export function compile(
     }
 
     // operator
-    const [left, opName, ...right] = query
+    const [left, opName, ...right] = query as unknown as [JSONQuery, string, JSONQuery[]]
     const opArgs = [left, ...right]
-    const opConstructor = operatorCompilers[opName as string]
+    const opConstructor = operatorCompilers[opName]
     if (opConstructor) {
       return opConstructor(...opArgs)
     }
-    const op = operators[opName as string]
+    const op = operators[opName]
     if (op) {
       // TODO: try to merge function and operator logic?
-      const compiledArgs = opArgs.map((arg) => compile(arg as JSONQuery, functions))
+      const compiledArgs = opArgs.map((arg) => compile(arg, functions))
       return (data) => {
-        const evaluatedArgs = compiledArgs.map((arg) =>
-          typeof arg === 'function' ? arg(data) : arg
-        ) as []
+        const evaluatedArgs = compiledArgs.map((arg) => arg(data))
         return op(...evaluatedArgs)
       }
     }
 
     // pipe
     // @ts-ignore
-    const pipe: Evaluator[] = query.map((item: JSONQuery) => compile(item, functions))
-    return (data) =>
-      pipe.reduce(
-        (data: unknown, evaluator: Evaluator) =>
-          typeof evaluator === 'function' ? evaluator(data) : evaluator,
-        data
-      )
+    const pipe: Evaluator[] = query.map((item) => compile(item, functions))
+    return (data) => pipe.reduce((data, evaluator) => evaluator(data), data)
   }
 
+  // FIXME: only allow properties inside a function or operator, not at root level
   // property without brackets
   if (isString(query)) {
     return get(query)
   }
 
   // value
-  // @ts-ignore
-  return query as JSONPrimitive
+  return () => query
 }
 
 export const get =
@@ -171,7 +156,7 @@ export const groupBy = <T>(property: JSONProperty | string) => {
     const res = {}
 
     for (const item of data) {
-      const value = getter(item) as string | number
+      const value = getter(item) as string
       if (res[value]) {
         res[value].push(item)
       } else {
@@ -186,7 +171,7 @@ export const groupBy = <T>(property: JSONProperty | string) => {
 export const keyBy = <T>(property: JSONProperty | string) => {
   const getter = createGetter(property)
 
-  return (data: T[]): Record<string, T[]> => {
+  return (data: T[]) => {
     const res = {}
 
     data.forEach((item) => {
@@ -279,13 +264,13 @@ const operators: Record<string, Operator> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
-  in: (a, ...b) => (b as Array<unknown>).includes(a),
+  in: (a, ...b) => b.includes(a),
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
   '!=': (a, b) => a != b,
-  'not in': (a, ...b) => !(b as Array<unknown>).includes(a),
-  and: (a, b) => (a as boolean) && (b as boolean),
-  or: (a, b) => (a as boolean) || (b as boolean),
+  'not in': (a, ...b) => !b.includes(a),
+  and: (a, b) => a && b,
+  or: (a, b) => a || b,
 
   '+': (a: number, b: number) => a + b,
   '-': (a: number, b: number) => a - b,
