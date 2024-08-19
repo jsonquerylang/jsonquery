@@ -22,8 +22,6 @@ export function jsonquery(
 export function compile(query: JSONQuery, functions?: Record<string, FunctionCompiler>): Evaluator {
   // object
   if (isObject(query)) {
-    type Getter = [string, Evaluator]
-
     const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key], functions)])
 
     return (data) => {
@@ -41,8 +39,7 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
       // special cases
       // FIXME: get rid of these special cases: let map and filter call compile themselves?
       if (fn === map || fn === filter) {
-        const compiledArgs = args.map((arg) => compile(arg, functions))
-        return fn(...compiledArgs)
+        return fn(...args.map((arg) => compile(arg, functions)))
       }
 
       return fn(...args)
@@ -60,10 +57,7 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
     if (op) {
       // TODO: try to merge function and operator logic?
       const compiledArgs = opArgs.map((arg) => compile(arg, functions))
-      return (data) => {
-        const evaluatedArgs = compiledArgs.map((arg) => arg(data))
-        return op(...evaluatedArgs)
-      }
+      return (data) => op(...compiledArgs.map((arg) => arg(data)))
     }
 
     // pipe
@@ -82,7 +76,7 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
   return () => query
 }
 
-export const get = (property: JSONProperty): Getter =>
+export const get = (property: JSONProperty) =>
   isString(property)
     ? (data: unknown) => data?.[property]
     : (data: unknown) => {
@@ -121,8 +115,8 @@ export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc')
   return (data: T[]) => data.slice().sort(compare)
 }
 
-export const pick = (...properties: Array<JSONProperty>) => {
-  const getters: Array<[key: string, getter: Getter]> = properties.map((property) => [
+export const pick = (...properties: JSONProperty[]) => {
+  const getters: Getter[] = properties.map((property) => [
     isString(property) ? property : property[property.length - 1],
     get(property)
   ])
@@ -136,10 +130,7 @@ export const pick = (...properties: Array<JSONProperty>) => {
   }
 }
 
-const _pick = (
-  object: Record<string, unknown>,
-  getters: Array<[key: string, getter: Getter]>
-): unknown => {
+const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
   const out = {}
 
   getters.forEach(([key, getter]) => {
