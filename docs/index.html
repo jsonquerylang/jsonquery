@@ -40,6 +40,7 @@
           <button class="example" id="example2">example 2</button>
           <button class="example" id="example3">example 3</button>
           <button class="example" id="example4">example 4</button>
+          <button class="example" id="example5">example 5</button>
         </div>
       </div>
       <div class="playground">
@@ -102,6 +103,18 @@
       const input3 = inputText.value
       const query3 = `[
   ["get", "friends"],
+  ["map", {
+    "firstName": "name",
+    "details": {
+      "city": "city",
+      "age": "age"
+    }
+  }]
+]`
+
+      const input4 = inputText.value
+      const query4 = `[
+  ["get", "friends"],
   {
     "names": ["map", "name"],
     "count": ["size"],
@@ -112,11 +125,11 @@
   }
 ]`
 
-      const input4 = `[
+      const input5 = `[
   { "name": "bread", "price": 2.5, "quantity": 2 },
   { "name": "milk", "price": 1.2, "quantity": 3 }
 ]`
-      const query4 = `[
+      const query5 = `[
   ["map", ["price", "*", "quantity"]],
   ["sum"]
 ]`
@@ -146,6 +159,7 @@
       document.getElementById('example2').onclick = () => load(input2, query2)
       document.getElementById('example3').onclick = () => load(input3, query3)
       document.getElementById('example4').onclick = () => load(input4, query4)
+      document.getElementById('example5').onclick = () => load(input5, query5)
 
       go()
     </script>
