@@ -73,13 +73,6 @@ export function compile(
       }
     }
 
-    // FIXME: cleanup
-    // // property
-    // // @ts-ignore
-    // if (query.length > 0 && query.every(isString)) {
-    //   return get(...query)
-    // }
-
     // pipe
     // @ts-ignore
     const pipe: Evaluator[] = query.map((item: JSONQuery) => compile(item, functions))
@@ -97,13 +90,13 @@ export function compile(
   }
 
   // value
-  // FIXME: return should a getter for the value, and remove the checks on whether to evaluate or not
   // @ts-ignore
   return query as JSONPrimitive
 }
 
-export const get = (...property: JSONProperty) => {
-  const getter = (data: unknown) => {
+export const get =
+  (...property: JSONProperty) =>
+  (data: unknown) => {
     let value = data
 
     for (const prop of property) {
@@ -112,12 +105,6 @@ export const get = (...property: JSONProperty) => {
 
     return value
   }
-
-  // TODO: this is ugly
-  getter.property = property
-
-  return getter
-}
 
 const createGetter = (property: JSONProperty | string): JSONPropertyGetter => {
   return isString(property) ? get(property) : get(...property)
