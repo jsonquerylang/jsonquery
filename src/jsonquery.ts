@@ -66,7 +66,6 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
     return (data) => pipe.reduce((data, evaluator) => evaluator(data), data)
   }
 
-  // FIXME: only allow properties inside a function or operator, not at root level
   // property without brackets
   if (isString(query)) {
     return get(query)
@@ -242,12 +241,18 @@ const coreFunctions: Record<string, FunctionCompiler> = {
 }
 
 const operatorCompilers: Record<string, FunctionCompiler> = {
+  in: (property: string, values: string[]) => {
+    const getter = get(property)
+    return (data: unknown) => values.includes(getter(data))
+  },
+  'not in': (property: string, values: string[]) => {
+    const getter = get(property)
+    return (data: unknown) => !values.includes(getter(data))
+  },
   regex: (property: string, expression: string, options?: string) => {
     const regex = new RegExp(expression, options)
     const getter = get(property)
-    return (data: unknown) => {
-      return regex.test(getter(data) as string)
-    }
+    return (data: unknown) => regex.test(getter(data) as string)
   }
 }
 
@@ -258,9 +263,6 @@ const operators: Record<string, Operator> = {
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
   '!=': (a, b) => a != b,
-
-  in: (a, ...b) => b.includes(a),
-  'not in': (a, ...b) => !b.includes(a),
 
   and: (a, b) => a && b,
   or: (a, b) => a || b,
