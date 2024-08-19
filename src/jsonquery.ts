@@ -1,4 +1,13 @@
-import { Evaluator, FunctionCompiler, JSONProperty, Getter, JSONQuery, Operator } from './types'
+import {
+  Evaluator,
+  FunctionCompiler,
+  Getter,
+  JSONProperty,
+  JSONQuery,
+  JSONQueryFunction,
+  JSONQueryOperator,
+  Operator
+} from './types'
 
 export function jsonquery(
   data: unknown,
@@ -26,7 +35,7 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
 
   if (isArray(query)) {
     // function
-    const [name, ...args] = query as unknown as [string, JSONQuery[]]
+    const [name, ...args] = query as unknown as JSONQueryFunction
     const fn = functions?.[name] ?? coreFunctions[name]
     if (fn) {
       // special cases
@@ -40,7 +49,8 @@ export function compile(query: JSONQuery, functions?: Record<string, FunctionCom
     }
 
     // operator
-    const [left, opName, ...right] = query as unknown as [JSONQuery, string, JSONQuery[]]
+    // FIXME: simplify the operator logic
+    const [left, opName, ...right] = query as unknown as JSONQueryOperator
     const opArgs = [left, ...right]
     const opConstructor = operatorCompilers[opName]
     if (opConstructor) {
@@ -254,11 +264,13 @@ const operators: Record<string, Operator> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
-  in: (a, ...b) => b.includes(a),
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
   '!=': (a, b) => a != b,
+
+  in: (a, ...b) => b.includes(a),
   'not in': (a, ...b) => !b.includes(a),
+
   and: (a, b) => a && b,
   or: (a, b) => a || b,
 
