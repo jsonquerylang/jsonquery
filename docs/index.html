@@ -81,6 +81,8 @@
     <script type="module">
       import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@josdejong/jsonquery/lib/jsonquery.js'
 
+      window.jsonquery = jsonquery
+
       const inputText = document.getElementById('input-text')
       const queryText = document.getElementById('query-text')
       const outputText = document.getElementById('output-text')

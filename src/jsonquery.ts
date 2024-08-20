@@ -11,16 +11,20 @@ import {
   Operator
 } from './types'
 
-export function jsonquery(data: unknown, query: JSONQuery, functions?: FunctionsMap): unknown {
-  const compiled = compile(query, functions)
+export function jsonquery(
+  data: unknown,
+  query: JSONQuery,
+  customFunctions?: FunctionsMap
+): unknown {
+  const compiled = compile(query, customFunctions)
 
   return compiled(data)
 }
 
-export function compile(query: JSONQuery, functions?: FunctionsMap): Evaluator {
+export function compile(query: JSONQuery, customFunctions?: FunctionsMap): Evaluator {
   functionsStack.unshift({
     ...(functionsStack[0] as object),
-    ...(functions as object | undefined)
+    ...(customFunctions as object | undefined)
   })
 
   const result = _compile(query)

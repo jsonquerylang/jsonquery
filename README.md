@@ -91,7 +91,7 @@ The build in functions can be extended with custom functions, like `times` in th
 import { jsonquery } from '@josdejong/jsonquery'
 
 const customFunctions = {
-  times: (data, value) => data.map((item) => item * value)
+  times: (value) => (data) => data.map((item) => item * value)
 }
 
 const data = [1, 2, 3]
@@ -111,11 +111,18 @@ Here:
 
 - `data` is an arbitrary JSON document.
 - `query` is a JSON document containing a `jsonquery` as described in the section below.
-- `customFunctions` is an optional map with extra functions.
+- `customFunctions` is an optional map with extra function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
+
+    ```js
+    const customFunctions = {
+      // usage example: ["times", 3]
+      times: (value) => (data) => data.map((item) => item * value)
+    }
+    ```
 
 ## Syntax
 
-The `jsonquery` query language is written as JSON and has tree building blocks: _functions_, _pipes_, _objects_.
+The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _pipes_, and _objects_.
 
 The examples in the following sections are based on querying the following data:
 
@@ -139,15 +146,69 @@ At the core of the query language, we have a _function_ call which described by 
 ["sort", "age", "asc"]
 ```
 
-Most of the functions use property names like `age` in the example above. Nested properties can be specified using an array. The following example will sort an array by a nested property `city` inside an object `address`:
+Most of the functions use property names like `age` in the example above. Nested properties can be specified using an array. The following example will sort an array in descending order by a nested property `city` inside an object `address`:
 
 ```json
-["sort", ["address", "city"], "asc"]
+["sort", ["address", "city"], "desc"]
+```
+
+### Operators
+
+An operator is an array with a left side value, the operator, and a right side value. In the following example, the operator describes that the property `age` of an object must be 18 or larger: 
+
+```json
+["age", ">", 18]
+```
+
+or here an example where an operator checks whether a nested property `city` inside an object `address` has the value `"New York"`.
+
+```json
+[["address", "city"], "==", "New York"]
+```
+
+Operators are mostly used inside the `"filter"` function, for example:
+
+```json
+["filter", [["address", "city"], "==", "New York"]]
+```
+
+There are two special cases regarding operators:
+
+1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be enclosed in brackets. For example:
+    
+    ```js
+    ["filter", [18, "<", "age"]]   // WRONG: "age" is interpreted as text
+    ["filter", [18, "<", ["age"]]] // RIGHT: "age" is interpreted as property
+    ["filter", ["age", ">", 18]]   // RIGHT: "age" is interpreted as property
+    ```
+
+2. In order to specify a text on the left side of an operator instead of having it interpreted as a property, the `string` function can be used:
+    
+    ```js
+    ["filter", ["New York", "==", ["address", "city"]]]             // WRONG: "New York" is interpreted as property
+    ["filter", [["string", "New York"], "==", ["address", "city"]]] // RIGHT: "New York" is interpreted as text
+    ["filter", [["address", "city"], "==", "New York"]]             // RIGHT: "New York" is interpreted as text
+    ```
+
+### Properties
+
+In functions and operators, you can refer to object properties using an array containing one or multiple keys. In case of multiple keys, a nested property will be retrieved. For example:
+
+```json
+["address", "city"]
+```
+
+When the property contains only a single key, like `["age"]`, the brackets can be omitted and used like `"age"`:
+
+```js
+// equivalent:
+["sort", "age"]
+["sort", ["age"]] 
 ```
 
 ### Pipes
 
-A _pipe_ is an array containing multiple _functions_, _objects_, or _pipes_. The items in the pipeline are executed one by one, and the output of the first is the input of the next. The following example will first filter the items of an array that have a property `city` with the value `"New York""`, and next, sort the filtered items by the property `age`:
+A _pipe_ is an array containing a series of _functions_, _operators_, _properties_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a property `city` with the value `"New York""`, and next, sort the filtered items by the property `age`:
 
 ```json
 [
@@ -171,7 +232,7 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 }
 ```
 
-### Built-in functions
+## Built-in functions
 
 The following functions are available:
 
@@ -197,6 +258,24 @@ The following functions are available:
 - `round`
 - `map`
 
+## Built-in operators
+
+- `==`
+- `>`
+- `>=`
+- `<`
+- `<=`
+- `!=`
+- `and`
+- `or`
+- `in`
+- `not in`
+- `regex`
+- `+`
+- `-`
+- `*`
+- `/`
+
 ## Motivation
 
 There are many powerful query languages out there, so why the need to develop `jsonquery`? There are a couple of reasons for this.
@@ -211,7 +290,7 @@ There are many powerful query languages out there, so why the need to develop `j
 
 3.  **Expressiveness**
 
-    The expressiveness of most query languages is limited. Since a long time, my favorite JSON query language is JavaScript+Lodash because it is so flexible. The downside however is that it is not safe to store or share queries written in JavaScript from a security point of view.
+    The expressiveness of most query languages is limited. Since a long time, my favorite JSON query language is JavaScript+Lodash because it is so flexible. The downside however is that it is not safe to store or share queries written in JavaScript: executing arbitrary JavaScript can be a security risk.
 
 The `jsonquery` language is inspired by [JavaScript+Lodash](https://jsoneditoronline.org/indepth/query/10-best-json-query-languages/#javascript), [JSON Patch](https://jsonpatch.com/), and [MongoDB aggregates](https://www.mongodb.com/docs/manual/aggregation/). It is basically a JSON notation to describe making a series of function calls. It has no magic syntax except for the need to be familiar with JSON, making it flexible and easy to understand. The library is extremely small thanks to smartly utilizing built-in JavaScript functions and the built-in JSON parser, requiring very little code to make the query language work.
 
