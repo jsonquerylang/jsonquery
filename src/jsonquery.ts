@@ -1,6 +1,6 @@
 import {
   Evaluator,
-  Functions,
+  FunctionsMap,
   Getter,
   JSONProperty,
   JSONQuery,
@@ -10,53 +10,66 @@ import {
   Operator
 } from './types'
 
-export function jsonquery(data: unknown, query: JSONQuery, functions?: Functions): unknown {
+export function jsonquery(data: unknown, query: JSONQuery, functions?: FunctionsMap): unknown {
   const compiled = compile(query, functions)
 
   return compiled(data)
 }
 
-export function compile(query: JSONQuery, functions: Functions): Evaluator {
+export function compile(query: JSONQuery, functions?: FunctionsMap): Evaluator {
+  functionsStack.unshift({
+    ...(functionsStack[0] as object),
+    ...(functions as object | undefined)
+  })
+
+  const result = _compile(query)
+
+  functionsStack.shift()
+
+  return result
+}
+
+function _compile(query: JSONQuery): Evaluator {
   // object
   if (isObject(query)) {
-    return object(query as JSONQueryObject, functions)
+    return object(query as JSONQueryObject)
   }
 
   if (isArray(query)) {
     // function
     const [fnName, ...args] = query as unknown as JSONQueryFunction
-    const fn = functions?.[fnName] ?? coreFunctions[fnName]
+    const fn = functionsStack[0][fnName]
     if (fn) {
-      return fn(args, functions)
+      return fn(...args)
     }
 
     // operator
     const [left, opName, ...right] = query as unknown as JSONQueryOperator
     const op = coreOperators[opName]
     if (op) {
-      return op([left, ...right], functions)
+      return op(...[left, ...right])
     }
     const rawOp = rawOperators[opName]
     if (rawOp) {
-      const a = compile(left, functions)
-      const b = compile(right, functions)
+      const a = compile(left)
+      const b = compile(right)
       return (data: unknown) => rawOp(a(data), b(data))
     }
 
     // pipe
-    return pipe(query as JSONQuery[], functions)
+    return pipe(query as JSONQuery[])
   }
 
   // property without brackets
   if (isString(query)) {
-    return get([query])
+    return get(query)
   }
 
   // value
   return () => query
 }
 
-export const get = ([property]: [property: JSONProperty]) =>
+export const get = (property: JSONProperty) =>
   isString(property)
     ? (data: unknown) => data?.[property]
     : (data: unknown) => {
@@ -69,28 +82,25 @@ export const get = ([property]: [property: JSONProperty]) =>
         return value
       }
 
-export const string =
-  ([text]: [text: string]) =>
-  () =>
-    text
+export const string = (text: string) => () => text
 
-export const map = <T>([callback]: [callback: JSONQuery], functions: Functions) => {
-  const _callback = compile(callback, functions)
+export const map = <T>(callback: JSONQuery) => {
+  const _callback = compile(callback)
   return (data: T[]) => data.map(_callback)
 }
 
-export const filter = <T>([predicate]: [predicate: JSONQuery], functions: Functions) => {
-  const _predicate = compile(predicate, functions)
+export const filter = <T>(predicate: JSONQuery) => {
+  const _predicate = compile(predicate)
   return (data: T[]) => data.filter(_predicate)
 }
 
-export const pipe = (query: JSONQuery[], functions: Functions) => {
-  const entries = query.map((item: JSONQuery) => compile(item, functions))
+export const pipe = (query: JSONQuery[]) => {
+  const entries = query.map((item: JSONQuery) => compile(item))
   return (data: unknown) => entries.reduce((data, evaluator) => evaluator(data), data)
 }
 
-export const object = (query: JSONQueryObject, functions: Functions) => {
-  const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key], functions)])
+export const object = (query: JSONQueryObject) => {
+  const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key])])
 
   return (data: unknown) => {
     const obj = {}
@@ -99,11 +109,8 @@ export const object = (query: JSONQueryObject, functions: Functions) => {
   }
 }
 
-export const sort = <T>([property = [], direction]: [
-  property: JSONProperty,
-  direction?: 'asc' | 'desc'
-]) => {
-  const getter = get([property])
+export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc') => {
+  const getter = get(property)
   const sign = direction === 'desc' ? -1 : 1
 
   function compare(itemA: unknown, itemB: unknown) {
@@ -115,10 +122,10 @@ export const sort = <T>([property = [], direction]: [
   return (data: T[]) => data.slice().sort(compare)
 }
 
-export const pick = (properties: JSONProperty[]) => {
+export const pick = (...properties: JSONProperty[]) => {
   const getters: Getter[] = properties.map((property) => [
     isString(property) ? property : property[property.length - 1],
-    get([property])
+    get(property)
   ])
 
   return (data: Record<string, unknown>): unknown => {
@@ -140,8 +147,8 @@ const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
   return out
 }
 
-export const groupBy = <T>([property]: [property: JSONProperty]) => {
-  const getter = get([property])
+export const groupBy = <T>(property: JSONProperty) => {
+  const getter = get(property)
 
   return (data: T[]) => {
     const res = {}
@@ -159,8 +166,8 @@ export const groupBy = <T>([property]: [property: JSONProperty]) => {
   }
 }
 
-export const keyBy = <T>([property]: [property: JSONProperty]) => {
-  const getter = get([property])
+export const keyBy = <T>(property: JSONProperty) => {
+  const getter = get(property)
 
   return (data: T[]) => {
     const res = {}
@@ -181,12 +188,12 @@ export const uniq =
   <T>(data: T[]) => [...new Set(data)]
 
 export const uniqBy =
-  <T>([property]: [property: JSONProperty]) =>
+  <T>(property: JSONProperty) =>
   (data: T[]): T[] =>
-    Object.values(groupBy([property])(data)).map((groups) => groups[0])
+    Object.values(groupBy(property)(data)).map((groups) => groups[0])
 
 export const limit =
-  ([count]: [count: number]) =>
+  (count: number) =>
   <T>(data: T[]) =>
     data.slice(0, count)
 
@@ -205,7 +212,7 @@ export const min = () => (data: number[]) => Math.min(...data)
 export const max = () => (data: number[]) => Math.max(...data)
 
 export const round =
-  ([digits = 0]: [digits?: number]) =>
+  (digits = 0) =>
   (data: number) => {
     const num = Math.round(Number(data + 'e' + digits))
     return Number(num + 'e' + -digits)
@@ -216,7 +223,7 @@ export const size =
   <T>(data: T[]) =>
     data.length
 
-const coreFunctions: Functions = {
+const coreFunctions: FunctionsMap = {
   map,
   filter,
   get,
@@ -240,6 +247,8 @@ const coreFunctions: Functions = {
   round
 }
 
+const functionsStack: FunctionsMap[] = [coreFunctions]
+
 const rawOperators: Record<string, Operator> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
@@ -257,22 +266,18 @@ const rawOperators: Record<string, Operator> = {
   '/': (a: number, b: number) => a / b
 }
 
-const coreOperators: Functions = {
-  in: ([property, values]: [property: string, values: string[]]) => {
-    const getter = get([property])
+const coreOperators: FunctionsMap = {
+  in: (property: string, values: string[]) => {
+    const getter = get(property)
     return (data: unknown) => values.includes(getter(data))
   },
-  'not in': ([property, values]: [property: string, values: string[]]) => {
-    const getter = get([property])
+  'not in': (property: string, values: string[]) => {
+    const getter = get(property)
     return (data: unknown) => !values.includes(getter(data))
   },
-  regex: ([property, expression, options]: [
-    property: string,
-    expression: string,
-    options?: string
-  ]) => {
+  regex: (property: string, expression: string, options?: string) => {
     const regex = new RegExp(expression, options)
-    const getter = get([property])
+    const getter = get(property)
     return (data: unknown) => regex.test(getter(data) as string)
   }
 }

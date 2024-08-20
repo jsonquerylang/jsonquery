@@ -15,10 +15,7 @@ export type JSONQuery =
   | JSONPrimitive
 
 export type Evaluator = (data: unknown) => unknown
-export type FunctionCompiler = (
-  args: unknown[],
-  functions?: Record<string, FunctionCompiler>
-) => Evaluator
-export type Functions = Record<string, FunctionCompiler> | unknown
+export type FunctionCompiler = (...args: unknown[]) => Evaluator
+export type FunctionsMap = Record<string, FunctionCompiler> | unknown
 export type Operator = (a: unknown, b: unknown) => unknown
 export type Getter = [key: string, Evaluator]

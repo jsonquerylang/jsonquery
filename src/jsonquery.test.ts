@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { jsonquery } from './jsonquery.js'
+import { compile, jsonquery } from './jsonquery.js'
+import { Evaluator, JSONQuery } from './types'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -575,13 +576,29 @@ describe('jsonquery', () => {
 
   test('should extend with a custom function "times"', () => {
     const customFunctions = {
-      times:
-        ([value]: [value: number]) =>
-        (data: number[]) =>
-          data.map((item) => item * value)
+      times: (value: number) => (data: number[]) => data.map((item) => item * value)
     }
 
     expect(jsonquery([1, 2, 3], ['times', 2], customFunctions)).toEqual([2, 4, 6])
+    expect(jsonquery([1, 2, 3], ['times', 2])).toEqual(2) // TODO: should throw an error unknown function?
+  })
+
+  test('should be able to override a function in a nested compile', () => {
+    const customFunctions = {
+      times: (value: JSONQuery) => {
+        const _value = compile(value, {
+          foo: () => (_data: unknown) => 42
+        }) as (data: unknown) => number
+
+        return (data: number[]) => data.map((item) => item * _value(data))
+      }
+    }
+
+    expect(jsonquery([1, 2, 3], ['times', 2], customFunctions)).toEqual([2, 4, 6])
+    expect(jsonquery([1, 2, 3], ['times', ['foo']], customFunctions)).toEqual([42, 84, 126])
+
+    // The function `foo` must not be available outside the `times` function
+    expect(jsonquery([1, 2, 3], ['foo'], customFunctions)).toEqual(undefined) // TODO: should throw an error unknown function?
   })
 
   test('should override an existing function', () => {
@@ -604,7 +621,7 @@ describe('jsonquery', () => {
   test('should be able to query the jmespath example', () => {
     const customFunctions = {
       join:
-        ([separator = ', ']) =>
+        (separator = ', ') =>
         (data: unknown[]) =>
           data.join(separator)
     }
