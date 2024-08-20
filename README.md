@@ -42,7 +42,7 @@ const data = {
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
   ['friends'],
-  ['filter', ['city', '==', ['string', 'New York']]],
+  ['filter', ['city', '==', 'New York']],
   ['sort', 'age'],
   ['pick', 'name', 'age']
 ])
@@ -151,7 +151,7 @@ A _pipe_ is an array containing multiple _functions_, _objects_, or _pipes_. The
 
 ```json
 [
-  ["filter", [["address", "city"], "==", ["string", "New York"]]],
+  ["filter", [["address", "city"], "==", "New York"]],
   ["sort", "age"]
 ]
 ```

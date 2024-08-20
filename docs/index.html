@@ -65,7 +65,7 @@
           <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
 [
   ["get", "friends"],
-  ["filter", ["city", "==", ["string", "New York"]]],
+  ["filter", ["city", "==", "New York"]],
   ["sort", "age"],
   ["pick", "name", "age"]
 ]</textarea
@@ -92,7 +92,7 @@
       const query2 = `[
   ["get", "friends"],
   ["filter", [
-    ["city", "==", ["string", "New York"]],
+    ["city", "==", "New York"],
     "and",
     ["age", ">", 30]
   ]],

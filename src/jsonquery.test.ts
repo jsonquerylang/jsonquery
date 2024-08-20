@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { compile, jsonquery } from './jsonquery.js'
-import { Evaluator, JSONQuery } from './types'
+import { JSONQuery } from './types'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -171,11 +171,11 @@ describe('jsonquery', () => {
   test('should resolve an operator', () => {
     expect(jsonquery([], [true, 'and', false])).toEqual(false)
     expect(jsonquery([], [true, 'or', false])).toEqual(true)
-    expect(jsonquery({ city: 'New York' }, ['city', '==', ['string', 'New York']])).toEqual(true)
+    expect(jsonquery({ city: 'New York' }, ['city', '==', 'New York'])).toEqual(true)
   })
 
   test('should filter data using ==', () => {
-    expect(jsonquery(data, ['filter', ['city', '==', ['string', 'New York']]])).toEqual([
+    expect(jsonquery(data, ['filter', ['city', '==', 'New York']])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Joe', age: 32, city: 'New York' },
       { name: 'Sarah', age: 31, city: 'New York' }
@@ -183,9 +183,7 @@ describe('jsonquery', () => {
   })
 
   test('should filter nested data using ==', () => {
-    expect(
-      jsonquery(nestedData, ['filter', [['address', 'city'], '==', ['string', 'New York']]])
-    ).toEqual([
+    expect(jsonquery(nestedData, ['filter', [['address', 'city'], '==', 'New York']])).toEqual([
       { name: 'Chris', age: 23, address: { city: 'New York' } },
       { name: 'Joe', age: 32, address: { city: 'New York' } },
       { name: 'Sarah', age: 31, address: { city: 'New York' } }
@@ -196,7 +194,7 @@ describe('jsonquery', () => {
     expect(
       jsonquery(nestedData, [
         ['filter', ['age', '>', 30]],
-        ['filter', [['address', 'city'], '==', ['string', 'New York']]]
+        ['filter', [['address', 'city'], '==', 'New York']]
       ])
     ).toEqual([
       { name: 'Joe', age: 32, address: { city: 'New York' } },
@@ -212,7 +210,7 @@ describe('jsonquery', () => {
   })
 
   test('should filter data using !=', () => {
-    expect(jsonquery(data, ['filter', ['city', '!=', ['string', 'New York']]])).toEqual([
+    expect(jsonquery(data, ['filter', ['city', '!=', 'New York']])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
       { name: 'Kevin', age: 19, city: 'Atlanta' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' },
@@ -297,11 +295,11 @@ describe('jsonquery', () => {
 
     expect(jsonquery(data, ['filter', ['a', '==', 2]])).toEqual([item2])
     expect(jsonquery(data, ['filter', ['a', '==', 3]])).toEqual([item3])
-    expect(jsonquery(data, ['filter', [3, '==', 'a']])).toEqual([item3])
-    expect(jsonquery(data, ['filter', [[3, '==', 'a']]])).toEqual([item3])
+    expect(jsonquery(data, ['filter', [3, '==', ['a']]])).toEqual([item3])
+    expect(jsonquery(data, ['filter', [[3, '==', ['a']]]])).toEqual([item3])
 
-    expect(jsonquery(data, ['filter', ['a', '==', 'b']])).toEqual([item1])
-    expect(jsonquery(data, ['filter', [2, '>=', 'a']])).toEqual([item1, item2])
+    expect(jsonquery(data, ['filter', ['a', '==', ['b']]])).toEqual([item1])
+    expect(jsonquery(data, ['filter', [2, '>=', ['a']]])).toEqual([item1, item2])
 
     expect(jsonquery(data, ['filter', ['a', '==', 2], 'and', ['b', '==', 22]])).toEqual([item2])
     expect(jsonquery(data, ['filter', [['a', '==', 2], 'and', ['b', '==', 22]]])).toEqual([item2])
@@ -322,8 +320,10 @@ describe('jsonquery', () => {
     // ).toEqual([item1, item2, item3])
 
     const dataMsg = [{ message: 'hello' }]
-    expect(jsonquery(dataMsg, ['filter', ['message', '==', ['string', 'hello']]])).toEqual(dataMsg)
-    expect(jsonquery(dataMsg, ['filter', [['string', 'hello'], '==', 'message']])).toEqual(dataMsg)
+    expect(jsonquery(dataMsg, ['filter', ['message', '==', 'hello']])).toEqual(dataMsg)
+    expect(jsonquery(dataMsg, ['filter', [['string', 'hello'], '==', ['message']]])).toEqual(
+      dataMsg
+    )
   })
 
   test('should sort data (default direction)', () => {
@@ -566,7 +566,7 @@ describe('jsonquery', () => {
     expect(
       jsonquery(friendsData, [
         ['friends'],
-        ['filter', ['city', '==', ['string', 'New York']]],
+        ['filter', ['city', '==', 'New York']],
         ['sort', 'age'],
         ['map', 'name'],
         ['limit', 2]
@@ -641,7 +641,7 @@ describe('jsonquery', () => {
         data,
         [
           ['get', 'locations'],
-          ['filter', ['state', '==', ['string', 'WA']]],
+          ['filter', ['state', '==', 'WA']],
           ['map', 'name'],
           ['sort'],
           { WashingtonCities: ['join'] }

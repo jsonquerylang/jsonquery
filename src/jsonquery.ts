@@ -7,6 +7,7 @@ import {
   JSONQueryFunction,
   JSONQueryObject,
   JSONQueryOperator,
+  JSONQueryPipe,
   Operator
 } from './types'
 
@@ -51,13 +52,15 @@ function _compile(query: JSONQuery): Evaluator {
     }
     const rawOp = rawOperators[opName]
     if (rawOp) {
+      const _right = right[0]
       const a = compile(left)
-      const b = compile(right)
+      // Special rule: relational operators interpret a string on the right side as a text and not a property
+      const b = relationalOperators[opName] && isString(_right) ? () => _right : compile(_right)
       return (data: unknown) => rawOp(a(data), b(data))
     }
 
     // pipe
-    return pipe(query as JSONQuery[])
+    return pipe(query as JSONQueryPipe)
   }
 
   // property without brackets
@@ -249,13 +252,17 @@ const coreFunctions: FunctionsMap = {
 
 const functionsStack: FunctionsMap[] = [coreFunctions]
 
-const rawOperators: Record<string, Operator> = {
+const relationalOperators: Record<string, Operator> = {
   '==': (a, b) => a == b,
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
-  '!=': (a, b) => a != b,
+  '!=': (a, b) => a != b
+}
+
+const rawOperators: Record<string, Operator> = {
+  ...relationalOperators,
 
   and: (a, b) => a && b,
   or: (a, b) => a || b,
