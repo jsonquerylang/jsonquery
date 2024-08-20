@@ -203,6 +203,13 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should filter with a condition being a function', () => {
+    expect(jsonquery(scoresData, ['filter', [[['scores'], ['max']], '>=', 7]])).toEqual([
+      { name: 'Chris', scores: [5, 7, 3] },
+      { name: 'Emily', scores: [8, 5, 2, 5] }
+    ])
+  })
+
   test('should filter data using !=', () => {
     expect(jsonquery(data, ['filter', ['city', '!=', ['string', 'New York']]])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
