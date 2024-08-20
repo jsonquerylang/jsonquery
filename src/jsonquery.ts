@@ -94,9 +94,9 @@ export const filter = <T>(predicate: JSONQuery) => {
   return (data: T[]) => data.filter(_predicate)
 }
 
-export const pipe = (query: JSONQuery[]) => {
-  const entries = query.map((item: JSONQuery) => compile(item))
-  return (data: unknown) => entries.reduce((data, evaluator) => evaluator(data), data)
+export const pipe = (entries: JSONQuery[]) => {
+  const _entries = entries.map(compile)
+  return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
 }
 
 export const object = (query: JSONQueryObject) => {
@@ -130,7 +130,7 @@ export const pick = (...properties: JSONProperty[]) => {
 
   return (data: Record<string, unknown>): unknown => {
     if (isArray(data)) {
-      return data.map((item) => _pick(item as Record<string, unknown>, getters))
+      return data.map((item: Record<string, unknown>) => _pick(item, getters))
     }
 
     return _pick(data, getters)
