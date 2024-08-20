@@ -1,6 +1,6 @@
 {
   "name": "@josdejong/jsonquery",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A small, flexible, and expandable JSON query language",
   "keywords": [
     "json",
