@@ -181,7 +181,7 @@ export const keyBy = <T>(property: JSONProperty) => {
 
     data.forEach((item) => {
       const value = getter(item) as string
-      res[value] = item
+      res[value] = res[value] ?? item
     })
 
     return res

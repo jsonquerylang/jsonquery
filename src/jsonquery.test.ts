@@ -49,8 +49,12 @@ describe('jsonquery', () => {
     expect(jsonquery({}, ['foo', 'bar'])).toEqual(undefined)
   })
 
-  test('should get a property that has the same name as a function', () => {
+  test('should get a property using function get', () => {
     expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
+  })
+
+  test('should get a property that has the same name as a function', () => {
+    expect(jsonquery({ sort: 'Joe' }, ['get', 'sort'])).toEqual('Joe')
   })
 
   test('should get a nested property that has the same name as a function', () => {
@@ -488,6 +492,20 @@ describe('jsonquery', () => {
     })
   })
 
+  test('should handle duplicate keys in keyBy', () => {
+    const users = [
+      { id: 1, name: 'Joe' },
+      { id: 2, name: 'Sarah' },
+      { id: 1, name: 'Chris' }
+    ]
+
+    // keep the first occurrence
+    expect(jsonquery(users, ['keyBy', 'id'])).toEqual({
+      1: { id: 1, name: 'Joe' },
+      2: { id: 2, name: 'Sarah' }
+    })
+  })
+
   test('should get nested data from an object', () => {
     expect(jsonquery(friendsData, ['friends'])).toEqual(data)
   })
@@ -509,6 +527,7 @@ describe('jsonquery', () => {
   })
 
   test('should get unique objects by key', () => {
+    // keep the first occurrence
     expect(jsonquery(data, ['uniqBy', 'city'])).toEqual([
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' },
