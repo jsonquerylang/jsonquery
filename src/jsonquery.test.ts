@@ -575,7 +575,10 @@ describe('jsonquery', () => {
 
   test('should extend with a custom function "times"', () => {
     const customFunctions = {
-      times: (value: number) => (data: number[]) => data.map((item) => item * value)
+      times:
+        ([value]: [value: number]) =>
+        (data: number[]) =>
+          data.map((item) => item * value)
     }
 
     expect(jsonquery([1, 2, 3], ['times', 2], customFunctions)).toEqual([2, 4, 6])
@@ -601,7 +604,7 @@ describe('jsonquery', () => {
   test('should be able to query the jmespath example', () => {
     const customFunctions = {
       join:
-        (separator = ', ') =>
+        ([separator = ', ']) =>
         (data: unknown[]) =>
           data.join(separator)
     }
