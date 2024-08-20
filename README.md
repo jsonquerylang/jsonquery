@@ -27,29 +27,29 @@ npm install @josdejong/jsonquery
 import { jsonquery } from '@josdejong/jsonquery'
 
 const data = {
-  friends: [
-    { name: 'Chris', age: 23, city: 'New York' },
-    { name: 'Emily', age: 19, city: 'Atlanta' },
-    { name: 'Joe', age: 32, city: 'New York' },
-    { name: 'Kevin', age: 19, city: 'Atlanta' },
-    { name: 'Michelle', age: 27, city: 'Los Angeles' },
-    { name: 'Robert', age: 45, city: 'Manhattan' },
-    { name: 'Sarah', age: 31, city: 'New York' }
+  "friends": [
+    { "name": "Chris", "age": 23, "city": "New York" },
+    { "name": "Emily", "age": 19, "city": "Atlanta" },
+    { "name": "Joe", "age": 32, "city": "New York" },
+    { "name": "Kevin", "age": 19, "city": "Atlanta" },
+    { "name": "Michelle", "age": 27, "city": "Los Angeles" },
+    { "name": "Robert", "age": 45, "city": "Manhattan" },
+    { "name": "Sarah", "age": 31, "city": "New York" }
   ]
 }
 
 // get the array containing the friends from the object, filter the friends that live in New York,
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
-  ['friends'],
-  ['filter', ['city', '==', 'New York']],
-  ['sort', 'age'],
-  ['pick', 'name', 'age']
+  ["friends"],
+  ["filter", ["city", "==", "New York"]],
+  ["sort", "age"],
+  ["pick", "name", "age"]
 ])
 // names = [
-//   { name: 'Chris', age: 23 },
-//   { name: 'Sarah', age: 31 },
-//   { name: 'Joe', age: 32 }
+//   { "name": "Chris", "age": 23 },
+//   { "name": "Sarah", "age": 31 },
+//   { "name": "Joe", "age": 32 }
 // ]
 
 // get the array containing the friends from the object, then create an object with
@@ -57,30 +57,30 @@ const names = jsonquery(data, [
 // a list with names, the total number of array items, and the average value of the
 // properties `age` in all items.
 const result = jsonquery(data, [
-  ['friends'],
+  ["friends"],
   {
-    names: ['map', 'name'],
-    count: ['size'],
-    averageAge: [
-      ['map', 'age'], 
-      ['average']
+    "names": ["map", "name"],
+    "count": ["size"],
+    "averageAge": [
+      ["map", "age"],
+      ["average"]
     ]
   }
 ])
 // result = {
-//   names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
-//   count: 7,
-//   averageAge: 28
+//   "names": ["Chris", "Emily", "Joe", "Kevin", "Michelle", "Robert", "Sarah"],
+//   "count": 7,
+//   "averageAge": 28
 // }
 
 // use operators + - * / to do calculations
 const shoppingCart = [
-    { name: 'bread', price: 2.5, quantity: 2 },
-    { name: 'milk', price: 1.2, quantity: 3 }
+  { "name": "bread", "price": 2.5, "quantity": 2 },
+  { "name": "milk", "price": 1.2, "quantity": 3 }
 ]
 const totalPrice = jsonquery(shoppingCart, [
-  ['map', ['price', '*', 'quantity']], 
-  ['sum']
+  ["map", ["price", "*", "quantity"]],
+  ["sum"]
 ])
 // totalPrice = 8.6
 ```
@@ -95,7 +95,7 @@ const customFunctions = {
 }
 
 const data = [1, 2, 3]
-const result = jsonquery(data, ['times', 3], customFunctions)
+const result = jsonquery(data, ["times", 3], customFunctions)
 // [3, 6, 9]
 ```
 
@@ -109,8 +109,8 @@ jsonquery(data, query [, customFunctions])
 
 Here:
 
-- `data` is an arbitrary JSON document.
-- `query` is a JSON document containing a `jsonquery` as described in the section below.
+- `data` is the JSON document that will be queried, often an array with objects.
+- `query` is a JSON document containing a JSON query as described in the section below.
 - `customFunctions` is an optional map with extra function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
 
     ```js
@@ -151,6 +151,8 @@ Most of the functions use property names like `age` in the example above. Nested
 ```json
 ["sort", ["address", "city"], "desc"]
 ```
+
+See section [Function reference](#function-reference) for a detailed overview of all available functions.
 
 ### Operators
 
@@ -195,6 +197,8 @@ There are two special cases regarding operators:
     ["filter", [["string", "New York"], "==", ["address", "city"]]]
     ["filter", [["address", "city"], "==", "New York"]]
     ```
+
+See section [Operator reference](#operator-reference) for a detailed overview of all available operators.
 
 ### Properties
 
@@ -248,7 +252,7 @@ An _object_ is defined as a regular JSON object with a property name as key, and
 }
 ```
 
-## Built-in functions
+## Function reference
 
 The following functions are available:
 
@@ -351,7 +355,7 @@ jsonquery(data, ["sort", "age", "desc"])
 // [
 //   { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
 //   { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-// { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } }  
+//   { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } }  
 // ]
 
 jsonquery(data, ["sort", ["address", "city"]])
@@ -757,7 +761,7 @@ jsonquery(23.1345, ["round", 3]) // 23.135
 jsonquery(23.761, ["round"]) // 24
 ```
 
-## Built-in operators
+## Operator reference
 
 - `==`
 - `>`
