@@ -239,7 +239,18 @@ A _pipe_ is an array containing a series of _functions_, _operators_, _propertie
 
 ### Objects
 
-An _object_ is defined as a regular JSON object with a property name as key, and a _function_, _pipe_, or _object_ as value. Objects can be used to executed multiple query pipelines in parallel. The following example will output an object with properties `names`, `count`, and `averageAge` containing the results of their query: a list with names, the total number of array items, and the average value of the properties `age` in all items:
+An _object_ is defined as a regular JSON object with a property name as key, and a _function_, _pipe_, or _object_ as value. Objects can be used to transform data or to execute multiple query pipelines in parallel.
+
+The following example will map over the items of the array and create a new object with properties `firstName` and `city` for every item:
+
+```json
+["map", {
+  "firstName": "name",
+  "city": ["address", "city"]
+}]
+```
+
+The following example will output an object with properties `names`, `count`, and `averageAge` containing the results of their query: a list with names, the total number of array items, and the average value of the properties `age` in all items:
 
 ```json
 {
