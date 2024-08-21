@@ -763,21 +763,360 @@ jsonquery(23.761, ["round"]) // 24
 
 ## Operator reference
 
-- `==`
-- `>`
-- `>=`
-- `<`
-- `<=`
-- `!=`
-- `and`
-- `or`
-- `in`
-- `not in`
-- `regex`
-- `+`
-- `-`
-- `*`
-- `/`
+### equal `==`
+
+Test whether two values are loosely equal. This uses JavaScript's `==` operator and therefore is no strict comparison and will also consider a string `"2"` and a number `2` to be equal for example.
+
+```js
+[left, "==", right]
+```
+
+> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 23 },
+  { "name": "Emily", "age": 18 },
+  { "name": "Kevin", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", "==", 18]])
+// [
+//   { "name": "Emily", "age": 18 },
+//   { "name": "Kevin", "age": 18 }
+// ]
+```
+
+### greater than `>`
+
+Test whether the left side of the operator is larger than the right side.
+
+```js
+[left, ">", right]
+```
+
+> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", ">", 18]])
+// [
+//   { "name": "Emily", "age": 32 }
+// ]
+```
+
+### greater than or equal `>=`
+
+Test whether the left side of the operator is larger than or equal to the right side.
+
+```js
+[left, ">=", right]
+```
+
+> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", ">=", 18]])
+// [
+//   { "name": "Emily", "age": 32 },
+//   { "name": "Joe", "age": 18 }
+// ]
+```
+
+### less than `<`
+
+Test whether the left side of the operator is smaller than the right side.
+
+```js
+[left, "<", right]
+```
+
+> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", "<", 18]])
+// [
+//   { "name": "Chris", "age": 16 }
+// ]
+```
+
+### less than or equal `<=`
+
+Test whether the left side of the operator is smaller than or equal to the right side.
+
+```js
+[left, ">=", right]
+```
+
+> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", "<=", 18]])
+// [
+//   { "name": "Chris", "age": 16 },
+//   { "name": "Joe", "age": 18 }
+// ]
+```
+
+### not equal `!=`
+
+Test whether two values are not equal This is the opposite of the loose equal operator `==`. This uses JavaScript's `!=` operator and therefore is no strict comparison and will also consider a string `"2"` and a number `2` to be equal for example.
+
+```js
+[left, "!=", right]
+```
+
+> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", "!=", 16]])
+// [
+//   { "name": "Emily", "age": 32 },
+//   { "name": "Joe", "age": 18 }
+// ]
+```
+
+### and
+
+Test whether both left and right value are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
+
+```js
+[left, "and", right]
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", [
+  ["name", "==", "Chris"],
+  "and"
+  ["age", "==", 16],
+]])
+// [
+//   { "name": "Chris", "age": 16 }
+// ]
+```
+
+### or
+
+Test whether one or both operands are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
+
+```js
+[left, "or", right]
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", [
+  ["age", "==", 16],
+  "or"
+  ["age", "==", 18],
+]])
+// [
+//   { "name": "Chris", "age": 16 },
+//   { "name": "Joe", "age": 18 }
+// ]
+```
+
+### in
+
+Test whether the left operand is one of the values of the list provided as right operand.
+
+```js
+[left, "in", ...values]
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", "in", [16, 18]]])
+// [
+//   { "name": "Chris", "age": 16 },
+//   { "name": "Joe", "age": 18 }
+// ]
+```
+
+### not in
+
+Test whether the left operand is _not_ one of the values of the list provided as right operand.
+
+```js
+[left, "not in", ...values]
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["age", "not in", [16, 18]]])
+// [
+//   { "name": "Emily", "age": 32 }
+// ]
+```
+
+### regex
+
+Test the left operand against the regular expression on the right hand.
+
+```js
+[left, "regex", expression]
+[left, "regex", expression, options]
+```
+
+Here, `expression` is a string containing the regular expression like `^[a-z]+$`, and `options` are regular expression flags like `i`.
+
+Examples:
+
+```js
+const data = [
+  { "id": 1, "message": "I LIKE it!" },
+  { "id": 2, "message": "It is awesome!" },
+  { "id": 3, "message": "Was a disaster" },
+  { "id": 4, "message": "We like it a lot" }
+]
+
+jsonquery(data, ["filter", ["message", "regex", "like|awesome"]])
+// [
+//   { "id": 2, "message": "It is awesome!" },
+//   { "id": 4, "message": "We like it a lot" }
+// ]
+
+jsonquery(data, ["filter", ["message", "regex", "like|awesome", "i"]])
+// [
+//   { "id": 1, "message": "I LIKE it!" },
+//   { "id": 2, "message": "It is awesome!" },
+//   { "id": 4, "message": "We like it a lot" }
+// ]
+```
+
+### add `+`
+
+Add the left and right side of the operator.
+
+```js
+[left, "+", right]
+```
+
+Examples:
+
+```js
+const data = { "a": 6, "b": 2 }
+
+jsonquery(data, ["a", "+", "b"]) // 8
+```
+
+### subtract `-`
+
+Subtract the left and right side of the operator.
+
+```js
+[left, "-", right]
+```
+
+Examples:
+
+```js
+const data = { "a": 6, "b": 2 }
+
+jsonquery(data, ["a", "-", "b"]) // 4
+```
+
+### multiply `*`
+
+Multiply the left and right side of the operator.
+
+```js
+[left, "*", right]
+```
+
+Examples:
+
+```js
+const data = { "a": 6, "b": 2 }
+
+jsonquery(data, ["a", "*", "b"]) // 12
+```
+
+### divide `/`
+
+Divide the left and right side of the operator.
+
+```js
+[left, "/", right]
+```
+
+Examples:
+
+```js
+const data = { "a": 6, "b": 2 }
+
+jsonquery(data, ["a", "/", "b"]) // 3
+```
 
 ## Motivation
 
