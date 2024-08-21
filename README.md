@@ -763,7 +763,7 @@ jsonquery(23.761, ["round"]) // 24
 
 ## Operator reference
 
-### equal `==`
+### equal (`==`)
 
 Test whether two values are loosely equal. This uses JavaScript's `==` operator and therefore is no strict comparison and will also consider a string `"2"` and a number `2` to be equal for example.
 
@@ -789,7 +789,7 @@ jsonquery(data, ["filter", ["age", "==", 18]])
 // ]
 ```
 
-### greater than `>`
+### greater than (`>`)
 
 Test whether the left side of the operator is larger than the right side.
 
@@ -814,7 +814,7 @@ jsonquery(data, ["filter", ["age", ">", 18]])
 // ]
 ```
 
-### greater than or equal `>=`
+### greater than or equal (`>=`)
 
 Test whether the left side of the operator is larger than or equal to the right side.
 
@@ -840,7 +840,7 @@ jsonquery(data, ["filter", ["age", ">=", 18]])
 // ]
 ```
 
-### less than `<`
+### less than (`<`)
 
 Test whether the left side of the operator is smaller than the right side.
 
@@ -865,7 +865,7 @@ jsonquery(data, ["filter", ["age", "<", 18]])
 // ]
 ```
 
-### less than or equal `<=`
+### less than or equal (`<=`)
 
 Test whether the left side of the operator is smaller than or equal to the right side.
 
@@ -891,7 +891,7 @@ jsonquery(data, ["filter", ["age", "<=", 18]])
 // ]
 ```
 
-### not equal `!=`
+### not equal (`!=`)
 
 Test whether two values are not equal This is the opposite of the loose equal operator `==`. This uses JavaScript's `!=` operator and therefore is no strict comparison and will also consider a string `"2"` and a number `2` to be equal for example.
 
@@ -1054,7 +1054,7 @@ jsonquery(data, ["filter", ["message", "regex", "like|awesome", "i"]])
 // ]
 ```
 
-### add `+`
+### add (`+`)
 
 Add the left and right side of the operator.
 
@@ -1070,7 +1070,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, ["a", "+", "b"]) // 8
 ```
 
-### subtract `-`
+### subtract (`-`)
 
 Subtract the left and right side of the operator.
 
@@ -1086,7 +1086,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, ["a", "-", "b"]) // 4
 ```
 
-### multiply `*`
+### multiply (`*`)
 
 Multiply the left and right side of the operator.
 
@@ -1102,7 +1102,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, ["a", "*", "b"]) // 12
 ```
 
-### divide `/`
+### divide (`/`)
 
 Divide the left and right side of the operator.
 
