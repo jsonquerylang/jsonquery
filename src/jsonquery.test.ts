@@ -628,6 +628,18 @@ describe('jsonquery', () => {
     expect(jsonquery([2, 3, 1], ['sort'], customFunctions)).toEqual('custom sort')
   })
 
+  test('should cleanup the custom function stack when creating a query throws an error', () => {
+    const customFunctions = {
+      sort: () => {
+        throw new Error('Test Error')
+      }
+    }
+
+    expect(() => jsonquery({}, ['sort'], customFunctions)).toThrow('Test Error')
+
+    expect(jsonquery([2, 3, 1], ['sort'])).toEqual([1, 2, 3])
+  })
+
   test('should use operators to calculate a shopping cart', () => {
     const data = [
       { name: 'bread', price: 2.5, quantity: 2 },

@@ -22,16 +22,16 @@ export function jsonquery(
 }
 
 export function compile(query: JSONQuery, customFunctions?: FunctionsMap): Evaluator {
-  functionsStack.unshift({
-    ...(functionsStack[0] as object),
-    ...(customFunctions as object | undefined)
-  })
+  try {
+    functionsStack.unshift({
+      ...(functionsStack[0] as object),
+      ...(customFunctions as object | undefined)
+    })
 
-  const result = _compile(query)
-
-  functionsStack.shift()
-
-  return result
+    return _compile(query)
+  } finally {
+    functionsStack.shift()
+  }
 }
 
 function _compile(query: JSONQuery): Evaluator {
