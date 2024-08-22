@@ -33,31 +33,31 @@ const scoresData = [
 ]
 
 describe('jsonquery', () => {
-  test('should get a property with brackets', () => {
+  test('should get a path with brackets', () => {
     expect(jsonquery({ name: 'Joe' }, ['name'])).toEqual('Joe')
   })
 
-  test('should get a property without brackets', () => {
+  test('should get a path without brackets', () => {
     expect(jsonquery({ name: 'Joe' }, 'name')).toEqual('Joe')
   })
 
-  test('should get a nested property', () => {
+  test('should get a nested path', () => {
     expect(jsonquery({ user: { name: 'Joe' } }, ['user', 'name'])).toEqual('Joe')
   })
 
-  test('should return undefined in case of a non existing property', () => {
+  test('should return undefined in case of a non existing path', () => {
     expect(jsonquery({}, ['foo', 'bar'])).toEqual(undefined)
   })
 
-  test('should get a property using function get', () => {
+  test('should get a path using function get', () => {
     expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
   })
 
-  test('should get a property that has the same name as a function', () => {
+  test('should get a path that has the same name as a function', () => {
     expect(jsonquery({ sort: 'Joe' }, ['get', 'sort'])).toEqual('Joe')
   })
 
-  test('should get a nested property that has the same name as a function', () => {
+  test('should get a nested v that has the same name as a function', () => {
     expect(jsonquery({ sort: { name: 'Joe' } }, ['get', ['sort', 'name']])).toEqual('Joe')
   })
 
@@ -136,7 +136,7 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should map a property', () => {
+  test('should map a path', () => {
     expect(jsonquery(data, ['map', 'name'])).toEqual([
       'Chris',
       'Emily',

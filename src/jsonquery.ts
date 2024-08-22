@@ -2,6 +2,7 @@ import {
   Evaluator,
   FunctionsMap,
   Getter,
+  JSONPath,
   JSONProperty,
   JSONQuery,
   JSONQueryFunction,
@@ -58,7 +59,7 @@ function _compile(query: JSONQuery): Evaluator {
     if (rawOp) {
       const _right = right[0]
       const a = compile(left)
-      // Special rule: relational operators interpret a string on the right side as a text and not a property
+      // Special rule: relational operators interpret a string on the right side as a text and not a path
       const b = relationalOperators[opName] && isString(_right) ? () => _right : compile(_right)
       return (data: unknown) => rawOp(a(data), b(data))
     }
@@ -67,7 +68,7 @@ function _compile(query: JSONQuery): Evaluator {
     return pipe(query as JSONQueryPipe)
   }
 
-  // property without brackets
+  // path without brackets
   if (isString(query)) {
     return get(query)
   }
@@ -76,13 +77,13 @@ function _compile(query: JSONQuery): Evaluator {
   return () => query
 }
 
-export const get = (property: JSONProperty) =>
-  isString(property)
-    ? (data: unknown) => data?.[property]
+export const get = (path: JSONPath | JSONProperty) =>
+  isString(path)
+    ? (data: unknown) => data?.[path]
     : (data: unknown) => {
         let value = data
 
-        for (const prop of property) {
+        for (const prop of path) {
           value = value?.[prop]
         }
 
@@ -116,8 +117,8 @@ export const object = (query: JSONQueryObject) => {
   }
 }
 
-export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc') => {
-  const getter = get(property)
+export const sort = <T>(path: JSONPath | JSONProperty = [], direction?: 'asc' | 'desc') => {
+  const getter = get(path)
   const sign = direction === 'desc' ? -1 : 1
 
   function compare(itemA: unknown, itemB: unknown) {
@@ -129,10 +130,10 @@ export const sort = <T>(property: JSONProperty = [], direction?: 'asc' | 'desc')
   return (data: T[]) => data.slice().sort(compare)
 }
 
-export const pick = (...properties: JSONProperty[]) => {
-  const getters: Getter[] = properties.map((property) => [
-    isString(property) ? property : property[property.length - 1],
-    get(property)
+export const pick = (...paths: (JSONPath | JSONProperty)[]) => {
+  const getters: Getter[] = paths.map((path) => [
+    isString(path) ? path : path[path.length - 1],
+    get(path)
   ])
 
   return (data: Record<string, unknown>): unknown => {
@@ -154,8 +155,8 @@ const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
   return out
 }
 
-export const groupBy = <T>(property: JSONProperty) => {
-  const getter = get(property)
+export const groupBy = <T>(path: JSONPath | JSONProperty) => {
+  const getter = get(path)
 
   return (data: T[]) => {
     const res = {}
@@ -173,8 +174,8 @@ export const groupBy = <T>(property: JSONProperty) => {
   }
 }
 
-export const keyBy = <T>(property: JSONProperty) => {
-  const getter = get(property)
+export const keyBy = <T>(path: JSONPath | JSONProperty) => {
+  const getter = get(path)
 
   return (data: T[]) => {
     const res = {}
@@ -195,9 +196,9 @@ export const uniq =
   <T>(data: T[]) => [...new Set(data)]
 
 export const uniqBy =
-  <T>(property: JSONProperty) =>
+  <T>(path: JSONPath | JSONProperty) =>
   (data: T[]): T[] =>
-    Object.values(groupBy(property)(data)).map((groups) => groups[0])
+    Object.values(groupBy(path)(data)).map((groups) => groups[0])
 
 export const limit =
   (count: number) =>
@@ -278,17 +279,17 @@ const rawOperators: Record<string, Operator> = {
 }
 
 const coreOperators: FunctionsMap = {
-  in: (property: string, values: string[]) => {
-    const getter = get(property)
+  in: (path: string, values: string[]) => {
+    const getter = get(path)
     return (data: unknown) => values.includes(getter(data))
   },
-  'not in': (property: string, values: string[]) => {
-    const getter = get(property)
+  'not in': (path: string, values: string[]) => {
+    const getter = get(path)
     return (data: unknown) => !values.includes(getter(data))
   },
-  regex: (property: string, expression: string, options?: string) => {
+  regex: (path: string, expression: string, options?: string) => {
     const regex = new RegExp(expression, options)
-    const getter = get(property)
+    const getter = get(path)
     return (data: unknown) => regex.test(getter(data) as string)
   }
 }

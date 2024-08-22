@@ -122,7 +122,7 @@ Here:
 
 ## Syntax
 
-The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _pipes_, and _objects_.
+The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _paths_, _pipes_, and _objects_.
 
 The examples in the following sections are based on querying the following data:
 
@@ -146,7 +146,7 @@ At the core of the query language, we have a _function_ call which described by 
 ["sort", "age", "asc"]
 ```
 
-Most of the functions use property names like `age` in the example above. Nested properties can be specified using an array. The following example will sort an array in descending order by a nested property `city` inside an object `address`:
+Nested properties can be specified using a _path_: an array with properties. The following example will sort an array in descending order by a nested property `city` inside an object `address`:
 
 ```json
 ["sort", ["address", "city"], "desc"]
@@ -176,7 +176,7 @@ Operators are mostly used inside the `"filter"` function, for example:
 
 There are two special cases regarding operators:
 
-1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be enclosed in brackets. For example:
+1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be changed into a _path_ by enclosing it in brackets. For example:
 
     ```js
     // WRONG: "age" is interpreted as text
@@ -200,26 +200,26 @@ There are two special cases regarding operators:
 
 See section [Operator reference](#operator-reference) for a detailed overview of all available operators.
 
-### Properties
+### Properties and Paths
 
-In functions and operators, you can refer to object properties using an array containing one or multiple keys. In case of multiple keys, a nested property will be retrieved. For example:
+A _property_ is a string pointing to a value inside an object. A _path_ is an array containing _properties_, describing a property in a nested object. The following path for example describes the value of a nested property `city` inside an object `address`:
 
 ```json
 ["address", "city"]
 ```
 
-When the property contains only a single key, like `["age"]`, the brackets can be omitted and used like `"age"`:
+When the path contains only a single property, like `["age"]`, the brackets can be omitted and used as a property like `"age"`:
 
 ```js
-// equivalent:
+// path ["age"] is equivalent to property "age":
+["sort", ["age"]]
 ["sort", "age"]
-["sort", ["age"]] 
 ```
 
-There is one special case regarding properties:
+There is one special case regarding paths:
 
-1. To get an object property that has the same name as a function, use the function `get`:
-
+1. When having a path that has the name as a function as first property, like `["sort"]`, it will be interpreted as a function and not as a path. In that case, use the function `get`:
+f
     ```js
     const data = { sort: 42 }
 
@@ -228,7 +228,7 @@ There is one special case regarding properties:
 
 ### Pipes
 
-A _pipe_ is an array containing a series of _functions_, _operators_, _properties_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a property `city` with the value `"New York"`, and next, sort the filtered items by the property `age`:
+A _pipe_ is an array containing a series of _functions_, _operators_, _paths_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
 
 ```json
 [
@@ -269,10 +269,10 @@ The following functions are available:
 
 ### get
 
-Get a nested property from an object.
+Get a path from an object.
 
 ```js
-["get", property]
+["get", path]
 ```
 
 Examples:
@@ -342,8 +342,8 @@ Sort a list with objects or values.
 
 ```js
 ["sort"]
-["sort", property]
-["sort", property, direction]
+["sort", path]
+["sort", path, direction]
 ```
 
 Examples:
@@ -384,10 +384,10 @@ jsonquery(values, ["sort", [], "desc"]) // [9, 7, 2]
 
 ### pick
 
-Pick one or multiple properties, which can be nested properties, and create a new, flat objects with them. Can be used on both an object or an array.
+Pick one or multiple properties or paths, and create a new, flat objects with them. Can be used on both an object or an array.
 
 ```js
-["pick", ...properties]
+["pick", ...paths]
 ```
 
 Examples:
@@ -458,10 +458,10 @@ jsonquery(data, [
 
 ### groupBy
 
-Group a list with objects. This creates an object with the different properties as key, and an array with all items having that property as value.
+Group a list with objects grouped by the value of given path. This creates an object with the different properties as key, and an array with all items having that property as value.
 
 ```js
-["groupBy", property]
+["groupBy", path]
 ```
 
 Examples:
@@ -502,7 +502,7 @@ jsonquery(data, ["groupBy", "city"])
 Turn an array with objects into an object by key. When there are multiple items with the same key, the first item will be kept.
 
 ```js
-["keyBy", property]
+["keyBy", path]
 ```
 
 Examples:
@@ -596,10 +596,10 @@ jsonquery([1, 5, 3, 3, 1], ["uniq"]) // [1, 3, 5]
 
 ### uniqBy
 
-Create a copy of an array where all objects with a duplicate value for the selected property are removed. In case of duplicates, the first object is kept.
+Create a copy of an array where all objects with a duplicate value for the selected path are removed. In case of duplicates, the first object is kept.
 
 ```js
-["uniqBy", property]
+["uniqBy", path]
 ```
 
 Examples:

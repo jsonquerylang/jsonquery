@@ -1,6 +1,7 @@
 export type JSONPrimitive = number | boolean | null
 
-export type JSONProperty = string | string[]
+export type JSONProperty = string
+export type JSONPath = JSONProperty[]
 
 export type JSONQueryFunction = [name: string, ...args: JSONQuery[]]
 export type JSONQueryOperator = [left: JSONQuery, op: string, ...right: JSONQuery[]]
@@ -11,6 +12,7 @@ export type JSONQuery =
   | JSONQueryOperator
   | JSONQueryPipe
   | JSONQueryObject
+  | JSONPath
   | JSONProperty
   | JSONPrimitive
 
