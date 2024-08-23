@@ -142,10 +142,10 @@ Syntax overview:
 
 | Category                          | Syntax                                    | Example                                        |
 |-----------------------------------|-------------------------------------------|------------------------------------------------|
-| [Function](#functions)            | `["function", ...arguments]`              | `["sort", ["address", "city"], "asc"]`         |
+| [Function](#functions)            | `["function", argument1, argument2, ...]` | `["sort", ["address", "city"], "asc"]`         |
 | [Operator](#operators)            | `[left, "operator", right]`               | `[["address", "city"], "==", "New York"]`      |
 | [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
-| [Path](#properties-and-paths)     | `[...properties]`                         | `["address", "city"]`                          |
+| [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
 | [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
 | [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
 
