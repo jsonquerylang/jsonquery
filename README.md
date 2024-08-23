@@ -140,14 +140,14 @@ The examples in the following sections are based on querying the following data:
 
 Syntax overview:
 
-| Category | Syntax                                    | Example                                        |
-|----------|-------------------------------------------|------------------------------------------------|
-| Function | `["function", ...arguments]`              | `["sort", ["address", "city"], "asc"]`         |
-| Operator | `[left, "operator", right]`               | `[["address", "city"], "==", "New York"]`      |
-| Property | `"property"`                              | `"age"`                                        |
-| Path     | `[...properties]`                         | `["address", "city"]`                          |
-| Pipe     | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
-| Object   | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
+| Category                          | Syntax                                    | Example                                        |
+|-----------------------------------|-------------------------------------------|------------------------------------------------|
+| [Function](#functions)            | `["function", ...arguments]`              | `["sort", ["address", "city"], "asc"]`         |
+| [Operator](#operators)            | `[left, "operator", right]`               | `[["address", "city"], "==", "New York"]`      |
+| [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
+| [Path](#properties-and-paths)     | `[...properties]`                         | `["address", "city"]`                          |
+| [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
+| [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
 
 The following sections explain the syntax in more detail.
 
