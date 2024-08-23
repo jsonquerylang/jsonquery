@@ -57,8 +57,17 @@ describe('jsonquery', () => {
     expect(jsonquery({ sort: 'Joe' }, ['get', 'sort'])).toEqual('Joe')
   })
 
-  test('should get a nested v that has the same name as a function', () => {
+  test('should get a nested value that has the same name as a function', () => {
     expect(jsonquery({ sort: { name: 'Joe' } }, ['get', ['sort', 'name']])).toEqual('Joe')
+  })
+
+  test('should get in item from an array', () => {
+    expect(jsonquery(['A', 'B', 'C'], ['get', 1])).toEqual('B')
+    expect(jsonquery(['A', 'B', 'C'], ['get', [1]])).toEqual('B')
+    expect(jsonquery({ arr: ['A', 'B', 'C'] }, ['get', ['arr', 1]])).toEqual('B')
+    expect(jsonquery([{ text: 'A' }, { text: 'B' }, { text: 'C' }], ['get', [1, 'text']])).toEqual(
+      'B'
+    )
   })
 
   test('should execute a function', () => {

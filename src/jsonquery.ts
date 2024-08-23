@@ -70,7 +70,7 @@ function _compile(query: JSONQuery): Evaluator {
 
   // property
   if (isString(query)) {
-    return get([query])
+    return get(query)
   }
 
   // value
@@ -78,9 +78,8 @@ function _compile(query: JSONQuery): Evaluator {
 }
 
 export const get = (path: JSONPath | JSONProperty) =>
-  isString(path)
-    ? (data: unknown) => data?.[path]
-    : (data: unknown) => {
+  isArray(path)
+    ? (data: unknown) => {
         let value = data
 
         for (const prop of path) {
@@ -89,6 +88,7 @@ export const get = (path: JSONPath | JSONProperty) =>
 
         return value
       }
+    : (data: unknown) => data?.[path]
 
 export const string = (text: string) => () => text
 
