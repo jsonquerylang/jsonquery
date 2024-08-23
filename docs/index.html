@@ -75,6 +75,350 @@
           <label for="output-text">Output</label>
           <textarea id="output-text" readonly>loading...</textarea>
         </div>
+        <div class="column">
+          <label for="output-text">Quick Reference</label>
+          <div class="quick-reference">
+            <details>
+              <summary>
+                <span class="category">Function</span>
+                <code>["function", argument1, argument2, ...]</code>
+              </summary>
+              <div class="details-content">
+                <p>
+                  A <b>function</b> is an array with the function name as first item followed by
+                  optional function arguments.
+                </p>
+                <p>Example: <code>["sort", ["address", "city"], "asc"]</code></p>
+                <p>
+                  Documentation:
+                  <a href="https://github.com/josdejong/jsonquery#functions" target="_blank"
+                    >Functions</a
+                  >
+                </p>
+                <p>Function reference:</p>
+                <ul class="function-reference">
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#get" target="_blank"
+                      ><code>["get", path]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#filter" target="_blank"
+                      ><code>["filter", condition]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#sort" target="_blank"
+                      ><code>["sort", path, direction]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#pick" target="_blank"
+                      ><code>["pick", path1, path2, ...]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#map" target="_blank"
+                      ><code>["map", query]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#groupBy" target="_blank"
+                      ><code>["groupBy", path]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#keyBy" target="_blank"
+                      ><code>["keyBy", path]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#keys" target="_blank"
+                      ><code>["keys"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#values" target="_blank"
+                      ><code>["values"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#flatten" target="_blank"
+                      ><code>["flatten"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#uniq" target="_blank"
+                      ><code>["uniq"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#uniqBy" target="_blank"
+                      ><code>["uniqBy", path]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#limit" target="_blank"
+                      ><code>["limit", size]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#size" target="_blank"
+                      ><code>["size", path]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#string" target="_blank"
+                      ><code>["string", text]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#sum" target="_blank"
+                      ><code>["sum"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#min" target="_blank"
+                      ><code>["min"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#max" target="_blank"
+                      ><code>["max"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#prod" target="_blank"
+                      ><code>["prod"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#average" target="_blank"
+                      ><code>["average"]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#round" target="_blank"
+                      ><code>["round", digits]</code></a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </details>
+            <details>
+              <summary>
+                <span class="category">Operator</span>
+                <code>[left, "operator", right]</code>
+              </summary>
+              <div class="details-content">
+                <p>
+                  An <b>operator</b> is an array with a left side value, the operator, and a right
+                  side value. Operators are for example used in the <code>filter</code> function to
+                  specify a condition.
+                </p>
+                <p>Example: <code>["filter", [["address", "city"], "==", "New York"]]</code></p>
+                <p>
+                  Documentation:
+                  <a href="https://github.com/josdejong/jsonquery#operators" target="_blank"
+                    >Operators</a
+                  >
+                </p>
+                <p>Operator reference:</p>
+                <ul class="operator-reference">
+                  <li>
+                    <a
+                      title="equal"
+                      href="https://github.com/josdejong/jsonquery#equal-"
+                      target="_blank"
+                      ><code>[left, "==", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="greater than"
+                      href="https://github.com/josdejong/jsonquery#greater-than-"
+                      target="_blank"
+                      ><code>[left, ">", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="greater than or equal"
+                      href="https://github.com/josdejong/jsonquery#greater-than-or-equal-"
+                      target="_blank"
+                      ><code>[left, ">=", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="less than"
+                      href="https://github.com/josdejong/jsonquery#less-than-"
+                      target="_blank"
+                      ><code>[left, "<", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="less than or equal"
+                      href="https://github.com/josdejong/jsonquery#less-than-or-equal-"
+                      target="_blank"
+                      ><code>[left, "<=", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="not equal"
+                      href="https://github.com/josdejong/jsonquery#not-equal-"
+                      target="_blank"
+                      ><code>[left, "!=", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a title="and" href="https://github.com/josdejong/jsonquery#and" target="_blank"
+                      ><code>[left, "and", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a title="or" href="https://github.com/josdejong/jsonquery#or" target="_blank"
+                      ><code>[left, "or", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a title="in" href="https://github.com/josdejong/jsonquery#in" target="_blank"
+                      ><code>[left, "in", ...values]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="not in"
+                      href="https://github.com/josdejong/jsonquery#not-in"
+                      target="_blank"
+                      ><code>[left, "not in", ...values]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="regex"
+                      href="https://github.com/josdejong/jsonquery#regex"
+                      target="_blank"
+                      ><code>[left, "regex", expression, options]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="add"
+                      href="https://github.com/josdejong/jsonquery#add-"
+                      target="_blank"
+                      ><code>[left, "+", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="subtract"
+                      href="https://github.com/josdejong/jsonquery#subtract-"
+                      target="_blank"
+                      ><code>[left, "-", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="multiply"
+                      href="https://github.com/josdejong/jsonquery#multiply-"
+                      target="_blank"
+                      ><code>[left, "*", right]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      title="divide"
+                      href="https://github.com/josdejong/jsonquery#divide-"
+                      target="_blank"
+                      ><code>[left, "/", right]</code></a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </details>
+            <details>
+              <summary>
+                <span class="category">Property</span>
+                <code>"property"</code>
+              </summary>
+              <div class="details-content">
+                <p>A <b>property</b> is a string pointing to a value inside an object.</p>
+                <p>Example: <code>"age"</code></p>
+                <p>
+                  Documentation:
+                  <a
+                    href="https://github.com/josdejong/jsonquery#properties-and-paths"
+                    target="_blank"
+                    >Properties and paths</a
+                  >
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>
+                <span class="category">Path</span>
+                <code>[property1, property2, ...]</code>
+              </summary>
+              <div class="details-content">
+                <p>
+                  A <b>path</b> is an array containing <i>properties</i>, describing a property in a
+                  nested object.
+                </p>
+                <p>Example: <code>["address", "city"]</code></p>
+                <p>
+                  Documentation:
+                  <a
+                    href="https://github.com/josdejong/jsonquery#properties-and-paths"
+                    target="_blank"
+                    >Properties and paths</a
+                  >
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>
+                <span class="category">Pipe</span>
+                <code>[query1, query1, ...]</code>
+              </summary>
+              <div class="details-content">
+                <p>
+                  A <b>pipe</b> is an array containing a series of <i>functions</i>,
+                  <i>operators</i>, <i>paths</i>, <i>objects</i>, or <i>pipes</i>. The entries in
+                  the pipeline are executed one by one, and the output of the first is the input for
+                  the next.
+                </p>
+                <p>Example: <code>[["sort", "age"], ["pick", "name", "age"]]</code></p>
+                <p>
+                  Documentation:
+                  <a href="https://github.com/josdejong/jsonquery#pipes" target="_blank">Pipes</a>
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>
+                <span class="category">Object</span>
+                <code>{"prop1": query1, "prop2": query2, ...}</code>
+              </summary>
+              <div class="details-content">
+                <p>
+                  An <b>object</b> is defined as a regular JSON object with a property name as key,
+                  and a <i>function</i>, <i>pipe</i>, or <i>object</i> as value. Objects can be used
+                  to transform data or to execute multiple query pipelines in parallel.
+                </p>
+                <p>Example: <code>{"names": ["map", "name"], "total": ["sum"]}</code></p>
+                <p>
+                  Documentation:
+                  <a href="https://github.com/josdejong/jsonquery#objects" target="_blank"
+                    >Objects</a
+                  >
+                </p>
+              </div>
+            </details>
+          </div>
+        </div>
       </div>
     </div>
 

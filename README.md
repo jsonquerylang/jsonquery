@@ -894,7 +894,7 @@ jsonquery(data, ["filter", ["age", "<", 18]])
 Test whether the left side of the operator is smaller than or equal to the right side.
 
 ```js
-[left, ">=", right]
+[left, "<=", right]
 ```
 
 > Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).

@@ -133,6 +133,7 @@ button.example:hover {
   flex-direction: column;
   min-width: min(400px, 90vw);
   min-height: 220px;
+  max-height: 100%;
 }
 
 .separator {
@@ -158,4 +159,63 @@ textarea {
 
 .error {
   color: #f65252;
+}
+
+.quick-reference {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  line-height: 1.3em;
+  gap: 5px;
+}
+
+details {
+  display: flex;
+  min-height: min-content
+}
+
+details p {
+  padding: 0;
+  margin: 0.5em 0;
+}
+
+details p:first-child {
+  margin-top: 0;
+}
+
+details p:last-child {
+  margin-bottom: 0;
+}
+
+details ul {
+  margin: 0;
+}
+
+code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 3px;
+  border-radius: 3px;
+}
+
+.function-reference a,
+.operator-reference a {
+  text-decoration: none;
+}
+
+summary {
+  cursor: pointer;
+}
+
+summary .category {
+  min-width: 80px;
+  display: inline-block;
+}
+
+.details-content {
+  padding: 0.5em;
+  margin: 0.5em 0;
+  background: #fff9ca;
+  border: 1px solid #dad5ad;
+  border-radius: 3px;
 }
