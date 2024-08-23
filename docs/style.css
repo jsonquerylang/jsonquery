@@ -190,7 +190,7 @@ textarea {
 
 details {
   display: flex;
-  min-height: min-content
+  min-height: min-content;
 }
 
 details p {
