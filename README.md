@@ -138,6 +138,19 @@ The examples in the following sections are based on querying the following data:
 ]
 ```
 
+Syntax overview:
+
+| Category | Syntax                                    | Example                                        |
+|----------|-------------------------------------------|------------------------------------------------|
+| Function | `["function", ...arguments]`              | `["sort", ["address", "city"], "asc"]`         |
+| Operator | `[left, "operator", right]`               | `[["address", "city"], "==", "New York"]`      |
+| Property | `"property"`                              | `"age"`                                        |
+| Path     | `[...properties]`                         | `["address", "city"]`                          |
+| Pipe     | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
+| Object   | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
+
+The following sections explain the syntax in more detail.
+
 ### Functions
 
 At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:

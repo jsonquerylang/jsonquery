@@ -68,9 +68,9 @@ function _compile(query: JSONQuery): Evaluator {
     return pipe(query as JSONQueryPipe)
   }
 
-  // path without brackets
+  // property
   if (isString(query)) {
-    return get(query)
+    return get([query])
   }
 
   // value
