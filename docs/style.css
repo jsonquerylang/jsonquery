@@ -134,7 +134,6 @@ button.example:hover {
 
 .column {
   box-sizing: border-box;
-  overflow: auto;
   display: flex;
   flex-direction: column;
   min-height: 220px;
@@ -214,6 +213,16 @@ code {
   background: rgba(0, 0, 0, 0.05);
   padding: 3px;
   border-radius: 3px;
+}
+
+pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 3px;
+  border-radius: 3px;
+}
+
+pre code {
+  background: none;
 }
 
 .function-reference a,

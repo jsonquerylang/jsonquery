@@ -216,7 +216,8 @@
                   side value. Operators are for example used in the <code>filter</code> function to
                   specify a condition.
                 </p>
-                <p>Example: <code>["filter", [["address", "city"], "==", "New York"]]</code></p>
+                <p>Example:</p>
+                <pre><code>["filter", [["address", "city"], "==", "New York"]]</code></pre>
                 <p>
                   Documentation:
                   <a href="https://github.com/josdejong/jsonquery#operators" target="_blank"
@@ -390,7 +391,11 @@
                   the pipeline are executed one by one, and the output of the first is the input for
                   the next.
                 </p>
-                <p>Example: <code>[["sort", "age"], ["pick", "name", "age"]]</code></p>
+                <p>Example:</p>
+                <pre><code>[
+  ["sort", "age"],
+  ["pick", "name", "age"]
+]</code></pre>
                 <p>
                   Documentation:
                   <a href="https://github.com/josdejong/jsonquery#pipes" target="_blank">Pipes</a>
@@ -408,7 +413,11 @@
                   and a <i>function</i>, <i>pipe</i>, or <i>object</i> as value. Objects can be used
                   to transform data or to execute multiple query pipelines in parallel.
                 </p>
-                <p>Example: <code>{"names": ["map", "name"], "total": ["sum"]}</code></p>
+                <p>Example:</p>
+                <pre><code>{
+  "names": ["map", "name"],
+  "numberOfNames": ["length"]
+}</code></pre>
                 <p>
                   Documentation:
                   <a href="https://github.com/josdejong/jsonquery#objects" target="_blank"
