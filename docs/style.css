@@ -118,22 +118,38 @@ button.example:hover {
 
 .playground {
   flex: 1;
-  display: flex;
-  margin: 10px 10px 20px;
-  gap: 10px;
-  flex-wrap: wrap;
-  max-width: 1000px;
   align-self: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  overflow: hidden;
+
+  padding: 10px 10px 20px;
+  margin: 0;
+  gap: 10px;
+  width: 1020px; /* 1000 + 2 * padding */
+  max-width: 100%;
   box-sizing: border-box;
 }
 
 .column {
-  flex: 1;
+  box-sizing: border-box;
+  overflow: auto;
   display: flex;
   flex-direction: column;
-  min-width: min(400px, 90vw);
   min-height: 220px;
-  max-height: 100%;
+}
+
+@media (max-width: 860px) {
+  .playground {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .column {
+    display: flex;
+  }
 }
 
 .separator {
@@ -146,14 +162,13 @@ label {
 }
 
 textarea {
-  width: 100%;
   flex: 1;
+  width: 100%;
   border: 1px solid #bfbfbf;
   border-radius: 3px;
   padding: 5px;
   box-sizing: border-box;
   font-family: monospace;
-  max-height: 500px;
   resize: none;
 }
 
@@ -168,6 +183,9 @@ textarea {
   overflow: auto;
   line-height: 1.3em;
   gap: 5px;
+  border: 1px solid #dcdcdc;
+  border-radius: 3px;
+  padding: 10px;
 }
 
 details {
@@ -214,8 +232,6 @@ summary .category {
 
 .details-content {
   padding: 0.5em;
-  margin: 0.5em 0;
-  background: #fff9ca;
-  border: 1px solid #dad5ad;
+  margin: 0.5em 0 0.5em 30px;
   border-radius: 3px;
 }
