@@ -772,6 +772,22 @@ jsonquery([2, 4], ["average"]) // 3
 jsonquery([2, 3, 2, 7, 1], ["average"]) // 3
 ```
 
+### abs
+
+Calculate the absolute value.
+
+```js
+["abs"]
+```
+
+Examples:
+
+```js
+jsonquery(2, ["abs"]) // 2
+jsonquery(-3, ["abs", 2]) // 3
+jsonquery({"a": -7}, [["a"], ["abs"]]) // 7
+```
+
 ### round
 
 Round a value. When `digits` is provided, the value will be rounded to the selected number of digits.
@@ -1001,6 +1017,54 @@ jsonquery(data, ["filter", [
 // ]
 ```
 
+### not
+
+Operator not inverts the right hand side. It has no left hand value. When the right hand is truthy it returns `false`, and otherwise it returns `true`.
+
+```js
+["not", value]
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, ["filter", ["not", ["age", "==", 18]]])
+// [
+//   { "name": "Chris", "age": 16 },
+//   { "name": "Emily", "age": 32 }
+// ]
+```
+
+### exists
+
+Returns true if the right hand side exists, and returns false when the right hand side is undefined.
+
+```js
+["exists", value]
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "details": { "age": 16 } },
+  { "name": "Emily" },
+  { "name": "Joe", "details": { "age": 18 } }
+]
+
+jsonquery(data, ["filter", ["exists", "details"]])
+// [
+//   { "name": "Chris", "details": { "age": 16 } },
+//   { "name": "Joe", "details": { "age": 18 } }
+// ]
+```
+
 ### in
 
 Test whether the left operand is one of the values of the list provided as right operand.
@@ -1145,6 +1209,38 @@ Examples:
 const data = { "a": 6, "b": 2 }
 
 jsonquery(data, ["a", "/", "b"]) // 3
+```
+
+### power (`^`)
+
+Calculate the exponent. Returns the result of raising the left value to the power of the right value.
+
+```js
+[left, "^", right]
+```
+
+Examples:
+
+```js
+const data = { "a": 2, "b": 3 }
+
+jsonquery(data, ["a", "^", "b"]) // 8
+```
+
+### remainder (`%`)
+
+Calculate the remainder (the modulus) of the left side divided by the right side.
+
+```js
+[left, "%", right]
+```
+
+Examples:
+
+```js
+const data = { "a": 8, "b": 3 }
+
+jsonquery(data, ["a", "%", "b"]) // 2
 ```
 
 ## Motivation

@@ -262,6 +262,11 @@ describe('jsonquery', () => {
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Michelle', age: 27, city: 'Los Angeles' }
     ])
+
+    expect(jsonquery(data, [['filter', [['age', '>=', 23], 'and', ['age', '<=', 27]]]])).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' }
+    ])
   })
 
   test('should filter data using "in"', () => {
@@ -588,6 +593,80 @@ describe('jsonquery', () => {
       { name: 'Chris', age: 23, city: 'New York' },
       { name: 'Emily', age: 19, city: 'Atlanta' }
     ])
+  })
+
+  test('should process "not"', () => {
+    expect(jsonquery(data, ['not', 2])).toEqual(false)
+    expect(jsonquery({ a: false }, ['not', 'a'])).toEqual(true)
+    expect(jsonquery({ a: true }, ['not', 'a'])).toEqual(false)
+    expect(jsonquery({ nested: { a: false } }, ['not', ['nested', 'a']])).toEqual(true)
+    expect(jsonquery({ nested: { a: true } }, ['not', ['nested', 'a']])).toEqual(false)
+
+    expect(jsonquery(data, ['filter', ['not', ['city', '==', 'New York']]])).toEqual([
+      { name: 'Emily', age: 19, city: 'Atlanta' },
+      { name: 'Kevin', age: 19, city: 'Atlanta' },
+      { name: 'Michelle', age: 27, city: 'Los Angeles' },
+      { name: 'Robert', age: 45, city: 'Manhattan' }
+    ])
+  })
+
+  test('should process "exists"', () => {
+    expect(jsonquery({ a: false }, ['exists', 'a'])).toEqual(true)
+    expect(jsonquery({ a: null }, ['exists', 'a'])).toEqual(true)
+    expect(jsonquery({ a: 2 }, ['exists', 'a'])).toEqual(true)
+    expect(jsonquery({ a: 0 }, ['exists', 'a'])).toEqual(true)
+    expect(jsonquery({ a: '' }, ['exists', 'a'])).toEqual(true)
+    expect(jsonquery({ nested: { a: 2 } }, ['exists', ['nested', 'a']])).toEqual(true)
+
+    expect(jsonquery({ a: undefined }, ['exists', 'a'])).toEqual(false)
+    expect(jsonquery({}, ['exists', 'a'])).toEqual(false)
+    expect(jsonquery({}, ['exists', ['nested', 'a']])).toEqual(false)
+
+    const detailsData = [
+      { name: 'Chris', details: { age: 16 } },
+      { name: 'Emily' },
+      { name: 'Joe', details: { age: 18 } }
+    ]
+    expect(jsonquery(detailsData, ['filter', ['exists', 'details']])).toEqual([
+      { name: 'Chris', details: { age: 16 } },
+      { name: 'Joe', details: { age: 18 } }
+    ])
+  })
+
+  test('should process operator add', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['a', '+', ['b']])).toEqual(8)
+  })
+
+  test('should process operator subtract', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['a', '-', ['b']])).toEqual(4)
+  })
+
+  test('should process operator multiply', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['a', '*', ['b']])).toEqual(12)
+  })
+
+  test('should process operator divide', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['a', '/', ['b']])).toEqual(3)
+  })
+
+  test('should process operator pow', () => {
+    expect(jsonquery({ a: 2, b: 3 }, ['a', '^', ['b']])).toEqual(8)
+    expect(jsonquery({ a: 25, b: 1 / 2 }, ['a', '^', ['b']])).toEqual(5) // sqrt
+  })
+
+  test('should process operator mod', () => {
+    expect(jsonquery({ a: 8, b: 3 }, ['a', '%', ['b']])).toEqual(2)
+  })
+
+  test('should calculate the minimum value', () => {
+    expect(jsonquery([3, -4, 1, -7], ['min'])).toEqual(-7)
+  })
+
+  test('should calculate the absolute value', () => {
+    expect(jsonquery(2, ['abs'])).toEqual(2)
+    expect(jsonquery(-2, ['abs'])).toEqual(2)
+    expect(jsonquery({ a: -3 }, ['a', ['abs']])).toEqual(3)
+    expect(jsonquery([3, -4, 1, -7], ['map', ['abs']])).toEqual([3, 4, 1, 7])
   })
 
   test('should process multiple operations', () => {

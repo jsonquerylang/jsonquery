@@ -200,6 +200,18 @@ export const uniqBy =
   (data: T[]): T[] =>
     Object.values(groupBy(path)(data)).map((groups) => groups[0])
 
+// operator not (looks like a function because it has no left operand)
+const not = (query: JSONQuery) => {
+  const getter = compile(query)
+  return (data: unknown) => !getter(data)
+}
+
+// operator exists (looks like a function because it has no left operand)
+const exists = (query: JSONQuery) => {
+  const getter = compile(query)
+  return (data: unknown) => getter(data) !== undefined
+}
+
 export const limit =
   (count: number) =>
   <T>(data: T[]) =>
@@ -218,6 +230,8 @@ export const average = () => (data: number[]) => sum()(data) / data.length
 export const min = () => (data: number[]) => Math.min(...data)
 
 export const max = () => (data: number[]) => Math.max(...data)
+
+export const abs = () => Math.abs
 
 export const round =
   (digits = 0) =>
@@ -247,11 +261,14 @@ const coreFunctions: FunctionsMap = {
   uniqBy,
   size,
   limit,
+  not,
+  exists,
   sum,
   min,
   max,
   prod,
   average,
+  abs,
   round
 }
 
@@ -275,7 +292,9 @@ const rawOperators: Record<string, Operator> = {
   '+': (a: number, b: number) => a + b,
   '-': (a: number, b: number) => a - b,
   '*': (a: number, b: number) => a * b,
-  '/': (a: number, b: number) => a / b
+  '/': (a: number, b: number) => a / b,
+  '^': (a: number, b: number) => a ** b,
+  '%': (a: number, b: number) => a % b
 }
 
 const coreOperators: FunctionsMap = {
