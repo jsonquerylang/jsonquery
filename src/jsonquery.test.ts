@@ -621,6 +621,7 @@ describe('jsonquery', () => {
     expect(jsonquery({ a: undefined }, ['exists', 'a'])).toEqual(false)
     expect(jsonquery({}, ['exists', 'a'])).toEqual(false)
     expect(jsonquery({}, ['exists', ['nested', 'a']])).toEqual(false)
+    expect(jsonquery({}, ['exists', ['sort']])).toEqual(false)
 
     const detailsData = [
       { name: 'Chris', details: { age: 16 } },

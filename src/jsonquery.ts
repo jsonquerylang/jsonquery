@@ -207,8 +207,8 @@ const not = (query: JSONQuery) => {
 }
 
 // operator exists (looks like a function because it has no left operand)
-const exists = (query: JSONQuery) => {
-  const getter = compile(query)
+const exists = (path: JSONPath) => {
+  const getter = get(path)
   return (data: unknown) => getter(data) !== undefined
 }
 
