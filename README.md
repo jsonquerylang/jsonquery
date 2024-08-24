@@ -1046,7 +1046,7 @@ jsonquery(data, ["filter", ["not", ["age", "==", 18]]])
 Returns true if the right hand side exists, and returns false when the right hand side is undefined.
 
 ```js
-["exists", value]
+["exists", path]
 ```
 
 Examples:
