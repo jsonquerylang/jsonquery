@@ -122,7 +122,7 @@ Here:
 
 ## Syntax
 
-The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _paths_, _pipes_, and _objects_.
+The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _pipes_, and _objects_.
 
 The examples in the following sections are based on querying the following data:
 
@@ -213,25 +213,30 @@ There are two special cases regarding operators:
 
 See section [Operator reference](#operator-reference) for a detailed overview of all available operators.
 
-### Properties and Paths
+### Properties and paths
 
-A _property_ is a string pointing to a value inside an object. A _path_ is an array containing _properties_, describing a property in a nested object. The following path for example describes the value of a nested property `city` inside an object `address`:
+A _property_ is a string pointing to a value inside an object. For example the following property refers to the value of property `age` in an object:
+
+```json
+"age"
+```
+
+A _path_ is an array with _properties_. The following path for example describes the value of a nested property `city` inside an object `address`:
 
 ```json
 ["address", "city"]
 ```
 
-When the path contains only a single property, like `["age"]`, the brackets can be omitted and used as a property like `"age"`:
+Note that a path containing a single property is equivalent to just the property itself:
 
 ```js
 // path ["age"] is equivalent to property "age":
 ["sort", ["age"]]
 ["sort", "age"]
 ```
-
 There is one special case regarding paths:
 
-1. When having a path that has the name as a function as first property, like `["sort"]`, it will be interpreted as a function and not as a path. In that case, use the function `get`:
+1. When having a path where the first property is a function name like `["sort"]`, it will be interpreted as a function and not as a path. To parse this as a path, use the function `get`:
 f
     ```js
     const data = { sort: 42 }
@@ -241,7 +246,7 @@ f
 
 ### Pipes
 
-A _pipe_ is an array containing a series of _functions_, _operators_, _paths_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
+A _pipe_ is an array containing a series of _functions_, _operators_, _properties_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
 
 ```json
 [
@@ -397,7 +402,7 @@ jsonquery(values, ["sort", [], "desc"]) // [9, 7, 2]
 
 ### pick
 
-Pick one or multiple properties or paths, and create a new, flat objects with them. Can be used on both an object or an array.
+Pick one or multiple properties or paths, and create a new, flat object for each of them. Can be used on both an object or an array.
 
 ```js
 ["pick", ...paths]
@@ -433,10 +438,10 @@ jsonquery(item, ["pick", "price"]) // 25
 
 ### map
 
-Map over an array and apply the callback to each of the items in the array.
+Map over an array and apply the provided query to each of the items in the array.
 
 ```js
-["map", callback]
+["map", query]
 ```
 
 Examples:
