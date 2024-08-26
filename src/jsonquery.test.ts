@@ -724,48 +724,57 @@ describe('jsonquery', () => {
   })
 
   test('should extend with a custom function "times"', () => {
-    const customFunctions = {
+    const functions = {
       times: (value: number) => (data: number[]) => data.map((item) => item * value)
     }
 
-    expect(jsonquery([1, 2, 3], ['times', 2], customFunctions)).toEqual([2, 4, 6])
+    expect(jsonquery([1, 2, 3], ['times', 2], { functions })).toEqual([2, 4, 6])
     expect(jsonquery([1, 2, 3], ['times', 2])).toEqual(2) // TODO: should throw an error unknown function?
   })
 
   test('should be able to override a function in a nested compile', () => {
-    const customFunctions = {
-      times: (value: JSONQuery) => {
-        const _value = compile(value, {
-          foo: () => (_data: unknown) => 42
-        }) as (data: unknown) => number
+    const options = {
+      functions: {
+        times: (value: JSONQuery) => {
+          const _options = {
+            functions: {
+              foo: () => (_data: unknown) => 42
+            }
+          }
+          const _value = compile(value, _options)
 
-        return (data: number[]) => data.map((item) => item * _value(data))
+          return (data: number[]) => data.map((item) => item * (_value(data) as number))
+        }
       }
     }
 
-    expect(jsonquery([1, 2, 3], ['times', 2], customFunctions)).toEqual([2, 4, 6])
-    expect(jsonquery([1, 2, 3], ['times', ['foo']], customFunctions)).toEqual([42, 84, 126])
+    expect(jsonquery([1, 2, 3], ['times', 2], options)).toEqual([2, 4, 6])
+    expect(jsonquery([1, 2, 3], ['times', ['foo']], options)).toEqual([42, 84, 126])
 
     // The function `foo` must not be available outside the `times` function
-    expect(jsonquery([1, 2, 3], ['foo'], customFunctions)).toEqual(undefined) // TODO: should throw an error unknown function?
+    expect(jsonquery([1, 2, 3], ['foo'], options)).toEqual(undefined) // TODO: should throw an error unknown function?
   })
 
   test('should override an existing function', () => {
-    const customFunctions = {
-      sort: () => (_data: unknown[]) => 'custom sort'
-    }
-
-    expect(jsonquery([2, 3, 1], ['sort'], customFunctions)).toEqual('custom sort')
-  })
-
-  test('should cleanup the custom function stack when creating a query throws an error', () => {
-    const customFunctions = {
-      sort: () => {
-        throw new Error('Test Error')
+    const options = {
+      functions: {
+        sort: () => (_data: unknown[]) => 'custom sort'
       }
     }
 
-    expect(() => jsonquery({}, ['sort'], customFunctions)).toThrow('Test Error')
+    expect(jsonquery([2, 3, 1], ['sort'], options)).toEqual('custom sort')
+  })
+
+  test('should cleanup the custom function stack when creating a query throws an error', () => {
+    const options = {
+      functions: {
+        sort: () => {
+          throw new Error('Test Error')
+        }
+      }
+    }
+
+    expect(() => jsonquery({}, ['sort'], options)).toThrow('Test Error')
 
     expect(jsonquery([2, 3, 1], ['sort'])).toEqual([1, 2, 3])
   })
@@ -780,11 +789,13 @@ describe('jsonquery', () => {
   })
 
   test('should be able to query the jmespath example', () => {
-    const customFunctions = {
-      join:
-        (separator = ', ') =>
-        (data: unknown[]) =>
-          data.join(separator)
+    const options = {
+      functions: {
+        join:
+          (separator = ', ') =>
+          (data: unknown[]) =>
+            data.join(separator)
+      }
     }
 
     const data = {
@@ -807,7 +818,7 @@ describe('jsonquery', () => {
           ['sort'],
           { WashingtonCities: ['join'] }
         ],
-        customFunctions
+        options
       )
     ).toEqual({
       WashingtonCities: 'Bellevue, Olympia, Seattle'

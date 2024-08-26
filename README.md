@@ -104,21 +104,22 @@ const result = jsonquery(data, ["times", 3], customFunctions)
 The `jsonquery` library has one core function where you pass the data, the query, and optionally an object with custom functions to extend the built-in functions:
 
 ```
-jsonquery(data, query [, customFunctions])
+jsonquery(data, query, options)
 ```
 
 Here:
 
 - `data` is the JSON document that will be queried, often an array with objects.
 - `query` is a JSON document containing a JSON query as described in the section below.
-- `customFunctions` is an optional map with extra function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
-
-    ```js
-    const customFunctions = {
-      // usage example: ["times", 3]
-      times: (value) => (data) => data.map((item) => item * value)
-    }
-    ```
+- `options` is an optional object that can contain the following properties:
+     - `functions` is an optional map with extra function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
+   
+         ```js
+         const customFunctions = {
+           // usage example: ["times", 3]
+           times: (value) => (data) => data.map((item) => item * value)
+         }
+         ```
 
 ## Syntax
 

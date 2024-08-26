@@ -5,18 +5,19 @@ import {
   JSONQueryFunction,
   JSONQueryObject,
   JSONQueryOperator,
+  JSONQueryOptions,
   JSONQueryPipe
 } from './types'
-import { isArray, isObject, isString } from './utils'
+import { isArray, isObject, isString } from './is'
 import * as coreFunctions from './functions'
 import { get, object, pipe } from './functions'
 import { coreOperators, rawOperators, relationalOperators } from './operators'
 
-export function compile(query: JSONQuery, customFunctions?: FunctionsMap): Evaluator {
+export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator {
   try {
     functionsStack.unshift({
       ...(functionsStack[0] as object),
-      ...(customFunctions as object | undefined)
+      ...(options?.functions as object | undefined)
     })
 
     return _compile(query)

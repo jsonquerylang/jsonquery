@@ -16,6 +16,10 @@ export type JSONQuery =
   | JSONProperty
   | JSONPrimitive
 
+export interface JSONQueryOptions {
+  functions?: FunctionsMap
+}
+
 export type Evaluator = (data: unknown) => unknown
 export type FunctionCompiler = (...args: unknown[]) => Evaluator
 export type FunctionsMap = Record<string, FunctionCompiler> | unknown

@@ -1,6 +1,6 @@
 import { Getter, JSONPath, JSONProperty, JSONQuery, JSONQueryObject } from './types'
 import { compile } from './compile'
-import { isArray, isString } from './utils'
+import { isArray, isString } from './is'
 
 export const get = (path: JSONPath | JSONProperty) =>
   isArray(path)
@@ -18,7 +18,7 @@ export const get = (path: JSONPath | JSONProperty) =>
 export const string = (text: string) => () => text
 
 export const pipe = (entries: JSONQuery[]) => {
-  const _entries = entries.map(compile)
+  const _entries = entries.map((entry) => compile(entry))
   return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
 }
 
