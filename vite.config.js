@@ -2,7 +2,7 @@
 export default {
   build: {
     lib: {
-      entry: 'src/jsonquery.ts',
+      entry: 'src/index.ts',
       formats: ['es']
     },
     outDir: './lib',

@@ -14,11 +14,14 @@ import * as coreFunctions from './functions'
 import { get, object, pipe } from './functions'
 import { coreOperators } from './operators'
 
-export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator {
-  try {
-    functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
-    operatorsStack.unshift({ ...operatorsStack[0], ...options?.operators })
+const functionsStack: FunctionsMap[] = [coreFunctions]
+const operatorsStack: OperatorMap[] = [coreOperators]
 
+export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator {
+  functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
+  operatorsStack.unshift({ ...operatorsStack[0], ...options?.operators })
+
+  try {
     return _compile(query)
   } finally {
     functionsStack.shift()
@@ -59,6 +62,3 @@ function _compile(query: JSONQuery): Evaluator {
   // value
   return () => query
 }
-
-const functionsStack: FunctionsMap[] = [coreFunctions]
-const operatorsStack: OperatorMap[] = [coreOperators]
