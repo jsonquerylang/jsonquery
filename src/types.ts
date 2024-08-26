@@ -18,10 +18,13 @@ export type JSONQuery =
 
 export interface JSONQueryOptions {
   functions?: FunctionsMap
+  operators?: OperatorMap
 }
 
 export type Evaluator = (data: unknown) => unknown
-export type FunctionCompiler = (...args: unknown[]) => Evaluator
-export type FunctionsMap = Record<string, FunctionCompiler> | unknown
+export type FunctionCompiler = (...args: JSONQuery[]) => Evaluator
+export type FunctionsMap = Record<string, FunctionCompiler>
+export type OperatorCompiler = (left: JSONQuery, ...right: JSONQuery[]) => Evaluator
+export type OperatorMap = Record<string, OperatorCompiler>
 export type Operator = (a: unknown, b: unknown) => unknown
 export type Getter = [key: string, Evaluator]

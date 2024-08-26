@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { jsonquery } from './jsonquery.js'
 import { JSONQuery } from './types'
 import { compile } from './compile'
+import { createOperatorCompiler } from './operators'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -724,15 +725,27 @@ describe('jsonquery', () => {
   })
 
   test('should extend with a custom function "times"', () => {
-    const functions = {
-      times: (value: number) => (data: number[]) => data.map((item) => item * value)
+    const options = {
+      functions: {
+        times: (value: number) => (data: number[]) => data.map((item) => item * value)
+      }
     }
 
-    expect(jsonquery([1, 2, 3], ['times', 2], { functions })).toEqual([2, 4, 6])
+    expect(jsonquery([1, 2, 3], ['times', 2], options)).toEqual([2, 4, 6])
     expect(jsonquery([1, 2, 3], ['times', 2])).toEqual(2) // TODO: should throw an error unknown function?
   })
 
-  test('should be able to override a function in a nested compile', () => {
+  test('should override an existing function', () => {
+    const options = {
+      functions: {
+        sort: () => (_data: unknown[]) => 'custom sort'
+      }
+    }
+
+    expect(jsonquery([2, 3, 1], ['sort'], options)).toEqual('custom sort')
+  })
+
+  test('should be able to insert a function in a nested compile', () => {
     const options = {
       functions: {
         times: (value: JSONQuery) => {
@@ -755,16 +768,6 @@ describe('jsonquery', () => {
     expect(jsonquery([1, 2, 3], ['foo'], options)).toEqual(undefined) // TODO: should throw an error unknown function?
   })
 
-  test('should override an existing function', () => {
-    const options = {
-      functions: {
-        sort: () => (_data: unknown[]) => 'custom sort'
-      }
-    }
-
-    expect(jsonquery([2, 3, 1], ['sort'], options)).toEqual('custom sort')
-  })
-
   test('should cleanup the custom function stack when creating a query throws an error', () => {
     const options = {
       functions: {
@@ -777,6 +780,68 @@ describe('jsonquery', () => {
     expect(() => jsonquery({}, ['sort'], options)).toThrow('Test Error')
 
     expect(jsonquery([2, 3, 1], ['sort'])).toEqual([1, 2, 3])
+  })
+
+  test('should extend with a custom operator', () => {
+    const options = {
+      operators: {
+        '~=': createOperatorCompiler((a, b) => a == b, true) // loosely equal
+      }
+    }
+
+    expect(jsonquery({ a: 2 }, ['a', '~=', 2], options)).toEqual(true)
+    expect(jsonquery({ a: 2 }, ['a', '~=', '2'], options)).toEqual(true)
+  })
+
+  test('should override an existing operator', () => {
+    const options = {
+      operators: {
+        '==': createOperatorCompiler((a, b) => a == b, true) // loosely equal
+      }
+    }
+
+    expect(jsonquery({ a: 2 }, ['a', '==', 2], options)).toEqual(true)
+    expect(jsonquery({ a: 2 }, ['a', '==', '2'], options)).toEqual(true)
+  })
+
+  test('should cleanup the custom operator stack when creating a query throws an error', () => {
+    const options = {
+      operators: {
+        '==': () => {
+          throw new Error('Test Error')
+        }
+      }
+    }
+
+    expect(() => jsonquery({}, ['a', '==', 42], options)).toThrow('Test Error')
+
+    expect(jsonquery({ a: 2 }, ['a', '==', 2])).toEqual(true)
+  })
+
+  test('should be able to override an operator in a nested compile', () => {
+    const options = {
+      functions: {
+        filter: (predicate: JSONQuery) => {
+          // replace operator == with a loose instead of strict implementation
+          const _options = {
+            operators: {
+              '==': createOperatorCompiler((a, b) => a == b, true) // loosely equal
+            }
+          }
+
+          const _predicate = compile(predicate, _options)
+          return (data: unknown[]) => data.filter(_predicate)
+        }
+      }
+    }
+
+    expect(jsonquery([1, 2, '2', 3], ['filter', [[], '==', '2']], options)).toEqual([2, '2'])
+
+    // the replaced operator must not be used outside the overridden function "filter"
+    expect(jsonquery({ a: 2 }, ['a', '==', '2'], options)).toEqual(false)
+
+    // without options, must keep the original operator
+    expect(jsonquery([1, 2, '2', 3], ['filter', [[], '==', '2']])).toEqual(['2'])
   })
 
   test('should use operators to calculate a shopping cart', () => {

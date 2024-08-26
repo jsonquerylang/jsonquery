@@ -8,7 +8,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small (just `1.5 kB` when minified and gzipped!)
+- Small (just `1.6 kB` when minified and gzipped!)
 - Expressive
 - Easy to understand and remember
 - Serializable (it is JSON)
@@ -101,10 +101,12 @@ const result = jsonquery(data, ["times", 3], customFunctions)
 
 ## JavaScript API
 
+### jsonquery
+
 The `jsonquery` library has one core function where you pass the data, the query, and optionally an object with custom functions to extend the built-in functions:
 
 ```
-jsonquery(data, query, options)
+jsonquery(data: JSON, query: JSONQuery, options: JSONQueryOptions) : JSON
 ```
 
 Here:
@@ -115,11 +117,74 @@ Here:
      - `functions` is an optional map with extra function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
    
          ```js
-         const customFunctions = {
-           // usage example: ["times", 3]
-           times: (value) => (data) => data.map((item) => item * value)
+         const options = {
+           functions: {
+             // usage example: ["times", 3]
+             times: (value) => (data) => data.map((item) => item * value)
+           }
          }
          ```
+     - `operators` is an optional map with extra operator creators. An operator creator receives the left and right side queries as input, and must return a function that implements the operator. Example:
+
+         ```js
+         const options = {
+           operators: {
+             // a loosely equal operator
+             // usage example: ["value", "~=", 2] 
+             '~=': (left, right) => {
+                const a = compile(left)
+                const b = compile(right)
+                return (data) => a(data) == b(data)
+             }
+           }
+         }
+         ```
+
+Example:
+
+```js
+import { jsonquery } from '@josdejong/jsonquery'
+
+const data = [
+  { "name": "Chris", "age": 23 },
+  { "name": "Emily", "age": 19 },
+  { "name": "Joe", "age": 32 }
+]
+
+const result = jsonquery(data, ["filter", ["age", ">", 20 ]])
+// result = [
+//   { "name": "Chris", "age": 23 },
+//   { "name": "Joe", "age": 32 }
+// ]
+```
+
+### compile
+
+The JavaScript library also exports a `compile` function:
+
+```
+compile(query: JSONQuery, options: JSONQueryOptions) => (data: JSON) => JSON
+```
+
+Example:
+
+```js
+import { compile } from '@josdejong/jsonquery'
+
+const queryIt = compile(["filter", ["age", ">", 20 ]])
+
+const data = [
+  { "name": "Chris", "age": 23 },
+  { "name": "Emily", "age": 19 },
+  { "name": "Joe", "age": 32 }
+]
+
+const result = queryIt(data)
+// result = [
+//   { "name": "Chris", "age": 23 },
+//   { "name": "Joe", "age": 32 }
+// ]
+```
 
 ## Syntax
 

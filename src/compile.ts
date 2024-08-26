@@ -6,7 +6,8 @@ import {
   JSONQueryObject,
   JSONQueryOperator,
   JSONQueryOptions,
-  JSONQueryPipe
+  JSONQueryPipe,
+  OperatorMap
 } from './types'
 import { isArray, isObject, isString } from './is'
 import * as coreFunctions from './functions'
@@ -15,14 +16,13 @@ import { coreOperators } from './operators'
 
 export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator {
   try {
-    functionsStack.unshift({
-      ...(functionsStack[0] as object),
-      ...(options?.functions as object | undefined)
-    })
+    functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
+    operatorsStack.unshift({ ...operatorsStack[0], ...options?.operators })
 
     return _compile(query)
   } finally {
     functionsStack.shift()
+    operatorsStack.shift()
   }
 }
 
@@ -42,7 +42,7 @@ function _compile(query: JSONQuery): Evaluator {
 
     // operator
     const [left, opName, ...right] = query as unknown as JSONQueryOperator
-    const op = coreOperators[opName]
+    const op = operatorsStack[0][opName]
     if (op) {
       return op(left, ...right)
     }
@@ -61,3 +61,4 @@ function _compile(query: JSONQuery): Evaluator {
 }
 
 const functionsStack: FunctionsMap[] = [coreFunctions]
+const operatorsStack: OperatorMap[] = [coreOperators]
