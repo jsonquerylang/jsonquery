@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { compile, jsonquery } from './jsonquery.js'
+import { jsonquery } from './jsonquery.js'
 import { JSONQuery } from './types'
+import { compile } from './compile'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
