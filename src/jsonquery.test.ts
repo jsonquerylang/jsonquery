@@ -634,28 +634,68 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should process operator add', () => {
+  test('should process operator equal ==', () => {
+    expect(jsonquery({ a: 6 }, ['a', '==', 6])).toEqual(true)
+    expect(jsonquery({ a: 6 }, ['a', '==', 2])).toEqual(false)
+    expect(jsonquery({ a: 6 }, ['a', '==', '6'])).toEqual(false)
+    expect(jsonquery({ a: 'Hi' }, ['a', '==', 'Hi'])).toEqual(true)
+    expect(jsonquery({ a: 'Hi' }, ['a', '==', 'Hello'])).toEqual(false)
+  })
+
+  test('should process operator larger than >', () => {
+    expect(jsonquery({ a: 6 }, ['a', '>', 5])).toEqual(true)
+    expect(jsonquery({ a: 6 }, ['a', '>', 6])).toEqual(false)
+    expect(jsonquery({ a: 6 }, ['a', '>', 7])).toEqual(false)
+  })
+
+  test('should process operator larger than or equal >=', () => {
+    expect(jsonquery({ a: 6 }, ['a', '>=', 5])).toEqual(true)
+    expect(jsonquery({ a: 6 }, ['a', '>=', 6])).toEqual(true)
+    expect(jsonquery({ a: 6 }, ['a', '>=', 7])).toEqual(false)
+  })
+
+  test('should process operator less than <', () => {
+    expect(jsonquery({ a: 6 }, ['a', '<', 5])).toEqual(false)
+    expect(jsonquery({ a: 6 }, ['a', '<', 6])).toEqual(false)
+    expect(jsonquery({ a: 6 }, ['a', '<', 7])).toEqual(true)
+  })
+
+  test('should process operator less than or equal <=', () => {
+    expect(jsonquery({ a: 6 }, ['a', '<=', 5])).toEqual(false)
+    expect(jsonquery({ a: 6 }, ['a', '<=', 6])).toEqual(true)
+    expect(jsonquery({ a: 6 }, ['a', '<=', 7])).toEqual(true)
+  })
+
+  test('should process operator unequal !=', () => {
+    expect(jsonquery({ a: 6 }, ['a', '!=', 6])).toEqual(false)
+    expect(jsonquery({ a: 6 }, ['a', '!=', 2])).toEqual(true)
+    expect(jsonquery({ a: 6 }, ['a', '!=', '6'])).toEqual(true)
+    expect(jsonquery({ a: 'Hi' }, ['a', '!=', 'Hi'])).toEqual(false)
+    expect(jsonquery({ a: 'Hi' }, ['a', '!=', 'Hello'])).toEqual(true)
+  })
+
+  test('should process operator add +', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['a', '+', ['b']])).toEqual(8)
   })
 
-  test('should process operator subtract', () => {
+  test('should process operator subtract -', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['a', '-', ['b']])).toEqual(4)
   })
 
-  test('should process operator multiply', () => {
+  test('should process operator multiply *', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['a', '*', ['b']])).toEqual(12)
   })
 
-  test('should process operator divide', () => {
+  test('should process operator divide /', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['a', '/', ['b']])).toEqual(3)
   })
 
-  test('should process operator pow', () => {
+  test('should process operator pow ^', () => {
     expect(jsonquery({ a: 2, b: 3 }, ['a', '^', ['b']])).toEqual(8)
     expect(jsonquery({ a: 25, b: 1 / 2 }, ['a', '^', ['b']])).toEqual(5) // sqrt
   })
 
-  test('should process operator mod', () => {
+  test('should process operator remainder %', () => {
     expect(jsonquery({ a: 8, b: 3 }, ['a', '%', ['b']])).toEqual(2)
   })
 

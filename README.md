@@ -12,7 +12,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 - Expressive
 - Easy to understand and remember
 - Serializable (it is JSON)
-- Feature rich (36 powerful functions and operators)
+- Feature rich (40+ powerful functions and operators)
 - Expandable
 
 ## Install
@@ -810,7 +810,7 @@ jsonquery(23.761, ["round"]) // 24
 
 ### equal (`==`)
 
-Test whether two values are loosely equal. This uses JavaScript's `==` operator and therefore is no strict comparison and will also consider a string `"2"` and a number `2` to be equal for example.
+Test whether two values are strictly equal. This will consider a string `"2"` and a number `2` to be _not_ equal for example since their data type differs.
 
 ```js
 [left, "==", right]
@@ -832,6 +832,10 @@ jsonquery(data, ["filter", ["age", "==", 18]])
 //   { "name": "Emily", "age": 18 },
 //   { "name": "Kevin", "age": 18 }
 // ]
+
+jsonquery({ a: 2 }, ["a", "==", 2]) // true
+jsonquery({ a: 2 }, ["a", "==", 3]) // false
+jsonquery({ a: 2 }, ["a", "==", "2"]) // false (since not strictly equal)
 ```
 
 ### greater than (`>`)
@@ -938,7 +942,7 @@ jsonquery(data, ["filter", ["age", "<=", 18]])
 
 ### not equal (`!=`)
 
-Test whether two values are not equal This is the opposite of the loose equal operator `==`. This uses JavaScript's `!=` operator and therefore is no strict comparison and will also consider a string `"2"` and a number `2` to be equal for example.
+Test whether two values are unequal. This is the opposite of the strict equal operator `==`. Two values are considered unequal when their data type differs (for example one is a string and another is a number), or when the value itself is different. For example a string `"2"` and a number `2` are considered unequal, even though their mathematical value is equal.
 
 ```js
 [left, "!=", right]
@@ -960,6 +964,10 @@ jsonquery(data, ["filter", ["age", "!=", 16]])
 //   { "name": "Emily", "age": 32 },
 //   { "name": "Joe", "age": 18 }
 // ]
+
+jsonquery({ a: 2 }, ["a", "!=", 2]) // false
+jsonquery({ a: 2 }, ["a", "!=", 3]) // true
+jsonquery({ a: 2 }, ["a", "!=", "2"]) // true (since not strictly equal)
 ```
 
 ### and
@@ -1043,7 +1051,7 @@ jsonquery(data, ["filter", ["not", ["age", "==", 18]]])
 
 ### exists
 
-Returns true if the right hand side exists, and returns false when the right hand side is undefined.
+Returns true if the right hand side exists, and returns false when the right hand side is undefined. Also returns true when the path contains a value `null`.
 
 ```js
 ["exists", path]
@@ -1063,6 +1071,8 @@ jsonquery(data, ["filter", ["exists", "details"]])
 //   { "name": "Chris", "details": { "age": 16 } },
 //   { "name": "Joe", "details": { "age": 18 } }
 // ]
+
+jsonquery({ "value": null }, ["exists", "value"]) // true
 ```
 
 ### in

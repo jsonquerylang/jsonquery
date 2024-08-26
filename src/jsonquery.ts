@@ -275,12 +275,12 @@ const coreFunctions: FunctionsMap = {
 const functionsStack: FunctionsMap[] = [coreFunctions]
 
 const relationalOperators: Record<string, Operator> = {
-  '==': (a, b) => a == b,
+  '==': (a, b) => a === b, // we use strict comparison
   '>': (a, b) => a > b,
   '>=': (a, b) => a >= b,
   '<': (a, b) => a < b,
   '<=': (a, b) => a <= b,
-  '!=': (a, b) => a != b
+  '!=': (a, b) => a !== b // we use strict comparison
 }
 
 const rawOperators: Record<string, Operator> = {
