@@ -11,7 +11,7 @@ import {
 import { isArray, isObject, isString } from './is'
 import * as coreFunctions from './functions'
 import { get, object, pipe } from './functions'
-import { coreOperators, rawOperators, relationalOperators } from './operators'
+import { coreOperators } from './operators'
 
 export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator {
   try {
@@ -44,15 +44,7 @@ function _compile(query: JSONQuery): Evaluator {
     const [left, opName, ...right] = query as unknown as JSONQueryOperator
     const op = coreOperators[opName]
     if (op) {
-      return op(...[left, ...right])
-    }
-    const rawOp = rawOperators[opName]
-    if (rawOp) {
-      const _right = right[0]
-      const a = compile(left)
-      // Special rule: relational operators interpret a string on the right side as a text and not a path
-      const b = relationalOperators[opName] && isString(_right) ? () => _right : compile(_right)
-      return (data: unknown) => rawOp(a(data), b(data))
+      return op(left, ...right)
     }
 
     // pipe
