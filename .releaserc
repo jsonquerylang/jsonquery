@@ -7,7 +7,7 @@
       "@semantic-release/github",
       {
         "assets": [
-          { "path": "[lib/*,LICENSE.md,README.md]", "label": "Package" }
+          { "path": "lib/*", "label": "Package" }
         ]
       }
     ]
