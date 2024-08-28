@@ -7,7 +7,11 @@
       "@semantic-release/github",
       {
         "assets": [
-          { "path": "lib/*", "label": "Package" }
+          {
+            "path": ["lib/*", "README.md", "LICENSE.md"],
+            "name": "jsonquery-${nextRelease.gitTag}.js",
+            "label": "Package"
+          }
         ]
       }
     ]
