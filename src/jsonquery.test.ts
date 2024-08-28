@@ -109,6 +109,12 @@ describe('jsonquery', () => {
     })
   })
 
+  // TODO: improve error handling
+  test.skip('should throw a helpful error when a pipe entry returns undefined', () => {
+    expect(() => jsonquery(data, ['foo', ['sort']])).toThrow(/query "foo" returned undefined/)
+    expect(jsonquery(data, ['foo'])).toEqual(undefined)
+  })
+
   test('should create a nested object', () => {
     expect(
       jsonquery(data, {
