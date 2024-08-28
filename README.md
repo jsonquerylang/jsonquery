@@ -1319,6 +1319,20 @@ const data = { "a": 8, "b": 3 }
 jsonquery(data, ["a", "%", "b"]) // 2
 ```
 
+## Development
+
+To develop, check out the repo, install dependencies once, and then use the following scripts:
+
+```
+npm run test
+npm run test-ci
+npm run lint
+npm run format
+npm run build
+npm run build-and-test
+npm run release
+```
+
 ## Motivation
 
 There are many powerful query languages out there, so why the need to develop `jsonquery`? There are a couple of reasons for this.
