@@ -40,7 +40,8 @@
     "lint": "prettier . --check",
     "format": "prettier . --write",
     "format:readme": "prettier README.md --write --ignore-path notneeded",
-    "prepublishOnly": "npm run test-ci && npm run lint && npm run build"
+    "build-and-test": "npm run test-ci && npm run lint && npm run build",
+    "prepublishOnly": "npm run build-and-test"
   },
   "devDependencies": {
     "prettier": "3.3.3",
