@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>jsonquery browser test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+
+      textarea {
+        width: 500px;
+        height: 200px;
+      }
+
+      .sections {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+      }
+
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      label {
+        color: dodgerblue;
+      }
+
+      .error {
+        color: orangered;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <h1>jsonquery browser test</h1>
+      <div class="sections">
+        <div class="section">
+          <label for="input">Input</label>
+          <textarea id="input">
+[
+  { "name": "Chris", "age": 23, "city": "New York" },
+  { "name": "Emily", "age": 19, "city": "Atlanta" },
+  { "name": "Joe", "age": 32, "city": "New York" },
+  { "name": "Kevin", "age": 19, "city": "Atlanta" },
+  { "name": "Michelle", "age": 27, "city": "Los Angeles" },
+  { "name": "Robert", "age": 45, "city": "Manhattan" },
+  { "name": "Sarah", "age": 31, "city": "New York" }
+]</textarea
+          >
+        </div>
+
+        <div class="section">
+          <label for="query">Query</label>
+          <textarea id="query">
+[
+  ["filter", ["city", "==", "New York"]],
+  ["map", ["name"]]
+]</textarea
+          >
+        </div>
+
+        <div class="section">
+          <label for="output">Output</label>
+          <textarea id="output" readonly>...</textarea>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { jsonquery } from '../lib/jsonquery.js'
+
+      const refInput = document.getElementById('input')
+      const refQuery = document.getElementById('query')
+      const refOutput = document.getElementById('output')
+
+      function go() {
+        try {
+          const input = JSON.parse(refInput.value)
+          const query = JSON.parse(refQuery.value)
+
+          const output = jsonquery(input, query)
+
+          refOutput.value = JSON.stringify(output, null, 2)
+          refOutput.classList.remove('error')
+        } catch (err) {
+          refOutput.value = String(err)
+          refOutput.classList.add('error')
+        }
+      }
+
+      refInput.addEventListener('input', go)
+      refQuery.addEventListener('input', go)
+      go()
+    </script>
+  </body>
+</html>

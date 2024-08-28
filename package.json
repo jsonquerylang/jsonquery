@@ -34,16 +34,20 @@
     "README.md"
   ],
   "scripts": {
-    "test": "vitest",
-    "test-ci": "vitest run",
-    "build": "vite build && tsc --project tsconfig-types.json",
+    "test": "vitest src",
+    "test-ci": "vitest run src",
+    "build": "npm-run-all build:**",
+    "build:esm": "vite build",
+    "build:types": "tsc --project tsconfig-types.json",
+    "build:validate": "vitest run test-lib",
     "lint": "prettier . --check",
     "format": "prettier . --write",
     "format:readme": "prettier README.md --write --ignore-path notneeded",
-    "build-and-test": "npm run test-ci && npm run lint && npm run build",
+    "build-and-test": "npm-run-all test-ci lint build",
     "prepublishOnly": "npm run build-and-test"
   },
   "devDependencies": {
+    "npm-run-all": "4.1.5",
     "prettier": "3.3.3",
     "typescript": "5.5.4",
     "vite": "5.4.2",
