@@ -205,6 +205,57 @@ const result = queryIt(data)
 // ]
 ```
 
+## error handling
+
+When executing a query throws an error, the library attaches a stack to the error message which can give insight in what went wrong. The stack can be found at the property `error.jsonquery` and has type `Array<{ data: unknown, query: JSONQuery }>`. 
+
+```js
+const data = [
+  { "name": "Chris", "age": 23, scores: [7.2, 5, 8.0] },
+  { "name": "Emily", "age": 19 }, // scores is missing here!
+  { "name": "Joe", "age": 32, scores: [6.1, 8.1] }
+]
+
+try {
+  jsonquery(data, [
+    ["pick", "age", "scores"],
+    ["map", ["scores", ["sum"]]]
+  ])
+} catch (err) {
+  console.log(err.jsonquery)
+  // error stack:
+  // [
+  //   {
+  //     "data": [
+  //       { "name": "Chris", "age": 23, "scores": [7.2, 5, 8.0] },
+  //       { "name": "Emily", "age": 19 },
+  //       { "name": "Joe", "age": 32, "scores": [6.1, 8.1] }
+  //     ],
+  //     "query": [
+  //       ["pick", "age", "scores"],
+  //       ["map", ["scores", ["sum"]]]
+  //     ]
+  //   },
+  //   {
+  //     "data": [
+  //       { "age": 23, "scores": [7.2, 5, 8.0] },
+  //       { "age": 19 },
+  //       { "age": 32, "scores": [6.1, 8.1] }
+  //     ],
+  //     "query": ["map", ["scores", ["sum"]]]
+  //   },
+  //   {
+  //     "data": {"age": 19},
+  //     "query": ["scores", ["sum"]]
+  //   },
+  //   {
+  //     "data" : undefined,
+  //     "query": ["sum"]
+  //   }
+  // ]
+}
+```
+
 ## Syntax
 
 The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _pipes_, and _objects_.

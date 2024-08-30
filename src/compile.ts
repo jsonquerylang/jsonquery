@@ -22,7 +22,18 @@ export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator
   operatorsStack.unshift({ ...operatorsStack[0], ...options?.operators })
 
   try {
-    return _compile(query)
+    const exec = _compile(query)
+
+    return (data) => {
+      try {
+        return exec(data)
+      } catch (err) {
+        // attach a stack to the error
+        err.jsonquery = [{ data, query }, ...(err.jsonquery ?? [])]
+
+        throw err
+      }
+    }
   } finally {
     functionsStack.shift()
     operatorsStack.shift()

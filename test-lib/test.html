@@ -87,6 +87,7 @@
           refOutput.value = JSON.stringify(output, null, 2)
           refOutput.classList.remove('error')
         } catch (err) {
+          console.error({ message: err.message, stack: err.query })
           refOutput.value = String(err)
           refOutput.classList.add('error')
         }

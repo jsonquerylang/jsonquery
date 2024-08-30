@@ -109,10 +109,49 @@ describe('jsonquery', () => {
     })
   })
 
-  // TODO: improve error handling
-  test.skip('should throw a helpful error when a pipe entry returns undefined', () => {
-    expect(() => jsonquery(data, ['foo', ['sort']])).toThrow(/query "foo" returned undefined/)
-    expect(jsonquery(data, ['foo'])).toEqual(undefined)
+  test('should throw a helpful error when a pipe contains an error (1)', () => {
+    let actualErr = undefined
+    try {
+      jsonquery(data, ['foo', ['sort']])
+    } catch (err) {
+      actualErr = err
+    }
+
+    expect(actualErr?.message).toBe("Cannot read properties of undefined (reading 'slice')")
+    expect(actualErr?.jsonquery).toEqual([
+      { data, query: ['foo', ['sort']] },
+      { data: undefined, query: ['sort'] }
+    ])
+  })
+
+  test('should throw a helpful error when a pipe contains an error (2)', () => {
+    const scoreData = [
+      { name: 'Chris', age: 23, scores: [7.2, 5, 8.0] },
+      { name: 'Emily', age: 19 },
+      { name: 'Joe', age: 32, scores: [6.1, 8.1] }
+    ]
+    const query = [
+      ['pick', 'age', 'scores'],
+      ['map', ['scores', ['sum']]]
+    ]
+
+    let actualErr = undefined
+    try {
+      jsonquery(scoreData, query)
+    } catch (err) {
+      actualErr = err
+    }
+
+    expect(actualErr?.message).toBe("Cannot read properties of undefined (reading 'reduce')")
+    expect(actualErr?.jsonquery).toEqual([
+      { data: scoreData, query },
+      {
+        data: [{ age: 23, scores: [7.2, 5, 8.0] }, { age: 19 }, { age: 32, scores: [6.1, 8.1] }],
+        query: ['map', ['scores', ['sum']]]
+      },
+      { data: { age: 19 }, query: ['scores', ['sum']] },
+      { data: undefined, query: ['sum'] }
+    ])
   })
 
   test('should create a nested object', () => {
