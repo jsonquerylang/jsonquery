@@ -278,7 +278,7 @@ Syntax overview:
 
 | Category                          | Syntax                                    | Example                                        |
 |-----------------------------------|-------------------------------------------|------------------------------------------------|
-| [Function](#functions)            | `["function", argument1, argument2, ...]` | `["sort", ["address", "city"], "asc"]`         |
+| [Function](#functions)            | `[name, argument1, argument2, ...]`       | `["sort", ["address", "city"], "asc"]`         |
 | [Operator](#operators)            | `[left, operator, right]`                 | `[["address", "city"], "==", "New York"]`      |
 | [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
 | [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
