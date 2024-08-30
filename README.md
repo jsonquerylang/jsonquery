@@ -42,7 +42,7 @@ const data = {
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
   ["friends"],
-  ["filter", ["city", "==", "New York"]],
+  ["filter", "city", "==", "New York"],
   ["sort", "age"],
   ["pick", "name", "age"]
 ])
@@ -170,7 +170,7 @@ const data = [
   { "name": "Joe", "age": 32 }
 ]
 
-const result = jsonquery(data, ["filter", ["age", ">", 20 ]])
+const result = jsonquery(data, ["filter", "age", ">", 20])
 // result = [
 //   { "name": "Chris", "age": 23 },
 //   { "name": "Joe", "age": 32 }
@@ -190,7 +190,7 @@ Example:
 ```js
 import { compile } from '@josdejong/jsonquery'
 
-const queryIt = compile(["filter", ["age", ">", 20 ]])
+const queryIt = compile(["filter", "age", ">", 20])
 
 const data = [
   { "name": "Chris", "age": 23 },
@@ -452,6 +452,7 @@ Filter a list with objects or values.
 
 ```js
 ["filter", condition]
+["filter", left, operator, right]
 ```
 
 Examples:
@@ -467,14 +468,14 @@ const data = [
   { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
 ]
 
-jsonquery(data, ["filter", ["age", ">", 30]])
+jsonquery(data, ["filter", "age", ">", 30])
 // [
 //   { "name": "Joe", "age": 32, "address": { "city": "New York" } },
 //   { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
 //   { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
 // ]
 
-jsonquery(data, ["filter", [["address", "city"], "==", "New York"]])
+jsonquery(data, ["filter", ["address", "city"], "==", "New York"])
 // [
 //   { "name": "Chris", "age": 23, "address": { "city": "New York" } },
 //   { "name": "Joe", "age": 32, "address": { "city": "New York" } },

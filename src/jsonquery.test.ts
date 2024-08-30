@@ -242,6 +242,14 @@ describe('jsonquery', () => {
     ])
   })
 
+  test('should filter data without brackets around the condition', () => {
+    expect(jsonquery(data, ['filter', 'city', '==', 'New York'])).toEqual([
+      { name: 'Chris', age: 23, city: 'New York' },
+      { name: 'Joe', age: 32, city: 'New York' },
+      { name: 'Sarah', age: 31, city: 'New York' }
+    ])
+  })
+
   test('should filter nested data using ==', () => {
     expect(jsonquery(nestedData, ['filter', [['address', 'city'], '==', 'New York']])).toEqual([
       { name: 'Chris', age: 23, address: { city: 'New York' } },

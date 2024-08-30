@@ -65,7 +65,7 @@
           <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
 [
   ["get", "friends"],
-  ["filter", ["city", "==", "New York"]],
+  ["filter", "city", "==", "New York"],
   ["sort", "age"],
   ["pick", "name", "age"]
 ]</textarea
@@ -106,6 +106,11 @@
                   <li>
                     <a href="https://github.com/josdejong/jsonquery#filter" target="_blank"
                       ><code>["filter", condition]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a href="https://github.com/josdejong/jsonquery#filter" target="_blank"
+                      ><code>["filter", left, operator, right]</code></a
                     >
                   </li>
                   <li>
@@ -214,7 +219,7 @@
             <details>
               <summary>
                 <span class="category">Operator</span>
-                <code>[left, "operator", right]</code>
+                <code>[left, operator, right]</code>
               </summary>
               <div class="details-content">
                 <p>
@@ -223,7 +228,7 @@
                   specify a condition.
                 </p>
                 <p>Example:</p>
-                <pre><code>["filter", [["address", "city"], "==", "New York"]]</code></pre>
+                <pre><code>["filter", ["address", "city"], "==", "New York"]</code></pre>
                 <p>
                   Documentation:
                   <a href="https://github.com/josdejong/jsonquery#operators" target="_blank"

@@ -37,8 +37,8 @@ export const map = <T>(callback: JSONQuery) => {
   return (data: T[]) => data.map(_callback)
 }
 
-export const filter = <T>(predicate: JSONQuery) => {
-  const _predicate = compile(predicate)
+export const filter = <T>(...predicate: JSONQuery[]) => {
+  const _predicate = compile(predicate.length === 1 ? predicate[0] : predicate)
   return (data: T[]) => data.filter(_predicate)
 }
 
