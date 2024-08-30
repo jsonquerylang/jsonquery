@@ -114,33 +114,52 @@ Here:
 - `data` is the JSON document that will be queried, often an array with objects.
 - `query` is a JSON document containing a JSON query as described in the section below.
 - `options` is an optional object that can contain the following properties:
-     - `functions` is an optional map with extra function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
-   
-         ```js
-         const options = {
-           functions: {
-             // usage example: ["times", 3]
-             times: (value) => (data) => data.map((item) => item * value)
-           }
-         }
-         ```
-     - `operators` is an optional map with extra operator creators. An operator creator receives the left and right side queries as input, and must return a function that implements the operator. Example:
+  - `functions` is an optional map with custom function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
 
-         ```js
-         const options = {
-           operators: {
-             // a loosely equal operator
-             // usage example: ["value", "~=", 2] 
-             '~=': (left, right) => {
-                const a = compile(left)
-                const b = compile(right)
-                return (data) => a(data) == b(data)
-             }
-           }
-         }
-         ```
+      ```js
+      const options = {
+        functions: {
+          // usage example: ["times", 3]
+          times: (value) => (data) => data.map((item) => item * value)
+        }
+      }
+      ```
 
-Example:
+      If the parameters are not a primitive value but can be a query themselves, the function `compile` can be used to compile them. For example, the actual implementation of the function `filter` is the following:
+
+      ```js
+      const options = {
+        functions: {
+          // usage example: ["filter", ["age", ">", 20 ]]
+          filter: (predicate) => {
+            const _predicate = compile(predicate)
+            return (data) => data.filter(_predicate)
+          }
+        }
+      } 
+      ```
+
+      You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
+
+  - `operators` is an optional map with custom operator creators. An operator creator receives the left and right side queries as input, and must return a function that implements the operator. Example:
+
+      ```js
+      const options = {
+        operators: {
+          // a loosely equal operator
+          // usage example: ["value", "~=", 2] 
+          '~=': (left, right) => {
+              const a = compile(left)
+              const b = compile(right)
+              return (data) => a(data) == b(data)
+          }
+        }
+      }
+      ```
+
+      You can have a look at the source code of the functions in `/src/operators.ts` for more examples.
+
+Here an example of using the function `jsonquery`:
 
 ```js
 import { jsonquery } from '@josdejong/jsonquery'
@@ -300,10 +319,12 @@ Note that a path containing a single property is equivalent to just the property
 ["sort", ["age"]]
 ["sort", "age"]
 ```
+
 There is one special case regarding paths:
 
 1. When having a path where the first property is a function name like `["sort"]`, it will be interpreted as a function and not as a path. To parse this as a path, use the function `get`:
 f
+
     ```js
     const data = { sort: 42 }
 
@@ -1318,6 +1339,81 @@ const data = { "a": 8, "b": 3 }
 
 jsonquery(data, ["a", "%", "b"]) // 2
 ```
+
+## Limitations
+
+The JSON Query language has some limitations, pitfalls, and gotchas.
+
+Though the language is easy to learn and understand, it is relatively verbose due to the need for quotes around all keys, and the need for a lot of arrays in square brackets `[...]`. This is a consequence of expressing a query using JSON whilst wanting to keep the language concise.
+
+The use of arrays `[...]` is quite overloaded. An array can hold a function call, operator, pipe, or path with properties. Given a query being an array containing three strings `[string, string, string]` for example, it's meaning can only be determined by looking up whether the first string matches a known function, then looking up whether the second string matches a known operator, and lastly conclude that it is a path with properties. When making a mistake, the error message you get is mostly unhelpful, and the best way to debug is to build your query step by step, validating that it works after every step.
+
+What can also be confusing at first is to understand how data is piped through the query. A traditional function call is for example `abs(myValue)`, so you may expect to have to write this in JSON Query like `["abs", "myValue"]`. However, JSON Query has a functional approach where we create a pipeline like: `data -> abs -> result`. So, to get the absolute value of a property `myValue`, you will have to write a pipe first getting this property and then calling abs: `[["get", "myValue"], ["abs"]]"`.
+
+### Gotchas
+
+Here some gotchas.
+
+1. Having an problem halfway the query, resulting in a vague error. In the following example, the first part of the query results in `undefined`, and then we try to filter that, resulting in an error:
+
+    ```js
+    const data = {
+      "friends": [
+        {"name": "Chris", "age": 23, "city": "New York"},
+        {"name": "Emily", "age": 19, "city": "Atlanta"},
+        {"name": "Joe", "age": 16, "city": "New York"}
+      ]
+    }
+
+    const result = jsonquery(data, [
+      ["get", "friiends"],
+      ["filter", ["city", "==", "New York"]]
+    ])
+    // result: "Error: e is undefined" 
+    // expected: an array with two items
+    ```
+
+2. Making a typo in a function name, which then is interpreted as getting a property. This results in vague output or in an error. In the following example, the property `"filte"` is read from the data, resulting in `undefined`. After that, the property `"city"` is read from `undefined`, resulting in `undefined`, and lastly, we check whether `undefined` is equal to the string `"New York"`, which is not the case, so, the query returns `false`.
+
+    ```js
+    const data = [
+      {"name": "Chris", "age": 23, "city": "New York"},
+      {"name": "Emily", "age": 19, "city": "Atlanta"},
+      {"name": "Joe", "age": 16, "city": "New York"}
+    ]
+    
+    const result = jsonquery(data, ["filte", ["city", "==", "New York"]]) 
+    // result: the boolean value false 
+    // expected: an array with two items
+    ```
+
+3. Making a typo in a property name, resulting in unexpected results.
+
+    ```js
+    const data = [
+      {"name": "Chris", "age": 23, "city": "New York"},
+      {"name": "Emily", "age": 19, "city": "Atlanta"},
+      {"name": "Joe", "age": 16, "city": "New York"}
+    ]
+    
+    const result = jsonquery(data, ["filter", ["cities", "==", "New York"]]) 
+    // result: an empty array 
+    // expected: an array with two items
+    ```
+
+4. Forgetting brackets around a nested query. In the following example, the filter condition has no brackets. Therefore, the property `"city"` is used as condition and the arguments `"=="` and `"New York"` are ignored.
+
+    ```js
+    const data = [
+      {"name": "Chris", "age": 23, "city": "New York"},
+      {"name": "Emily", "age": 19, "city": "Atlanta"},
+      {"name": "Joe", "age": 16, "city": "New York"}
+    ]
+    
+    const result = jsonquery(data, ["filter", "age", ">", 18]) 
+    // result: the original data
+    // expected: an array with two items
+    ```
 
 ## Development
 
