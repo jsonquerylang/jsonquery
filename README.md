@@ -211,9 +211,9 @@ When executing a query throws an error, the library attaches a stack to the erro
 
 ```js
 const data = [
-  { "name": "Chris", "age": 23, scores: [7.2, 5, 8.0] },
+  { "name": "Chris", "age": 23, "scores": [7.2, 5, 8.0] },
   { "name": "Emily", "age": 19 }, // scores is missing here!
-  { "name": "Joe", "age": 32, scores: [6.1, 8.1] }
+  { "name": "Joe", "age": 32, "scores": [6.1, 8.1] }
 ]
 
 try {

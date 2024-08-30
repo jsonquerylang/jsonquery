@@ -73,6 +73,7 @@
         </div>
         <div class="column">
           <label for="output-text">Output</label>
+          <button type="button" id="show-debugger">Debug</button>
           <textarea id="output-text" readonly>loading...</textarea>
         </div>
         <div class="column">
@@ -462,6 +463,30 @@
           </div>
         </div>
       </div>
+      <dialog id="debugger">
+        <div class="dialog-header">
+          <h3 class="title">Debugger</h3>
+          <button type="button" id="close-dialog">Close</button>
+        </div>
+        <div class="dialog-contents">
+          <div id="error-message">Error message...</div>
+          <div class="stack-toggles">
+            Stack: <button type="button" id="error-previous">Previous</button>
+            <span id="error-index">2/4</span>
+            <button type="button" id="error-next">Next</button>
+          </div>
+          <div class="debug-columns">
+            <div class="debug-column">
+              <label class="debug-label" for="error-data">Input</label>
+              <textarea class="debug-content" id="error-data" readonly></textarea>
+            </div>
+            <div class="debug-column">
+              <label class="debug-label" for="error-query">Query</label>
+              <textarea class="debug-content" id="error-query" readonly></textarea>
+            </div>
+          </div>
+        </div>
+      </dialog>
     </div>
 
     <script type="module">
@@ -469,14 +494,23 @@
 
       window.jsonquery = jsonquery
 
-      const inputText = document.getElementById('input-text')
-      const queryText = document.getElementById('query-text')
-      const outputText = document.getElementById('output-text')
+      const refInputText = document.getElementById('input-text')
+      const refQueryText = document.getElementById('query-text')
+      const refOutputText = document.getElementById('output-text')
+      const refShowDebugger = document.getElementById('show-debugger')
+      const refDebugger = document.getElementById('debugger')
+      const refCloseDebugger = document.getElementById('close-dialog')
+      const refErrorMessage = document.getElementById('error-message')
+      const refErrorPrevious = document.getElementById('error-previous')
+      const refErrorNext = document.getElementById('error-next')
+      const refErrorIndex = document.getElementById('error-index')
+      const refErrorData = document.getElementById('error-data')
+      const refErrorQuery = document.getElementById('error-query')
 
-      const input1 = inputText.value
-      const query1 = queryText.value
+      const input1 = refInputText.value
+      const query1 = refQueryText.value
 
-      const input2 = inputText.value
+      const input2 = refInputText.value
       const query2 = `[
   ["get", "friends"],
   ["filter", [
@@ -488,7 +522,7 @@
   ["pick", "name", "age"]
 ]`
 
-      const input3 = inputText.value
+      const input3 = refInputText.value
       const query3 = `[
   ["get", "friends"],
   ["map", {
@@ -500,7 +534,7 @@
   }]
 ]`
 
-      const input4 = inputText.value
+      const input4 = refInputText.value
       const query4 = `[
   ["get", "friends"],
   {
@@ -522,32 +556,91 @@
   ["sum"]
 ]`
 
+      let error = undefined
+      let errorIndex = 0
+
       function go() {
         try {
-          const input = JSON.parse(inputText.value)
-          const query = JSON.parse(queryText.value)
+          const input = JSON.parse(refInputText.value)
+          const query = JSON.parse(refQueryText.value)
           const output = jsonquery(input, query)
-          outputText.value = JSON.stringify(output, null, 2)
-          outputText.classList.remove('error')
+
+          refOutputText.value = JSON.stringify(output, null, 2)
+          refOutputText.classList.remove('error')
+          refShowDebugger.style.display = 'none'
+          error = undefined
+          errorIndex = 0
         } catch (err) {
-          outputText.value = err.message
-          outputText.classList.add('error')
+          console.error(err)
+          error = err
+
+          if (err.jsonquery) {
+            const lastQuery = err.jsonquery[err.jsonquery.length - 1].query
+            refOutputText.value = `${err}\n\nWhen executing the following part of the query:\n\n${JSON.stringify(lastQuery)}`
+            refOutputText.classList.add('error')
+            refShowDebugger.style.display = ''
+          } else {
+            refOutputText.value = String(err)
+            refOutputText.classList.add('error')
+          }
+        }
+      }
+
+      function showDebugger() {
+        if (error?.jsonquery) {
+          errorIndex = error.jsonquery.length - 1
+          renderDebugEntry()
+          refDebugger.showModal()
+        }
+      }
+
+      function previousDebugEntry() {
+        if (errorIndex > 0) {
+          errorIndex--
+          renderDebugEntry()
+        }
+      }
+
+      function nextDebugEntry() {
+        if (errorIndex < error?.jsonquery?.length - 1) {
+          errorIndex++
+          renderDebugEntry()
+        }
+      }
+
+      function renderDebugEntry() {
+        const current = error?.jsonquery?.[errorIndex]
+        if (current) {
+          refErrorMessage.innerText = String(error)
+          refErrorIndex.innerText = `${errorIndex + 1}/${error.jsonquery.length}`
+          refErrorData.value = JSON.stringify(current.data, null, 2)
+          refErrorQuery.value = JSON.stringify(current.query, null, 2)
         }
       }
 
       function load(input, query) {
-        inputText.value = input
-        queryText.value = query
+        refInputText.value = input
+        refQueryText.value = query
         go()
       }
 
-      inputText.addEventListener('input', go)
-      queryText.addEventListener('input', go)
-      document.getElementById('example1').onclick = () => load(input1, query1)
-      document.getElementById('example2').onclick = () => load(input2, query2)
-      document.getElementById('example3').onclick = () => load(input3, query3)
-      document.getElementById('example4').onclick = () => load(input4, query4)
-      document.getElementById('example5').onclick = () => load(input5, query5)
+      refInputText.addEventListener('input', go)
+      refQueryText.addEventListener('input', go)
+      refShowDebugger.addEventListener('click', showDebugger)
+      refErrorPrevious.addEventListener('click', previousDebugEntry)
+      refErrorNext.addEventListener('click', nextDebugEntry)
+      refDebugger.addEventListener('click', (event) => {
+        if (event.target === refDebugger) {
+          // close when clicking outside the dialog
+          refDebugger.close()
+        }
+      })
+      refCloseDebugger.addEventListener('click', () => refDebugger.close())
+      document.getElementById('example1').addEventListener('click', () => load(input1, query1))
+      document.getElementById('example2').addEventListener('click', () => load(input2, query2))
+      document.getElementById('example3').addEventListener('click', () => load(input3, query3))
+      document.getElementById('example4').addEventListener('click', () => load(input4, query4))
+      document.getElementById('example5').addEventListener('click', () => load(input5, query5))
 
       go()
     </script>
