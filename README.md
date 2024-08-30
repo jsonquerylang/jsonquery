@@ -6,6 +6,8 @@ A small, flexible, and expandable JSON query language.
 
 Try it out on the online playground: <https://jsonquerylang.org>
 
+![JSON Query Overview](https://github.com/josdejong/jsonquery/blob/main/docs/jsonquery-overview.svg)
+
 ## Features
 
 - Small (just `1.6 kB` when minified and gzipped!)
@@ -205,7 +207,7 @@ const result = queryIt(data)
 // ]
 ```
 
-## error handling
+### error handling
 
 When executing a query throws an error, the library attaches a stack to the error message which can give insight in what went wrong. The stack can be found at the property `error.jsonquery` and has type `Array<{ data: unknown, query: JSONQuery }>`. 
 

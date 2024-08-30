@@ -581,7 +581,7 @@
 
           if (err.jsonquery) {
             const lastQuery = err.jsonquery[err.jsonquery.length - 1].query
-            refOutputText.value = `${err}\n\nWhen executing the following part of the query:\n\n${JSON.stringify(lastQuery)}`
+            refOutputText.value = `${err}\n\nWhilst executing the following part of the query:\n\n${JSON.stringify(lastQuery)}`
             refOutputText.classList.add('error')
             refShowDebugger.style.display = ''
           } else {
