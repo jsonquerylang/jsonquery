@@ -6,7 +6,7 @@ A small, flexible, and expandable JSON query language.
 
 Try it out on the online playground: <https://jsonquerylang.org>
 
-![JSON Query Overview](https://github.com/josdejong/jsonquery/blob/main/docs/jsonquery-overview.svg)
+![JSON Query Overview](https://jsonquerylang.org/jsonquery-overview.svg)
 
 ## Features
 
@@ -16,6 +16,21 @@ Try it out on the online playground: <https://jsonquerylang.org>
 - Serializable (it is JSON)
 - Feature rich (40+ powerful functions and operators)
 - Expandable
+
+## Documentation
+
+In this readme:
+
+- [Install](#install)
+- [Use](#use)
+- [JavaScript API](#javascript-api)
+- [Syntax](#syntax)
+- [Function reference](#function-reference)
+- [Operator reference](#operator-reference)
+- [Limitations](#limitations)
+- [Development](#development)
+- [Motivation](#motivation)
+- [License](#license)
 
 ## Install
 
