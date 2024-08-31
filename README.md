@@ -19,26 +19,29 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Documentation
 
-In this readme:
+On this page:
 
-- [Install](#install)
-- [Use](#use)
-- [JavaScript API](#javascript-api)
+- [Installation](#installation)
+- [Usage](#usage)
 - [Syntax](#syntax)
-- [Function reference](#function-reference)
-- [Operator reference](#operator-reference)
+- [JavaScript API](#javascript-api)
 - [Limitations](#limitations)
 - [Development](#development)
 - [Motivation](#motivation)
 - [License](#license)
 
-## Install
+External links:
+
+- [Function reference](reference/functions.md)
+- [Operator reference](reference/operators.md)
+
+## Installation
 
 ```
 npm install @josdejong/jsonquery
 ```
 
-## Use
+## Usage
 
 ```js
 import { jsonquery } from '@josdejong/jsonquery'
@@ -114,6 +117,168 @@ const customFunctions = {
 const data = [1, 2, 3]
 const result = jsonquery(data, ["times", 3], customFunctions)
 // [3, 6, 9]
+```
+
+## Syntax
+
+The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _paths_, _pipes_, and _objects_. By writing a JSON Query, you compose a pipeline or a "chain" of operations to be applied to the data. This resembles a chain of methods, for example chaining in [Lodash](https://lodash.com/docs/4.17.15#chain), or just in JavaScript itself using methods like `map` and `filter`.
+
+Syntax overview:
+
+| Category                          | Syntax                                    | Example                                        |
+|-----------------------------------|-------------------------------------------|------------------------------------------------|
+| [Function](#functions)            | `[name, argument1, argument2, ...]`       | `["sort", ["address", "city"], "asc"]`         |
+| [Operator](#operators)            | `[left, operator, right]`                 | `[["address", "city"], "==", "New York"]`      |
+| [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
+| [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
+| [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
+| [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
+
+The following sections explain the syntax in more detail. The examples mostly use the following data:
+
+```json
+[
+  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
+  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
+  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
+  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
+  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
+]
+```
+
+### Functions
+
+At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
+
+```json
+["sort", "age", "asc"]
+```
+
+Nested properties can be specified using a _path_: an array with properties. The following example will sort an array in descending order by a nested property `city` inside an object `address`:
+
+```json
+["sort", ["address", "city"], "desc"]
+```
+
+See section [Function reference](reference/functions.md) for a detailed overview of all available functions.
+
+### Operators
+
+An operator is an array with a left side value, the operator, and a right side value. In the following example, the operator describes that the property `age` of an object must be 18 or larger:
+
+```json
+["age", ">", 18]
+```
+
+or here an example where an operator checks whether a nested property `city` inside an object `address` has the value `"New York"`.
+
+```json
+[["address", "city"], "==", "New York"]
+```
+
+Operators are mostly used inside the `"filter"` function, for example:
+
+```json
+["filter", [["address", "city"], "==", "New York"]]
+```
+
+There are two special cases regarding operators: relational operators interpret the left side as a property when it is a string, and interpret the right side as a text when it is a string.
+
+
+1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be changed into a _path_ by enclosing it in brackets.
+
+    ```js
+    // WRONG: "age" is interpreted as text
+    ["filter", [18, "<", "age"]]
+
+    // RIGHT: "age" is interpreted as property
+    ["filter", [18, "<", ["age"]]]
+    ["filter", ["age", ">", 18]]
+    ```
+
+2. In order to specify a text on the left side of an operator instead of having it interpreted as a property, the `string` function can be used:
+
+    ```js
+    // WRONG: "New York" is interpreted as property
+    ["filter", ["New York", "==", ["address", "city"]]]
+
+    // RIGHT: "New York" is interpreted as text
+    ["filter", [["string", "New York"], "==", ["address", "city"]]]
+    ["filter", [["address", "city"], "==", "New York"]]
+    ```
+
+See section [Operator reference](reference/operators.md) for a detailed overview of all available operators.
+
+### Properties and paths
+
+A _property_ is a string pointing to a value inside an object. For example the following property refers to the value of property `age` in an object:
+
+```json
+"age"
+```
+
+A _path_ is an array with _properties_. The following path for example describes the value of a nested property `city` inside an object `address`:
+
+```json
+["address", "city"]
+```
+
+Note that a path containing a single property is equivalent to just the property itself:
+
+```js
+// path ["age"] is equivalent to property "age":
+["sort", ["age"]]
+["sort", "age"]
+```
+
+There is one special case regarding paths:
+
+1. When having a path where the first property is a function name like `["sort"]`, it will be interpreted as a function and not as a path. To parse this as a path, use the function `get`:
+   f
+
+    ```js
+    const data = { sort: 42 }
+
+    jsonquery(data, ["get", "sort"]) // 42
+    ```
+
+### Pipes
+
+A _pipe_ is an array containing a series of _functions_, _operators_, _properties_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
+
+```json
+[
+  ["filter", [["address", "city"], "==", "New York"]],
+  ["sort", "age"]
+]
+```
+
+### Objects
+
+An _object_ is defined as a regular JSON object with a property name as key, and a _function_, _pipe_, or _object_ as value. Objects can be used to transform data or to execute multiple query pipelines in parallel.
+
+The following example will map over the items of the array and create a new object with properties `firstName` and `city` for every item:
+
+```json
+["map", {
+  "firstName": "name",
+  "city": ["address", "city"]
+}]
+```
+
+The following example will output an object with properties `names`, `count`, and `averageAge` containing the results of their query: a list with names, the total number of array items, and the average value of the properties `age` in all items:
+
+```json
+{
+  "names": ["map", "name"],
+  "count": ["size"],
+  "averageAge": [
+    ["map", "age"], 
+    ["average"]
+  ]
+}
 ```
 
 ## JavaScript API
@@ -224,7 +389,7 @@ const result = queryIt(data)
 
 ### error handling
 
-When executing a query throws an error, the library attaches a stack to the error message which can give insight in what went wrong. The stack can be found at the property `error.jsonquery` and has type `Array<{ data: unknown, query: JSONQuery }>`. 
+When executing a query throws an error, the library attaches a stack to the error message which can give insight in what went wrong. The stack can be found at the property `error.jsonquery` and has type `Array<{ data: unknown, query: JSONQuery }>`.
 
 ```js
 const data = [
@@ -271,1142 +436,6 @@ try {
   //   }
   // ]
 }
-```
-
-## Syntax
-
-The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _pipes_, and _objects_.
-
-The examples in the following sections are based on querying the following data:
-
-```json
-[
-  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
-  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-]
-```
-
-Syntax overview:
-
-| Category                          | Syntax                                    | Example                                        |
-|-----------------------------------|-------------------------------------------|------------------------------------------------|
-| [Function](#functions)            | `[name, argument1, argument2, ...]`       | `["sort", ["address", "city"], "asc"]`         |
-| [Operator](#operators)            | `[left, operator, right]`                 | `[["address", "city"], "==", "New York"]`      |
-| [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
-| [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
-| [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
-| [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
-
-The following sections explain the syntax in more detail.
-
-### Functions
-
-At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
-
-```json
-["sort", "age", "asc"]
-```
-
-Nested properties can be specified using a _path_: an array with properties. The following example will sort an array in descending order by a nested property `city` inside an object `address`:
-
-```json
-["sort", ["address", "city"], "desc"]
-```
-
-See section [Function reference](#function-reference) for a detailed overview of all available functions.
-
-### Operators
-
-An operator is an array with a left side value, the operator, and a right side value. In the following example, the operator describes that the property `age` of an object must be 18 or larger:
-
-```json
-["age", ">", 18]
-```
-
-or here an example where an operator checks whether a nested property `city` inside an object `address` has the value `"New York"`.
-
-```json
-[["address", "city"], "==", "New York"]
-```
-
-Operators are mostly used inside the `"filter"` function, for example:
-
-```json
-["filter", [["address", "city"], "==", "New York"]]
-```
-
-There are two special cases regarding operators:
-
-1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be changed into a _path_ by enclosing it in brackets. For example:
-
-    ```js
-    // WRONG: "age" is interpreted as text
-    ["filter", [18, "<", "age"]]
-
-    // RIGHT: "age" is interpreted as property
-    ["filter", [18, "<", ["age"]]]
-    ["filter", ["age", ">", 18]]
-    ```
-
-2. In order to specify a text on the left side of an operator instead of having it interpreted as a property, the `string` function can be used:
-
-    ```js
-    // WRONG: "New York" is interpreted as property
-    ["filter", ["New York", "==", ["address", "city"]]]
-
-    // RIGHT: "New York" is interpreted as text
-    ["filter", [["string", "New York"], "==", ["address", "city"]]]
-    ["filter", [["address", "city"], "==", "New York"]]
-    ```
-
-See section [Operator reference](#operator-reference) for a detailed overview of all available operators.
-
-### Properties and paths
-
-A _property_ is a string pointing to a value inside an object. For example the following property refers to the value of property `age` in an object:
-
-```json
-"age"
-```
-
-A _path_ is an array with _properties_. The following path for example describes the value of a nested property `city` inside an object `address`:
-
-```json
-["address", "city"]
-```
-
-Note that a path containing a single property is equivalent to just the property itself:
-
-```js
-// path ["age"] is equivalent to property "age":
-["sort", ["age"]]
-["sort", "age"]
-```
-
-There is one special case regarding paths:
-
-1. When having a path where the first property is a function name like `["sort"]`, it will be interpreted as a function and not as a path. To parse this as a path, use the function `get`:
-f
-
-    ```js
-    const data = { sort: 42 }
-
-    jsonquery(data, ["get", "sort"]) // 42
-    ```
-
-### Pipes
-
-A _pipe_ is an array containing a series of _functions_, _operators_, _properties_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
-
-```json
-[
-  ["filter", [["address", "city"], "==", "New York"]],
-  ["sort", "age"]
-]
-```
-
-### Objects
-
-An _object_ is defined as a regular JSON object with a property name as key, and a _function_, _pipe_, or _object_ as value. Objects can be used to transform data or to execute multiple query pipelines in parallel.
-
-The following example will map over the items of the array and create a new object with properties `firstName` and `city` for every item:
-
-```json
-["map", {
-  "firstName": "name",
-  "city": ["address", "city"]
-}]
-```
-
-The following example will output an object with properties `names`, `count`, and `averageAge` containing the results of their query: a list with names, the total number of array items, and the average value of the properties `age` in all items:
-
-```json
-{
-  "names": ["map", "name"],
-  "count": ["size"],
-  "averageAge": [
-    ["map", "age"], 
-    ["average"]
-  ]
-}
-```
-
-## Function reference
-
-The following functions are available:
-
-### get
-
-Get a path from an object.
-
-```js
-["get", path]
-```
-
-Examples:
-
-```js
-const data = { 
-  "name": "Joe", 
-  "age": 32, 
-  "address": { 
-    "city": "New York" 
-  } 
-}
-
-jsonquery(data, ["get", "name"]) // "Joe"
-jsonquery(data, ["get", ["address", "city"]]) // "New York"
-```
-
-### filter
-
-Filter a list with objects or values.
-
-```js
-["filter", condition]
-["filter", left, operator, right]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
-  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-]
-
-jsonquery(data, ["filter", "age", ">", 30])
-// [
-//   { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-//   { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
-//   { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-// ]
-
-jsonquery(data, ["filter", ["address", "city"], "==", "New York"])
-// [
-//   { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-//   { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-//   { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-// ]
-
-jsonquery(data, ["filter", [
-  ["age", ">", 30],
-  "and",
-  ["city", "==", "New York"]
-]])
-// [
-//   { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-//   { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-// ]
-```
-
-### sort
-
-Sort a list with objects or values.
-
-```js
-["sort"]
-["sort", path]
-["sort", path, direction]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } }
-]
-
-jsonquery(data, ["sort", "age"])
-// [
-//   { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-//   { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-//   { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } }
-// ]
-
-jsonquery(data, ["sort", "age", "desc"])
-// [
-//   { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-//   { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-//   { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } }  
-// ]
-
-jsonquery(data, ["sort", ["address", "city"]])
-// [
-//   { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-//   { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-//   { "name": "Chris", "age": 23, "address": { "city": "New York" } }
-// ]
-
-const values = [7, 2, 9]
-
-jsonquery(values, ["sort"]) // [2, 7, 9]
-jsonquery(values, ["sort", [], "desc"]) // [9, 7, 2]
-```
-
-### pick
-
-Pick one or multiple properties or paths, and create a new, flat object for each of them. Can be used on both an object or an array.
-
-```js
-["pick", ...paths]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } }
-]
-
-jsonquery(data, ["pick", "age"])
-// [
-//   { "age": 23 },
-//   { "age": 19 },
-//   { "age": 27 }
-// ]
-
-jsonquery(data, ["pick", "name", ["address", "city"]])
-// [
-//   { "name": "Chris", "city": "New York" },
-//   { "name": "Emily", "city": "Atlanta" },
-//   { "name": "Michelle", "city": "Los Angeles" }
-// ]
-
-const item = { "price": 25 }
-
-jsonquery(item, ["pick", "price"]) // 25
-```
-
-### map
-
-Map over an array and apply the provided query to each of the items in the array.
-
-```js
-["map", query]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "scores": [5, 7, 3] },
-  { "name": "Emily", "scores": [8, 5, 2, 5] },
-  { "name": "Joe", "scores": [1, 1, 5, 6] }
-]
-
-jsonquery(data, ["map", { 
-  "firstName": "name",
-  "maxScore": ["scores", ["max"]]
-}])
-// [
-//   {"firstName": "Chris", "maxScore": 7},
-//   {"firstName": "Emily", "maxScore": 8},
-//   {"firstName": "Joe"  , "maxScore": 6}
-// ]
-
-const cart = [
-  {"name": "bread", "price": 2.5, "quantity": 2},
-  {"name": "milk" , "price": 1.2, "quantity": 3}
-]
-jsonquery(data, [
-  ['map', ['price', '*', 'quantity']], 
-  ['sum']
-])
-// 8.6
-```
-
-### groupBy
-
-Group a list with objects grouped by the value of given path. This creates an object with the different properties as key, and an array with all items having that property as value.
-
-```js
-["groupBy", path]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "city": "New York" },
-  { "name": "Emily", "city": "Atlanta" },
-  { "name": "Joe", "city": "New York" },
-  { "name": "Kevin", "city": "Atlanta" },
-  { "name": "Michelle", "city": "Los Angeles" },
-  { "name": "Robert", "city": "Manhattan" },
-  { "name": "Sarah", "city": "New York" }
-]
-
-jsonquery(data, ["groupBy", "city"])
-// {
-//   "New York": [
-//     {"name": "Chris", "city": "New York"},
-//     {"name": "Joe"  , "city": "New York"},
-//     {"name": "Sarah", "city": "New York"}
-//   ],
-//   "Atlanta": [
-//     {"name": "Emily", "city": "Atlanta"},
-//     {"name": "Kevin", "city": "Atlanta"}
-//   ],
-//   "Los Angeles": [
-//     {"name": "Michelle", "city": "Los Angeles"}
-//   ],
-//   "Manhattan": [
-//     {"name": "Robert", "city": "Manhattan"}
-//   ]
-// }
-```
-
-### keyBy
-
-Turn an array with objects into an object by key. When there are multiple items with the same key, the first item will be kept.
-
-```js
-["keyBy", path]
-```
-
-Examples:
-
-```js
-const data = [
-  { id: 1, name: 'Joe' },
-  { id: 2, name: 'Sarah' },
-  { id: 3, name: 'Chris' }
-]
-
-jsonquery(data, ["keyBy", "id"])
-// {
-//   1: { id: 1, name: 'Joe' },
-//   2: { id: 2, name: 'Sarah' },
-//   3: { id: 3, name: 'Chris' }
-// }
-```
-
-### keys
-
-Return an array with the keys of an object.
-
-```json
-["keys"]
-```
-
-Examples:
-
-```js
-const data = { 
-  "name": "Joe", 
-  "age": 32, 
-  "address": { 
-    "city": "New York" 
-  } 
-}
-
-jsonquery(data, ["keys"]) // ["name", "age", "address"]
-```
-
-### values
-
-Return the values of an object.
-
-```json
-["values"]
-```
-
-Examples:
-
-```js
-const data = { 
-  "name": "Joe", 
-  "age": 32, 
-  "city": "New York"
-}
-
-jsonquery(data, ["values"]) // ["Joe", 32, "New York"]
-```
-
-### flatten
-
-Flatten an array containing arrays.
-
-```json
-["flatten"]
-```
-
-Examples:
-
-```js
-const data = [[1, 2], [3, 4]]
-
-jsonquery(data, ["flatten"]) // [1, 2, 3, 4]
-
-const data2 = [[1, 2, [3, 4]]]
-
-jsonquery(data2, ["flatten"]) // [1, 2, [3, 4]]
-```
-
-### uniq
-
-Create a copy of an array where all duplicates are removed.
-
-```js
-["uniq"]
-
-jsonquery([1, 5, 3, 3, 1], ["uniq"]) // [1, 3, 5]
-```
-
-### uniqBy
-
-Create a copy of an array where all objects with a duplicate value for the selected path are removed. In case of duplicates, the first object is kept.
-
-```js
-["uniqBy", path]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
-  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-]
-
-jsonquery(data, ["uniqBy", ["address", "city"]])
-// [
-//   { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-//   { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-//   { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-//   { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } }
-// ]
-```
-
-### limit
-
-Create a copy of an array cut off at the selected limit.
-
-```js
-["limit", size]
-```
-
-Examples:
-
-```js
-const data = [1, 2, 3, 4, 5, 6]
-
-jsonquery(data, ["limit", 2]) // [1, 2]
-jsonquery(data, ["limit", 4]) // [1, 2, 3, 4]
-```
-
-### size
-
-Return the size of an array.
-
-```json
-["size"]
-```
-
-Examples:
-
-```js
-jsonquery([1, 2], ["size"]) // 2
-jsonquery([1, 2, 3, 4], ["size"]) // 4
-```
-
-### string
-
-Process text as a string, preventing it to be processed as a property. See section [Operators](#operators) for more information.
-
-```js
-["string", text]
-```
-
-Examples:
-
-```js
-const data = { 
-  "name": "Joe", 
-  "age": 32, 
-  "address": { 
-    "city": "New York" 
-  } 
-}
-
-jsonquery(data, ["string", "Hello World"]) // "Hello World"
-jsonquery(data, [["string", "New York"], "==", ["address", "city"]]) // true
-```
-
-### sum
-
-Calculate the sum of all values in an array.
-
-```json
-["sum"]
-```
-
-Examples:
-
-```js
-jsonquery([7, 4, 2], ["sum"]) // 13
-jsonquery([2.4, 5.7], ["sum"]) // 8.1
-```
-
-### min
-
-Return the minimum of the values in an array.
-
-```json
-["min"]
-```
-
-Examples:
-
-```js
-jsonquery([5, 1, 1, 6], ["min"]) // 1
-jsonquery([5, 7, 3], ["min"]) // 3
-```
-
-### max
-
-Return the maximum of the values in an array.
-
-```json
-["max"]
-```
-
-Examples:
-
-```js
-jsonquery([1, 1, 6, 5], ["max"]) // 6
-jsonquery([5, 7, 3], ["max"]) // 7
-```
-
-### prod
-
-Calculate the product of the values in an array.
-
-```json
-["prod"]
-```
-
-Examples:
-
-```js
-jsonquery([2, 3], ["prod"]) // 6
-jsonquery([2, 3, 2, 7, 1, 1], ["prod"]) // 84
-```
-
-### average
-
-Calculate the average of the values in an array.
-
-```json
-["average"]
-```
-
-Examples:
-
-```js
-jsonquery([2, 4], ["average"]) // 3
-jsonquery([2, 3, 2, 7, 1], ["average"]) // 3
-```
-
-### abs
-
-Calculate the absolute value.
-
-```js
-["abs"]
-```
-
-Examples:
-
-```js
-jsonquery(2, ["abs"]) // 2
-jsonquery(-3, ["abs", 2]) // 3
-jsonquery({"a": -7}, [["a"], ["abs"]]) // 7
-```
-
-### round
-
-Round a value. When `digits` is provided, the value will be rounded to the selected number of digits.
-
-```js
-["round"]
-["round", digits]
-```
-
-Examples:
-
-```js
-jsonquery(23.1345, ["round"]) // 23
-jsonquery(23.1345, ["round", 2]) // 23.13
-jsonquery(23.1345, ["round", 3]) // 23.135
-jsonquery(23.761, ["round"]) // 24
-```
-
-## Operator reference
-
-### equal (`==`)
-
-Test whether two values are strictly equal. This will consider a string `"2"` and a number `2` to be _not_ equal for example since their data type differs.
-
-```js
-[left, "==", right]
-```
-
-> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 23 },
-  { "name": "Emily", "age": 18 },
-  { "name": "Kevin", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", "==", 18]])
-// [
-//   { "name": "Emily", "age": 18 },
-//   { "name": "Kevin", "age": 18 }
-// ]
-
-jsonquery({ a: 2 }, ["a", "==", 2]) // true
-jsonquery({ a: 2 }, ["a", "==", 3]) // false
-jsonquery({ a: 2 }, ["a", "==", "2"]) // false (since not strictly equal)
-```
-
-### greater than (`>`)
-
-Test whether the left side of the operator is larger than the right side.
-
-```js
-[left, ">", right]
-```
-
-> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", ">", 18]])
-// [
-//   { "name": "Emily", "age": 32 }
-// ]
-```
-
-### greater than or equal (`>=`)
-
-Test whether the left side of the operator is larger than or equal to the right side.
-
-```js
-[left, ">=", right]
-```
-
-> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", ">=", 18]])
-// [
-//   { "name": "Emily", "age": 32 },
-//   { "name": "Joe", "age": 18 }
-// ]
-```
-
-### less than (`<`)
-
-Test whether the left side of the operator is smaller than the right side.
-
-```js
-[left, "<", right]
-```
-
-> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", "<", 18]])
-// [
-//   { "name": "Chris", "age": 16 }
-// ]
-```
-
-### less than or equal (`<=`)
-
-Test whether the left side of the operator is smaller than or equal to the right side.
-
-```js
-[left, "<=", right]
-```
-
-> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", "<=", 18]])
-// [
-//   { "name": "Chris", "age": 16 },
-//   { "name": "Joe", "age": 18 }
-// ]
-```
-
-### not equal (`!=`)
-
-Test whether two values are unequal. This is the opposite of the strict equal operator `==`. Two values are considered unequal when their data type differs (for example one is a string and another is a number), or when the value itself is different. For example a string `"2"` and a number `2` are considered unequal, even though their mathematical value is equal.
-
-```js
-[left, "!=", right]
-```
-
-> Special case: when the right side is a string, it will be interpreted as a text and not a property. See section [Operators](#operators).
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", "!=", 16]])
-// [
-//   { "name": "Emily", "age": 32 },
-//   { "name": "Joe", "age": 18 }
-// ]
-
-jsonquery({ a: 2 }, ["a", "!=", 2]) // false
-jsonquery({ a: 2 }, ["a", "!=", 3]) // true
-jsonquery({ a: 2 }, ["a", "!=", "2"]) // true (since not strictly equal)
-```
-
-### and
-
-Test whether both left and right value are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
-
-```js
-[left, "and", right]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", [
-  ["name", "==", "Chris"],
-  "and"
-  ["age", "==", 16],
-]])
-// [
-//   { "name": "Chris", "age": 16 }
-// ]
-```
-
-### or
-
-Test whether one or both operands are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
-
-```js
-[left, "or", right]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", [
-  ["age", "==", 16],
-  "or"
-  ["age", "==", 18],
-]])
-// [
-//   { "name": "Chris", "age": 16 },
-//   { "name": "Joe", "age": 18 }
-// ]
-```
-
-### not
-
-Operator not inverts the right hand side. It has no left hand value. When the right hand is truthy it returns `false`, and otherwise it returns `true`.
-
-```js
-["not", value]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["not", ["age", "==", 18]]])
-// [
-//   { "name": "Chris", "age": 16 },
-//   { "name": "Emily", "age": 32 }
-// ]
-```
-
-### exists
-
-Returns true if the right hand side exists, and returns false when the right hand side is undefined. Also returns true when the path contains a value `null`.
-
-```js
-["exists", path]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "details": { "age": 16 } },
-  { "name": "Emily" },
-  { "name": "Joe", "details": { "age": 18 } }
-]
-
-jsonquery(data, ["filter", ["exists", "details"]])
-// [
-//   { "name": "Chris", "details": { "age": 16 } },
-//   { "name": "Joe", "details": { "age": 18 } }
-// ]
-
-jsonquery({ "value": null }, ["exists", "value"]) // true
-```
-
-### in
-
-Test whether the left operand is one of the values of the list provided as right operand.
-
-```js
-[left, "in", ...values]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", "in", [16, 18]]])
-// [
-//   { "name": "Chris", "age": 16 },
-//   { "name": "Joe", "age": 18 }
-// ]
-```
-
-### not in
-
-Test whether the left operand is _not_ one of the values of the list provided as right operand.
-
-```js
-[left, "not in", ...values]
-```
-
-Examples:
-
-```js
-const data = [
-  { "name": "Chris", "age": 16 },
-  { "name": "Emily", "age": 32 },
-  { "name": "Joe", "age": 18 }
-]
-
-jsonquery(data, ["filter", ["age", "not in", [16, 18]]])
-// [
-//   { "name": "Emily", "age": 32 }
-// ]
-```
-
-### regex
-
-Test the left operand against the regular expression on the right hand.
-
-```js
-[left, "regex", expression]
-[left, "regex", expression, options]
-```
-
-Here, `expression` is a string containing the regular expression like `^[a-z]+$`, and `options` are regular expression flags like `i`.
-
-Examples:
-
-```js
-const data = [
-  { "id": 1, "message": "I LIKE it!" },
-  { "id": 2, "message": "It is awesome!" },
-  { "id": 3, "message": "Was a disaster" },
-  { "id": 4, "message": "We like it a lot" }
-]
-
-jsonquery(data, ["filter", ["message", "regex", "like|awesome"]])
-// [
-//   { "id": 2, "message": "It is awesome!" },
-//   { "id": 4, "message": "We like it a lot" }
-// ]
-
-jsonquery(data, ["filter", ["message", "regex", "like|awesome", "i"]])
-// [
-//   { "id": 1, "message": "I LIKE it!" },
-//   { "id": 2, "message": "It is awesome!" },
-//   { "id": 4, "message": "We like it a lot" }
-// ]
-```
-
-### add (`+`)
-
-Add the left and right side of the operator.
-
-```js
-[left, "+", right]
-```
-
-Examples:
-
-```js
-const data = { "a": 6, "b": 2 }
-
-jsonquery(data, ["a", "+", "b"]) // 8
-```
-
-### subtract (`-`)
-
-Subtract the left and right side of the operator.
-
-```js
-[left, "-", right]
-```
-
-Examples:
-
-```js
-const data = { "a": 6, "b": 2 }
-
-jsonquery(data, ["a", "-", "b"]) // 4
-```
-
-### multiply (`*`)
-
-Multiply the left and right side of the operator.
-
-```js
-[left, "*", right]
-```
-
-Examples:
-
-```js
-const data = { "a": 6, "b": 2 }
-
-jsonquery(data, ["a", "*", "b"]) // 12
-```
-
-### divide (`/`)
-
-Divide the left and right side of the operator.
-
-```js
-[left, "/", right]
-```
-
-Examples:
-
-```js
-const data = { "a": 6, "b": 2 }
-
-jsonquery(data, ["a", "/", "b"]) // 3
-```
-
-### power (`^`)
-
-Calculate the exponent. Returns the result of raising the left value to the power of the right value.
-
-```js
-[left, "^", right]
-```
-
-Examples:
-
-```js
-const data = { "a": 2, "b": 3 }
-
-jsonquery(data, ["a", "^", "b"]) // 8
-```
-
-### remainder (`%`)
-
-Calculate the remainder (the modulus) of the left side divided by the right side.
-
-```js
-[left, "%", right]
-```
-
-Examples:
-
-```js
-const data = { "a": 8, "b": 3 }
-
-jsonquery(data, ["a", "%", "b"]) // 2
 ```
 
 ## Limitations
