@@ -185,8 +185,12 @@ Operators are mostly used inside the `"filter"` function, for example:
 ["filter", [["address", "city"], "==", "New York"]]
 ```
 
-There are two special cases regarding operators: relational operators interpret the left side as a property when it is a string, and interpret the right side as a text when it is a string.
+See section [Operator reference](reference/operators.md) for a detailed overview of all available operators.
 
+<details>
+<summary><b>Special cases regarding operators</b></summary>
+
+There are two special cases regarding operators: relational operators interpret the left side as a property when it is a string, and interpret the right side as a text when it is a string.
 
 1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be changed into a _path_ by enclosing it in brackets.
 
@@ -210,7 +214,7 @@ There are two special cases regarding operators: relational operators interpret 
     ["filter", [["address", "city"], "==", "New York"]]
     ```
 
-See section [Operator reference](reference/operators.md) for a detailed overview of all available operators.
+</details>
 
 ### Properties and paths
 
@@ -234,16 +238,20 @@ Note that a path containing a single property is equivalent to just the property
 ["sort", "age"]
 ```
 
+<details>
+<summary><b>Special cases regarding paths</b></summary>
+
 There is one special case regarding paths:
 
 1. When having a path where the first property is a function name like `["sort"]`, it will be interpreted as a function and not as a path. To parse this as a path, use the function `get`:
-   f
 
     ```js
     const data = { sort: 42 }
 
     jsonquery(data, ["get", "sort"]) // 42
     ```
+
+</details>
 
 ### Pipes
 
