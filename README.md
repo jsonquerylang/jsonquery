@@ -121,20 +121,9 @@ const result = jsonquery(data, ["times", 3], customFunctions)
 
 ## Syntax
 
-The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _paths_, _pipes_, and _objects_. By writing a JSON Query, you compose a pipeline or a "chain" of operations to be applied to the data. This resembles a chain of methods, for example chaining in [Lodash](https://lodash.com/docs/4.17.15#chain), or just in JavaScript itself using methods like `map` and `filter`.
+The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _paths_, _pipes_, and _objects_. When writing a JSON Query, you compose a ["pipe"](https://medium.com/@efeminella/the-pipe-operator-a-glimpse-into-the-future-of-functional-javascript-7ebb578887a4) or a ["chain"](https://en.wikipedia.org/wiki/Method_chaining) of operations to be applied to the data. It resembles chaining like in [Lodash](https://lodash.com/docs/4.17.15#chain) or just [in JavaScript](https://medium.com/backticks-tildes/understanding-method-chaining-in-javascript-647a9004bd4f) itself using methods like `map` and `filter`.
 
-Syntax overview:
-
-| Category                          | Syntax                                    | Example                                        |
-|-----------------------------------|-------------------------------------------|------------------------------------------------|
-| [Function](#functions)            | `[name, argument1, argument2, ...]`       | `["sort", ["address", "city"], "asc"]`         |
-| [Operator](#operators)            | `[left, operator, right]`                 | `[["address", "city"], "==", "New York"]`      |
-| [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
-| [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
-| [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
-| [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
-
-The following sections explain the syntax in more detail. The examples mostly use the following data:
+The examples in the following section are based on querying the following data:
 
 ```json
 [
@@ -147,6 +136,18 @@ The following sections explain the syntax in more detail. The examples mostly us
   { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
 ]
 ```
+Syntax overview:
+
+| Category                          | Syntax                                    | Example                                        |
+|-----------------------------------|-------------------------------------------|------------------------------------------------|
+| [Function](#functions)            | `[name, argument1, argument2, ...]`       | `["sort", ["address", "city"], "asc"]`         |
+| [Operator](#operators)            | `[left, operator, right]`                 | `[["address", "city"], "==", "New York"]`      |
+| [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
+| [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
+| [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
+| [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
+
+The following sections explain the syntax in more detail.
 
 ### Functions
 

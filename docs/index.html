@@ -577,42 +577,39 @@
       const input1 = refInputText.value
       const query1 = refQueryText.value
 
-      const input2 = refInputText.value
-      const query2 = `[
-  ["get", "friends"],
-  ["filter", [
-    ["city", "==", "New York"],
-    "and",
-    ["age", ">", 30]
-  ]],
-  ["sort", "age"],
-  ["pick", "name", "age"]
+      const input2 = `[
+  {"name": "Chris", "age": 23, "city": "New York"},
+  {"name": "Emily", "age": 19, "city": "Atlanta"},
+  {"name": "Joe", "age": 32, "city": "New York"},
+  {"name": "Kevin", "age": 19, "city": "Atlanta"},
+  {"name": "Michelle", "age": 27, "city": "Los Angeles"},
+  {"name": "Robert", "age": 45, "city": "Manhattan"},
+  {"name": "Sarah", "age": 31, "city": "New York"}
 ]`
+      const query2 = `["filter", [
+  ["city", "==", "New York"],
+  "and",
+  ["age", ">", 30]
+]]`
 
-      const input3 = refInputText.value
-      const query3 = `[
-  ["get", "friends"],
-  ["map", {
-    "firstName": "name",
-    "details": {
-      "city": "city",
-      "age": "age"
-    }
-  }]
-]`
-
-      const input4 = refInputText.value
-      const query4 = `[
-  ["get", "friends"],
-  {
-    "names": ["map", "name"],
-    "count": ["size"],
-    "averageAge": [
-      ["map", "age"],
-      ["average"]
-    ]
+      const input3 = input2
+      const query3 = `["map", {
+  "firstName": "name",
+  "details": {
+    "city": "city",
+    "age": "age"
   }
-]`
+}]`
+
+      const input4 = input2
+      const query4 = `{
+  "names": ["map", "name"],
+  "count": ["size"],
+  "averageAge": [
+    ["map", "age"],
+    ["average"]
+  ]
+}`
 
       const input5 = `[
   { "name": "bread", "price": 2.5, "quantity": 2 },
