@@ -38,13 +38,13 @@ External links:
 ## Installation
 
 ```
-npm install @josdejong/jsonquery
+npm install @jsonquerylang/jsonquery
 ```
 
 ## Usage
 
 ```js
-import { jsonquery } from '@josdejong/jsonquery'
+import { jsonquery } from '@jsonquerylang/jsonquery'
 
 const data = {
   "friends": [
@@ -108,7 +108,7 @@ const totalPrice = jsonquery(shoppingCart, [
 The build in functions can be extended with custom functions, like `times` in the following example:
 
 ```js
-import { jsonquery } from '@josdejong/jsonquery'
+import { jsonquery } from '@jsonquerylang/jsonquery'
 
 const customFunctions = {
   times: (value) => (data) => data.map((item) => item * value)
@@ -353,7 +353,7 @@ Here:
 Here an example of using the function `jsonquery`:
 
 ```js
-import { jsonquery } from '@josdejong/jsonquery'
+import { jsonquery } from '@jsonquerylang/jsonquery'
 
 const data = [
   { "name": "Chris", "age": 23 },
@@ -379,7 +379,7 @@ compile(query: JSONQuery, options: JSONQueryOptions) => (data: JSON) => JSON
 Example:
 
 ```js
-import { compile } from '@josdejong/jsonquery'
+import { compile } from '@jsonquerylang/jsonquery'
 
 const queryIt = compile(["filter", "age", ">", 20])
 
@@ -535,7 +535,7 @@ npm run build
 npm run build-and-test
 ```
 
-Note that a new package is published on [npm](https://www.npmjs.com/package/@josdejong/jsonquery) and [GitHub](https://github.com/jsonquerylang/jsonquery/releases) on changes pushed to the `main` branch. This is done using [`semantic-release`](https://github.com/semantic-release/semantic-release), and we do not use the `version` number in the `package.json` file. A changelog can be found by looking at the [releases on GitHub](https://github.com/jsonquerylang/jsonquery/releases).
+Note that a new package is published on [npm](https://www.npmjs.com/package/@jsonquerylang/jsonquery) and [GitHub](https://github.com/jsonquerylang/jsonquery/releases) on changes pushed to the `main` branch. This is done using [`semantic-release`](https://github.com/semantic-release/semantic-release), and we do not use the `version` number in the `package.json` file. A changelog can be found by looking at the [releases on GitHub](https://github.com/jsonquerylang/jsonquery/releases).
 
 ## Motivation
 

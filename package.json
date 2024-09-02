@@ -1,5 +1,5 @@
 {
-  "name": "@josdejong/jsonquery",
+  "name": "@jsonquerylang/jsonquery",
   "version": "0.0.0",
   "description": "A small, flexible, and expandable JSON query language",
   "keywords": [
