@@ -22,7 +22,7 @@ export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator
   operatorsStack.unshift({ ...operatorsStack[0], ...options?.operators })
 
   try {
-    const exec = _compile(query)
+    const exec = _compile(query, functionsStack[0], operatorsStack[0])
 
     return (data) => {
       try {
@@ -40,7 +40,7 @@ export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator
   }
 }
 
-function _compile(query: JSONQuery): Evaluator {
+function _compile(query: JSONQuery, functions: FunctionsMap, operators: OperatorMap): Evaluator {
   // object
   if (isObject(query)) {
     return object(query as JSONQueryObject)
@@ -49,14 +49,14 @@ function _compile(query: JSONQuery): Evaluator {
   if (isArray(query)) {
     // function
     const [fnName, ...args] = query as unknown as JSONQueryFunction
-    const fn = functionsStack[0][fnName]
+    const fn = functions[fnName]
     if (fn) {
       return fn(...args)
     }
 
     // operator
     const [left, opName, ...right] = query as unknown as JSONQueryOperator
-    const op = operatorsStack[0][opName]
+    const op = operators[opName]
     if (op) {
       return op(left, ...right)
     }
