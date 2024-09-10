@@ -1,28 +1,23 @@
 import {
   Evaluator,
   FunctionsMap,
+  Getter,
   JSONQuery,
   JSONQueryFunction,
   JSONQueryObject,
-  JSONQueryOperator,
   JSONQueryOptions,
-  JSONQueryPipe,
-  OperatorMap
+  JSONQueryPipe
 } from './types'
 import { isArray, isObject, isString } from './is'
 import * as coreFunctions from './functions'
-import { get, object, pipe } from './functions'
-import { coreOperators } from './operators'
 
 const functionsStack: FunctionsMap[] = [coreFunctions]
-const operatorsStack: OperatorMap[] = [coreOperators]
 
 export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator {
   functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
-  operatorsStack.unshift({ ...operatorsStack[0], ...options?.operators })
 
   try {
-    const exec = _compile(query, functionsStack[0], operatorsStack[0])
+    const exec = _compile(query, functionsStack[0])
 
     return (data) => {
       try {
@@ -36,40 +31,51 @@ export function compile(query: JSONQuery, options?: JSONQueryOptions): Evaluator
     }
   } finally {
     functionsStack.shift()
-    operatorsStack.shift()
   }
 }
 
-function _compile(query: JSONQuery, functions: FunctionsMap, operators: OperatorMap): Evaluator {
-  // object
-  if (isObject(query)) {
-    return object(query as JSONQueryObject)
-  }
-
+function _compile(query: JSONQuery, functions: FunctionsMap): Evaluator {
   if (isArray(query)) {
     // function
-    const [fnName, ...args] = query as unknown as JSONQueryFunction
-    const fn = functions[fnName]
-    if (fn) {
-      return fn(...args)
-    }
-
-    // operator
-    const [left, opName, ...right] = query as unknown as JSONQueryOperator
-    const op = operators[opName]
-    if (op) {
-      return op(left, ...right)
+    if (isString(query[0])) {
+      return fun(query as JSONQueryFunction, functions)
     }
 
     // pipe
     return pipe(query as JSONQueryPipe)
   }
 
-  // property
-  if (isString(query)) {
-    return get(query)
+  // object
+  if (isObject(query)) {
+    return object(query as JSONQueryObject)
   }
 
-  // value
+  // value (string, number, boolean, null)
   return () => query
+}
+
+function fun(query: JSONQueryFunction, functions: FunctionsMap) {
+  const [fnName, ...args] = query
+
+  const fn = functions[fnName]
+  if (!fn) {
+    throw new Error(`Unknown function "${fnName}"`)
+  }
+
+  return fn(...args)
+}
+
+function pipe(entries: JSONQuery[]) {
+  const _entries = entries.map((entry) => compile(entry))
+  return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
+}
+
+function object(query: JSONQueryObject) {
+  const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key])])
+
+  return (data: unknown) => {
+    const obj = {}
+    getters.forEach(([key, getter]) => (obj[key] = getter(data)))
+    return obj
+  }
 }
