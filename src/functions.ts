@@ -3,13 +3,9 @@ import { compile } from './compile'
 import { isArray, isString } from './is'
 import { compileArgs } from './compileArgs'
 
-export const get = (...props: JSONPath | [JSONPath]) =>
-  isArray(props[0]) ? _get(props[0]) : _get(props as JSONPath)
-
-const _get = (path: JSONPath) =>
-  path.length === 1
-    ? (data: unknown) => data?.[path[0]]
-    : (data: unknown) => {
+export const get = (path: string | number | JSONPath) =>
+  isArray(path)
+    ? (data: unknown) => {
         let value = data
 
         for (const prop of path) {
@@ -18,6 +14,7 @@ const _get = (path: JSONPath) =>
 
         return value
       }
+    : (data: unknown) => data?.[path]
 
 export const string = (text: string) => () => text
 
@@ -44,7 +41,7 @@ export const sort = <T>(path: JSONPath | JSONProperty = [], direction?: 'asc' | 
   return (data: T[]) => data.slice().sort(compare)
 }
 
-export const pick = (...paths: (JSONPath | JSONProperty)[]) => {
+export const pick = (...paths: JSONPath[]) => {
   const getters: Getter[] = paths.map((path) =>
     isString(path) ? [path, get([path])] : [path[path.length - 1], get(path)]
   )

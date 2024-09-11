@@ -36,16 +36,16 @@ const scoresData = [
 
 describe('jsonquery', () => {
   describe('prop', () => {
-    test('should get a path with brackets', () => {
+    test('should get a path with a single property as string', () => {
       expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
+    })
+
+    test('should get a path with a single property as array', () => {
+      expect(jsonquery({ name: 'Joe' }, ['get', ['name']])).toEqual('Joe')
     })
 
     test('should get a nested path as array', () => {
       expect(jsonquery({ user: { name: 'Joe' } }, ['get', ['user', 'name']])).toEqual('Joe')
-    })
-
-    test('should get a nested path as arguments', () => {
-      expect(jsonquery({ user: { name: 'Joe' } }, ['get', 'user', 'name'])).toEqual('Joe')
     })
 
     test('should return undefined in case of a non existing path', () => {
@@ -461,7 +461,7 @@ describe('jsonquery', () => {
     })
 
     test('should sort nested data', () => {
-      expect(jsonquery(nestedData, ['sort', ['get', 'address', 'city']])).toEqual([
+      expect(jsonquery(nestedData, ['sort', ['get', ['address', 'city']]])).toEqual([
         { name: 'Emily', age: 19, address: { city: 'Atlanta' } },
         { name: 'Kevin', age: 19, address: { city: 'Atlanta' } },
         { name: 'Michelle', age: 27, address: { city: 'Los Angeles' } },
@@ -596,7 +596,7 @@ describe('jsonquery', () => {
   })
 
   test('should get nested data from an array with objects', () => {
-    expect(jsonquery(nestedData, ['map', ['get', 'address', 'city']])).toEqual([
+    expect(jsonquery(nestedData, ['map', ['get', ['address', 'city']]])).toEqual([
       'New York',
       'Atlanta',
       'New York',
@@ -670,8 +670,8 @@ describe('jsonquery', () => {
     expect(jsonquery(data, ['not', 2])).toEqual(false)
     expect(jsonquery({ a: false }, ['not', ['get', 'a']])).toEqual(true)
     expect(jsonquery({ a: true }, ['not', ['get', 'a']])).toEqual(false)
-    expect(jsonquery({ nested: { a: false } }, ['not', ['get', 'nested', 'a']])).toEqual(true)
-    expect(jsonquery({ nested: { a: true } }, ['not', ['get', 'nested', 'a']])).toEqual(false)
+    expect(jsonquery({ nested: { a: false } }, ['not', ['get', ['nested', 'a']]])).toEqual(true)
+    expect(jsonquery({ nested: { a: true } }, ['not', ['get', ['nested', 'a']]])).toEqual(false)
 
     expect(jsonquery(data, ['filter', ['not', ['eq', ['get', 'city'], 'New York']]])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
