@@ -245,247 +245,251 @@ describe('jsonquery', () => {
     expect(jsonquery({ city: 'New York' }, ['eq', ['get', 'city'], 'New York'])).toEqual(true)
   })
 
-  test('should filter data using equal', () => {
-    expect(jsonquery(data, ['filter', ['eq', ['get', 'city'], 'New York']])).toEqual([
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Sarah', age: 31, city: 'New York' }
-    ])
-  })
-
-  test('should filter nested data using equal', () => {
-    expect(
-      jsonquery(nestedData, ['filter', ['eq', ['get', ['address', 'city']], 'New York']])
-    ).toEqual([
-      { name: 'Chris', age: 23, address: { city: 'New York' } },
-      { name: 'Joe', age: 32, address: { city: 'New York' } },
-      { name: 'Sarah', age: 31, address: { city: 'New York' } }
-    ])
-  })
-
-  test('should filter multiple conditions (and)', () => {
-    expect(
-      jsonquery(nestedData, [
-        ['filter', ['gt', ['get', 'age'], 30]],
-        ['filter', ['eq', ['get', ['address', 'city']], 'New York']]
+  describe('filter', () => {
+    test('should filter data using equal', () => {
+      expect(jsonquery(data, ['filter', ['eq', ['get', 'city'], 'New York']])).toEqual([
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Sarah', age: 31, city: 'New York' }
       ])
-    ).toEqual([
-      { name: 'Joe', age: 32, address: { city: 'New York' } },
-      { name: 'Sarah', age: 31, address: { city: 'New York' } }
-    ])
-  })
+    })
 
-  test('should filter with a condition being a function', () => {
-    expect(jsonquery(scoresData, ['filter', ['gte', [['get', 'scores'], ['max']], 7]])).toEqual([
-      { name: 'Chris', scores: [5, 7, 3] },
-      { name: 'Emily', scores: [8, 5, 2, 5] }
-    ])
-  })
-
-  test('should filter data using ne', () => {
-    expect(jsonquery(data, ['filter', ['ne', ['get', 'city'], 'New York']])).toEqual([
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' },
-      { name: 'Robert', age: 45, city: 'Manhattan' }
-    ])
-  })
-
-  test('should filter data using gt', () => {
-    expect(jsonquery(data, ['filter', ['gt', ['get', 'age'], 45]])).toEqual([])
-  })
-
-  test('should filter data using gte', () => {
-    expect(jsonquery(data, ['filter', ['gte', ['get', 'age'], 45]])).toEqual([
-      { name: 'Robert', age: 45, city: 'Manhattan' }
-    ])
-  })
-
-  test('should filter data using lt', () => {
-    expect(jsonquery(data, ['filter', ['lt', ['get', 'age'], 19]])).toEqual([])
-  })
-
-  test('should filter data using lte', () => {
-    expect(jsonquery(data, ['filter', ['lte', ['get', 'age'], 19]])).toEqual([
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' }
-    ])
-  })
-
-  test('should filter data using gte and lte', () => {
-    expect(
-      jsonquery(data, [
-        ['filter', ['gte', ['get', 'age'], 23]],
-        ['filter', ['lte', ['get', 'age'], 27]]
+    test('should filter nested data using equal', () => {
+      expect(
+        jsonquery(nestedData, ['filter', ['eq', ['get', ['address', 'city']], 'New York']])
+      ).toEqual([
+        { name: 'Chris', age: 23, address: { city: 'New York' } },
+        { name: 'Joe', age: 32, address: { city: 'New York' } },
+        { name: 'Sarah', age: 31, address: { city: 'New York' } }
       ])
-    ).toEqual([
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' }
-    ])
+    })
 
-    expect(
-      jsonquery(data, [
-        ['filter', ['and', ['gte', ['get', 'age'], 23], ['lte', ['get', 'age'], 27]]]
+    test('should filter multiple conditions (and)', () => {
+      expect(
+        jsonquery(nestedData, [
+          ['filter', ['gt', ['get', 'age'], 30]],
+          ['filter', ['eq', ['get', ['address', 'city']], 'New York']]
+        ])
+      ).toEqual([
+        { name: 'Joe', age: 32, address: { city: 'New York' } },
+        { name: 'Sarah', age: 31, address: { city: 'New York' } }
       ])
-    ).toEqual([
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' }
-    ])
-  })
+    })
 
-  test('should filter data using "_in"', () => {
-    expect(jsonquery(data, ['filter', ['_in', ['get', 'age'], [19, 23]]])).toEqual([
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' }
-    ])
-  })
-
-  test('should filter data using "not in"', () => {
-    expect(jsonquery(data, ['filter', ['_not_in', ['get', 'age'], [19, 23]]])).toEqual([
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' },
-      { name: 'Robert', age: 45, city: 'Manhattan' },
-      { name: 'Sarah', age: 31, city: 'New York' }
-    ])
-  })
-
-  test('should filter data using "regex"', () => {
-    // search for a name containing 3 to 5 letters
-    expect(jsonquery(data, ['filter', ['regex', ['get', 'name'], '^[A-z]{3,5}$']])).toEqual([
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' },
-      { name: 'Sarah', age: 31, city: 'New York' }
-    ])
-  })
-
-  test('should filter data using "regex" with flags', () => {
-    // search for a name containing a case-insensitive character "m"
-    expect(jsonquery(data, ['filter', ['regex', ['get', 'name'], 'm', 'i']])).toEqual([
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' }
-    ])
-  })
-
-  test('should filter multiple conditions using "and" and "or"', () => {
-    const item1 = { a: 1, b: 1 }
-    const item2 = { a: 2, b: 22 }
-    const item3 = { a: 3, b: 33 }
-    const data = [item1, item2, item3]
-
-    expect(jsonquery(data, ['filter', ['eq', ['get', 'a'], 2]])).toEqual([item2])
-    expect(jsonquery(data, ['filter', ['eq', ['get', 'a'], 3]])).toEqual([item3])
-    expect(jsonquery(data, ['filter', ['eq', 3, ['get', 'a']]])).toEqual([item3])
-    expect(jsonquery(data, ['filter', ['eq', 3, ['get', 'a']]])).toEqual([item3])
-
-    expect(jsonquery(data, ['filter', ['eq', ['get', 'a'], ['get', 'b']]])).toEqual([item1])
-    expect(jsonquery(data, ['filter', ['gte', 2, ['get', 'a']]])).toEqual([item1, item2])
-
-    expect(
-      jsonquery(data, ['filter', ['and', ['eq', ['get', 'a'], 2], ['eq', ['get', 'b'], 22]]])
-    ).toEqual([item2])
-    expect(
-      jsonquery(data, ['filter', ['or', ['eq', ['get', 'a'], 1], ['eq', ['get', 'b'], 22]]])
-    ).toEqual([item1, item2])
-    expect(
-      jsonquery(data, ['filter', ['or', ['eq', ['get', 'a'], 1], ['eq', ['get', 'b'], 4]]])
-    ).toEqual([item1])
-    expect(
-      jsonquery(data, [
-        'filter',
-        [
-          'or',
-          ['and', ['eq', ['get', 'a'], 1], ['eq', ['get', 'b'], 1]],
-          ['and', ['eq', ['get', 'a'], 2], ['eq', ['get', 'b'], 22]]
-        ]
+    test('should filter with a condition being a function', () => {
+      expect(jsonquery(scoresData, ['filter', ['gte', [['get', 'scores'], ['max']], 7]])).toEqual([
+        { name: 'Chris', scores: [5, 7, 3] },
+        { name: 'Emily', scores: [8, 5, 2, 5] }
       ])
-    ).toEqual([item1, item2])
-    // FIXME: support multiple and/or in one go?
+    })
 
-    const dataMsg = [{ message: 'hello' }]
-    expect(jsonquery(dataMsg, ['filter', ['eq', ['get', 'message'], 'hello']])).toEqual(dataMsg)
-    expect(jsonquery(dataMsg, ['filter', ['eq', 'hello', ['get', 'message']]])).toEqual(dataMsg)
+    test('should filter data using ne', () => {
+      expect(jsonquery(data, ['filter', ['ne', ['get', 'city'], 'New York']])).toEqual([
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' },
+        { name: 'Robert', age: 45, city: 'Manhattan' }
+      ])
+    })
+
+    test('should filter data using gt', () => {
+      expect(jsonquery(data, ['filter', ['gt', ['get', 'age'], 45]])).toEqual([])
+    })
+
+    test('should filter data using gte', () => {
+      expect(jsonquery(data, ['filter', ['gte', ['get', 'age'], 45]])).toEqual([
+        { name: 'Robert', age: 45, city: 'Manhattan' }
+      ])
+    })
+
+    test('should filter data using lt', () => {
+      expect(jsonquery(data, ['filter', ['lt', ['get', 'age'], 19]])).toEqual([])
+    })
+
+    test('should filter data using lte', () => {
+      expect(jsonquery(data, ['filter', ['lte', ['get', 'age'], 19]])).toEqual([
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' }
+      ])
+    })
+
+    test('should filter data using gte and lte', () => {
+      expect(
+        jsonquery(data, [
+          ['filter', ['gte', ['get', 'age'], 23]],
+          ['filter', ['lte', ['get', 'age'], 27]]
+        ])
+      ).toEqual([
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' }
+      ])
+
+      expect(
+        jsonquery(data, [
+          ['filter', ['and', ['gte', ['get', 'age'], 23], ['lte', ['get', 'age'], 27]]]
+        ])
+      ).toEqual([
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' }
+      ])
+    })
+
+    test('should filter data using "_in"', () => {
+      expect(jsonquery(data, ['filter', ['_in', ['get', 'age'], [19, 23]]])).toEqual([
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' }
+      ])
+    })
+
+    test('should filter data using "not in"', () => {
+      expect(jsonquery(data, ['filter', ['_not_in', ['get', 'age'], [19, 23]]])).toEqual([
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' },
+        { name: 'Robert', age: 45, city: 'Manhattan' },
+        { name: 'Sarah', age: 31, city: 'New York' }
+      ])
+    })
+
+    test('should filter data using "regex"', () => {
+      // search for a name containing 3 to 5 letters
+      expect(jsonquery(data, ['filter', ['regex', ['get', 'name'], '^[A-z]{3,5}$']])).toEqual([
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' },
+        { name: 'Sarah', age: 31, city: 'New York' }
+      ])
+    })
+
+    test('should filter data using "regex" with flags', () => {
+      // search for a name containing a case-insensitive character "m"
+      expect(jsonquery(data, ['filter', ['regex', ['get', 'name'], 'm', 'i']])).toEqual([
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' }
+      ])
+    })
+
+    test('should filter multiple conditions using "and" and "or"', () => {
+      const item1 = { a: 1, b: 1 }
+      const item2 = { a: 2, b: 22 }
+      const item3 = { a: 3, b: 33 }
+      const data = [item1, item2, item3]
+
+      expect(jsonquery(data, ['filter', ['eq', ['get', 'a'], 2]])).toEqual([item2])
+      expect(jsonquery(data, ['filter', ['eq', ['get', 'a'], 3]])).toEqual([item3])
+      expect(jsonquery(data, ['filter', ['eq', 3, ['get', 'a']]])).toEqual([item3])
+      expect(jsonquery(data, ['filter', ['eq', 3, ['get', 'a']]])).toEqual([item3])
+
+      expect(jsonquery(data, ['filter', ['eq', ['get', 'a'], ['get', 'b']]])).toEqual([item1])
+      expect(jsonquery(data, ['filter', ['gte', 2, ['get', 'a']]])).toEqual([item1, item2])
+
+      expect(
+        jsonquery(data, ['filter', ['and', ['eq', ['get', 'a'], 2], ['eq', ['get', 'b'], 22]]])
+      ).toEqual([item2])
+      expect(
+        jsonquery(data, ['filter', ['or', ['eq', ['get', 'a'], 1], ['eq', ['get', 'b'], 22]]])
+      ).toEqual([item1, item2])
+      expect(
+        jsonquery(data, ['filter', ['or', ['eq', ['get', 'a'], 1], ['eq', ['get', 'b'], 4]]])
+      ).toEqual([item1])
+      expect(
+        jsonquery(data, [
+          'filter',
+          [
+            'or',
+            ['and', ['eq', ['get', 'a'], 1], ['eq', ['get', 'b'], 1]],
+            ['and', ['eq', ['get', 'a'], 2], ['eq', ['get', 'b'], 22]]
+          ]
+        ])
+      ).toEqual([item1, item2])
+      // FIXME: support multiple and/or in one go?
+
+      const dataMsg = [{ message: 'hello' }]
+      expect(jsonquery(dataMsg, ['filter', ['eq', ['get', 'message'], 'hello']])).toEqual(dataMsg)
+      expect(jsonquery(dataMsg, ['filter', ['eq', 'hello', ['get', 'message']]])).toEqual(dataMsg)
+    })
   })
 
-  test('should sort data (default direction)', () => {
-    expect(jsonquery(data, ['sort', ['get', 'age']])).toEqual([
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' },
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' },
-      { name: 'Sarah', age: 31, city: 'New York' },
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Robert', age: 45, city: 'Manhattan' }
-    ])
-  })
+  describe('sort', () => {
+    test('should sort data (default direction)', () => {
+      expect(jsonquery(data, ['sort', ['get', 'age']])).toEqual([
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' },
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' },
+        { name: 'Sarah', age: 31, city: 'New York' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Robert', age: 45, city: 'Manhattan' }
+      ])
+    })
 
-  test('should sort data (asc)', () => {
-    expect(jsonquery(data, ['sort', ['get', 'age'], 'asc'])).toEqual([
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' },
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' },
-      { name: 'Sarah', age: 31, city: 'New York' },
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Robert', age: 45, city: 'Manhattan' }
-    ])
-  })
+    test('should sort data (asc)', () => {
+      expect(jsonquery(data, ['sort', ['get', 'age'], 'asc'])).toEqual([
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' },
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' },
+        { name: 'Sarah', age: 31, city: 'New York' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Robert', age: 45, city: 'Manhattan' }
+      ])
+    })
 
-  test('should sort data (desc)', () => {
-    expect(jsonquery(data, ['sort', ['get', 'age'], 'desc'])).toEqual([
-      { name: 'Robert', age: 45, city: 'Manhattan' },
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Sarah', age: 31, city: 'New York' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' },
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' }
-    ])
-  })
+    test('should sort data (desc)', () => {
+      expect(jsonquery(data, ['sort', ['get', 'age'], 'desc'])).toEqual([
+        { name: 'Robert', age: 45, city: 'Manhattan' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Sarah', age: 31, city: 'New York' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' },
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' }
+      ])
+    })
 
-  test('should sort data (strings)', () => {
-    expect(jsonquery(data, ['sort', 'name'])).toEqual([
-      { name: 'Chris', age: 23, city: 'New York' },
-      { name: 'Emily', age: 19, city: 'Atlanta' },
-      { name: 'Joe', age: 32, city: 'New York' },
-      { name: 'Kevin', age: 19, city: 'Atlanta' },
-      { name: 'Michelle', age: 27, city: 'Los Angeles' },
-      { name: 'Robert', age: 45, city: 'Manhattan' },
-      { name: 'Sarah', age: 31, city: 'New York' }
-    ])
-  })
+    test('should sort data (strings)', () => {
+      expect(jsonquery(data, ['sort', 'name'])).toEqual([
+        { name: 'Chris', age: 23, city: 'New York' },
+        { name: 'Emily', age: 19, city: 'Atlanta' },
+        { name: 'Joe', age: 32, city: 'New York' },
+        { name: 'Kevin', age: 19, city: 'Atlanta' },
+        { name: 'Michelle', age: 27, city: 'Los Angeles' },
+        { name: 'Robert', age: 45, city: 'Manhattan' },
+        { name: 'Sarah', age: 31, city: 'New York' }
+      ])
+    })
 
-  test('should sort nested data', () => {
-    expect(jsonquery(nestedData, ['sort', ['get', 'address', 'city']])).toEqual([
-      { name: 'Emily', age: 19, address: { city: 'Atlanta' } },
-      { name: 'Kevin', age: 19, address: { city: 'Atlanta' } },
-      { name: 'Michelle', age: 27, address: { city: 'Los Angeles' } },
-      { name: 'Robert', age: 45, address: { city: 'Manhattan' } },
-      { name: 'Chris', age: 23, address: { city: 'New York' } },
-      { name: 'Joe', age: 32, address: { city: 'New York' } },
-      { name: 'Sarah', age: 31, address: { city: 'New York' } }
-    ])
-  })
+    test('should sort nested data', () => {
+      expect(jsonquery(nestedData, ['sort', ['get', 'address', 'city']])).toEqual([
+        { name: 'Emily', age: 19, address: { city: 'Atlanta' } },
+        { name: 'Kevin', age: 19, address: { city: 'Atlanta' } },
+        { name: 'Michelle', age: 27, address: { city: 'Los Angeles' } },
+        { name: 'Robert', age: 45, address: { city: 'Manhattan' } },
+        { name: 'Chris', age: 23, address: { city: 'New York' } },
+        { name: 'Joe', age: 32, address: { city: 'New York' } },
+        { name: 'Sarah', age: 31, address: { city: 'New York' } }
+      ])
+    })
 
-  test('should sort a list with numbers rather than objects', () => {
-    expect(jsonquery([3, 7, 2, 6], ['sort'])).toEqual([2, 3, 6, 7])
-    expect(jsonquery([3, 7, 2, 6], ['sort', [], 'desc'])).toEqual([7, 6, 3, 2])
-  })
+    test('should sort a list with numbers rather than objects', () => {
+      expect(jsonquery([3, 7, 2, 6], ['sort'])).toEqual([2, 3, 6, 7])
+      expect(jsonquery([3, 7, 2, 6], ['sort', [], 'desc'])).toEqual([7, 6, 3, 2])
+    })
 
-  test('should not crash when sorting a list with nested arrays', () => {
-    expect(jsonquery([[3], [7], [4]], ['sort'])).toEqual([[3], [4], [7]])
-    expect(jsonquery([[], [], []], ['sort'])).toEqual([[], [], []])
-  })
+    test('should not crash when sorting a list with nested arrays', () => {
+      expect(jsonquery([[3], [7], [4]], ['sort'])).toEqual([[3], [4], [7]])
+      expect(jsonquery([[], [], []], ['sort'])).toEqual([[], [], []])
+    })
 
-  test('should not crash when sorting a list with nested objects', () => {
-    expect(jsonquery([{ a: 1 }, { c: 3 }, { b: 2 }], ['sort'])).toEqual([
-      { a: 1 },
-      { c: 3 },
-      { b: 2 }
-    ])
-    expect(jsonquery([{}, {}, {}], ['sort'])).toEqual([{}, {}, {}])
+    test('should not crash when sorting a list with nested objects', () => {
+      expect(jsonquery([{ a: 1 }, { c: 3 }, { b: 2 }], ['sort'])).toEqual([
+        { a: 1 },
+        { c: 3 },
+        { b: 2 }
+      ])
+      expect(jsonquery([{}, {}, {}], ['sort'])).toEqual([{}, {}, {}])
+    })
   })
 
   describe('pick', () => {
