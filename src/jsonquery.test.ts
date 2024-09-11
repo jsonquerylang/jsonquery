@@ -215,7 +215,7 @@ describe('jsonquery', () => {
     })
 
     test('should map over an array using pick', () => {
-      expect(jsonquery(data, ['map', ['pick', 'name']])).toEqual([
+      expect(jsonquery(data, ['map', ['pick', ['get', 'name']]])).toEqual([
         { name: 'Chris' },
         { name: 'Emily' },
         { name: 'Joe' },
@@ -494,7 +494,7 @@ describe('jsonquery', () => {
 
   describe('pick', () => {
     test('should pick data from an array (single field)', () => {
-      expect(jsonquery(data, ['pick', 'name'])).toEqual([
+      expect(jsonquery(data, ['pick', ['get', 'name']])).toEqual([
         { name: 'Chris' },
         { name: 'Emily' },
         { name: 'Joe' },
@@ -506,12 +506,15 @@ describe('jsonquery', () => {
     })
 
     test('should pick data from an object', () => {
-      expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b'])).toEqual({ b: 2 })
-      expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', 'b', 'a'])).toEqual({ b: 2, a: 1 })
+      expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', ['get', 'b']])).toEqual({ b: 2 })
+      expect(jsonquery({ a: 1, b: 2, c: 3 }, ['pick', ['get', 'b'], ['get', 'a']])).toEqual({
+        b: 2,
+        a: 1
+      })
     })
 
     test('should pick data from an array (multiple fields)', () => {
-      expect(jsonquery(data, ['pick', 'name', 'city'])).toEqual([
+      expect(jsonquery(data, ['pick', ['get', 'name'], ['get', 'city']])).toEqual([
         { name: 'Chris', city: 'New York' },
         { name: 'Emily', city: 'Atlanta' },
         { name: 'Joe', city: 'New York' },
@@ -523,7 +526,7 @@ describe('jsonquery', () => {
     })
 
     test('should pick data from an array (a single nested field)', () => {
-      expect(jsonquery(nestedData, ['pick', ['address', 'city']])).toEqual([
+      expect(jsonquery(nestedData, ['pick', ['get', ['address', 'city']]])).toEqual([
         { city: 'New York' },
         { city: 'Atlanta' },
         { city: 'New York' },
@@ -535,7 +538,9 @@ describe('jsonquery', () => {
     })
 
     test('should pick data from an array (multiple fields with nested fields)', () => {
-      expect(jsonquery(nestedData, ['pick', 'name', ['address', 'city']])).toEqual([
+      expect(
+        jsonquery(nestedData, ['pick', ['get', 'name'], ['get', ['address', 'city']]])
+      ).toEqual([
         { name: 'Chris', city: 'New York' },
         { name: 'Emily', city: 'Atlanta' },
         { name: 'Joe', city: 'New York' },

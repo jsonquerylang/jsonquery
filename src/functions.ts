@@ -1,4 +1,4 @@
-import { Getter, JSONPath, JSONProperty, JSONQuery } from './types'
+import { Getter, JSONPath, JSONQueryProperty, JSONQuery } from './types'
 import { compile } from './compile'
 import { isArray, isString } from './is'
 import { compileArgs } from './compileArgs'
@@ -28,7 +28,7 @@ export const filter = <T>(...predicate: JSONQuery[]) => {
   return (data: T[]) => data.filter(_predicate)
 }
 
-export const sort = <T>(path: JSONPath | JSONProperty = [], direction?: 'asc' | 'desc') => {
+export const sort = <T>(path: JSONPath | JSONQueryProperty = [], direction?: 'asc' | 'desc') => {
   const getter = compile(path)
   const sign = direction === 'desc' ? -1 : 1
 
@@ -41,10 +41,11 @@ export const sort = <T>(path: JSONPath | JSONProperty = [], direction?: 'asc' | 
   return (data: T[]) => data.slice().sort(compare)
 }
 
-export const pick = (...paths: JSONPath[]) => {
-  const getters: Getter[] = paths.map((path) =>
-    isString(path) ? [path, get([path])] : [path[path.length - 1], get(path)]
-  )
+export const pick = (...properties: JSONQueryProperty[]) => {
+  const getters: Getter[] = properties.map(([_get, path]) => [
+    isString(path) ? path : path[path.length - 1],
+    get(path)
+  ])
 
   return (data: Record<string, unknown>): unknown => {
     if (isArray(data)) {
@@ -65,7 +66,7 @@ const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
   return out
 }
 
-export const groupBy = <T>(path: JSONPath | JSONProperty) => {
+export const groupBy = <T>(path: JSONPath | JSONQueryProperty) => {
   const getter = compile(path)
 
   return (data: T[]) => {
@@ -84,7 +85,7 @@ export const groupBy = <T>(path: JSONPath | JSONProperty) => {
   }
 }
 
-export const keyBy = <T>(path: JSONPath | JSONProperty) => {
+export const keyBy = <T>(path: JSONPath | JSONQueryProperty) => {
   const getter = compile(path)
 
   return (data: T[]) => {
@@ -106,7 +107,7 @@ export const uniq =
   <T>(data: T[]) => [...new Set(data)]
 
 export const uniqBy =
-  <T>(path: JSONPath | JSONProperty) =>
+  <T>(path: JSONPath | JSONQueryProperty) =>
   (data: T[]): T[] =>
     Object.values(groupBy(path)(data)).map((groups) => groups[0])
 

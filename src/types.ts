@@ -4,8 +4,9 @@ export type JSONQueryObject = { [key: string]: JSONQuery }
 export type JSONQueryPrimitive = string | number | boolean | null
 export type JSONQuery = JSONQueryFunction | JSONQueryPipe | JSONQueryObject | JSONQueryPrimitive
 
-export type JSONPath = string[]
-export type JSONProperty = ['get', path: JSONPath]
+export type JSONProperty = string
+export type JSONPath = JSONProperty[]
+export type JSONQueryProperty = ['get', path: string | JSONPath]
 
 export interface JSONQueryOptions {
   functions?: FunctionsMap
