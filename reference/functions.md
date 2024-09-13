@@ -476,38 +476,6 @@ jsonquery([2, 4], ["average"]) // 3
 jsonquery([2, 3, 2, 7, 1], ["average"]) // 3
 ```
 
-### abs
-
-Calculate the absolute value.
-
-```js
-["abs", value]
-```
-
-Examples:
-
-```js
-jsonquery({"a": -7}, ["abs", ["get", "a"]]) // 7
-```
-
-### round
-
-Round a value. When `digits` is provided, the value will be rounded to the selected number of digits.
-
-```js
-["round", value]
-["round", value, digits]
-```
-
-Examples:
-
-```js
-jsonquery({"a": 23.7612 }, ["round", ["get", "a"]]) // 24
-jsonquery({"a": 23.1345 }, ["round", ["get", "a"]]) // 23
-jsonquery({"a": 23.1345 }, ["round", ["get", "a"], 2]) // 23.13
-jsonquery({"a": 23.1345 }, ["round", ["get", "a"], 3]) // 23.135
-```
-
 ## Functions
 
 ### equal (`eq`)
@@ -941,4 +909,36 @@ Examples:
 const data = { "a": 8, "b": 3 }
 
 jsonquery(data, ["mod", ["get", "a"], ["get", "b"]]) // 2
+```
+
+### abs
+
+Calculate the absolute value.
+
+```js
+["abs", value]
+```
+
+Examples:
+
+```js
+jsonquery({"a": -7}, ["abs", ["get", "a"]]) // 7
+```
+
+### round
+
+Round a value. When `digits` is provided, the value will be rounded to the selected number of digits.
+
+```js
+["round", value]
+["round", value, digits]
+```
+
+Examples:
+
+```js
+jsonquery({"a": 23.7612 }, ["round", ["get", "a"]]) // 24
+jsonquery({"a": 23.1345 }, ["round", ["get", "a"]]) // 23
+jsonquery({"a": 23.1345 }, ["round", ["get", "a"], 2]) // 23.13
+jsonquery({"a": 23.1345 }, ["round", ["get", "a"], 3]) // 23.135
 ```
