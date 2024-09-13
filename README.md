@@ -11,7 +11,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 ## Features
 
 - Small (just `1.4 kB` when minified and gzipped!)
-- Feature rich (40+ powerful functions and operators)
+- Feature rich (40+ powerful functions)
 - Serializable (it is JSON)
 - Easy to parse
 - Expressive
