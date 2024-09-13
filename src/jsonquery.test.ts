@@ -40,6 +40,10 @@ describe('jsonquery', () => {
       expect(jsonquery({ name: 'Joe' }, ['get', 'name'])).toEqual('Joe')
     })
 
+    test('should get the full object itself', () => {
+      expect(jsonquery({ name: 'Joe' }, ['get'])).toEqual({ name: 'Joe' })
+    })
+
     test('should get a path with a single property as array', () => {
       expect(jsonquery({ name: 'Joe' }, ['get', ['name']])).toEqual('Joe')
     })
@@ -631,15 +635,16 @@ describe('jsonquery', () => {
   })
 
   test('should round a value', () => {
-    expect(jsonquery(23.1345, ['round'])).toEqual(23)
-    expect(jsonquery(23.1345, ['round', 2])).toEqual(23.13)
-    expect(jsonquery(23.1345, ['round', 3])).toEqual(23.135)
-    expect(jsonquery(23.761, ['round'])).toEqual(24)
+    expect(jsonquery(null, ['round', 23.1345])).toEqual(23)
+    expect(jsonquery(null, ['round', 23.761])).toEqual(24)
+    expect(jsonquery(null, ['round', 23.1345, 2])).toEqual(23.13)
+    expect(jsonquery(null, ['round', 23.1345, 3])).toEqual(23.135)
+    expect(jsonquery({ a: 23.1345 }, ['round', ['get', 'a']])).toEqual(23)
   })
 
   test('should round an array with values', () => {
-    expect(jsonquery([2.24, 3.77, 4.49], ['map', ['round']])).toEqual([2, 4, 4])
-    expect(jsonquery([2.24, 3.77, 4.49], ['map', ['round', 1]])).toEqual([2.2, 3.8, 4.5])
+    expect(jsonquery([2.24, 3.77, 4.49], ['map', ['round', ['get']]])).toEqual([2, 4, 4])
+    expect(jsonquery([2.24, 3.77, 4.49], ['map', ['round', ['get'], 1]])).toEqual([2.2, 3.8, 4.5])
   })
 
   test('should calculate the product', () => {

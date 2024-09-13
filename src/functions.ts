@@ -3,7 +3,7 @@ import { compile } from './compile'
 import { isArray, isString } from './is'
 import { buildFunction } from './buildFunction'
 
-export const get = (path: string | number | JSONPath) =>
+export const get = (path: string | number | JSONPath = []) =>
   isArray(path)
     ? (data: unknown) => {
         let value = data
@@ -133,14 +133,8 @@ export const regex = (path: JSONQuery, expression: string, options?: string) => 
   const getter = compile(path)
   return (data: unknown) => regex.test(getter(data) as string)
 }
-export const not = (query: JSONQuery) => {
-  const getter = compile(query)
-  return (data: unknown) => !getter(data)
-}
-export const exists = (path: JSONQuery) => {
-  const getter = compile(path)
-  return (data: unknown) => getter(data) !== undefined
-}
+export const not = buildFunction((value: unknown) => !value)
+export const exists = buildFunction((value: unknown) => value !== undefined)
 
 export const add = buildFunction((a: number, b: number) => a + b)
 export const subtract = buildFunction((a: number, b: number) => a - b)
@@ -170,12 +164,10 @@ export const max = () => (data: number[]) => Math.max(...data)
 
 export const abs = () => Math.abs
 
-export const round =
-  (digits = 0) =>
-  (data: number) => {
-    const num = Math.round(Number(data + 'e' + digits))
-    return Number(num + 'e' + -digits)
-  }
+export const round = buildFunction((value: number, digits = 0) => {
+  const num = Math.round(Number(value + 'e' + digits))
+  return Number(num + 'e' + -digits)
+})
 
 export const size =
   () =>
