@@ -1,171 +1,179 @@
-import { Getter, JSONPath, JSONProperty, JSONQuery, JSONQueryObject } from './types'
+import { FunctionBuildersMap, Getter, JSONPath, JSONQuery, JSONQueryProperty } from './types'
 import { compile } from './compile'
-import { isArray, isString } from './is'
+import { isArray } from './is'
+import { buildFunction } from './buildFunction'
 
-export const get = (path: JSONPath | JSONProperty) =>
-  isArray(path)
-    ? (data: unknown) => {
-        let value = data
+export const functions: FunctionBuildersMap = {
+  get: (...path: JSONPath) => {
+    if (path.length === 0) {
+      return (data: unknown) => data
+    }
 
-        for (const prop of path) {
-          value = value?.[prop]
+    if (path.length === 1) {
+      const prop = path[0]
+      return (data: unknown) => data?.[prop]
+    }
+
+    return (data: unknown) => {
+      let value = data
+
+      for (const prop of path) {
+        value = value?.[prop]
+      }
+
+      return value
+    }
+  },
+
+  map: <T>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+    return (data: T[]) => data.map(_callback)
+  },
+
+  filter: <T>(...predicate: JSONQuery[]) => {
+    const _predicate = compile(predicate.length === 1 ? predicate[0] : predicate)
+    return (data: T[]) => data.filter(_predicate)
+  },
+
+  sort: <T>(path: JSONQueryProperty = ['get'], direction?: 'asc' | 'desc') => {
+    const getter = compile(path)
+    const sign = direction === 'desc' ? -1 : 1
+
+    function compare(itemA: unknown, itemB: unknown) {
+      const a = getter(itemA)
+      const b = getter(itemB)
+      return a > b ? sign : a < b ? -sign : 0
+    }
+
+    return (data: T[]) => data.slice().sort(compare)
+  },
+
+  pick: (...properties: JSONQueryProperty[]) => {
+    const getters = properties.map(
+      ([_get, ...path]) => [path[path.length - 1], functions.get(...path)] as Getter
+    )
+
+    const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
+      const out = {}
+      getters.forEach(([key, getter]) => (out[key] = getter(object)))
+      return out
+    }
+
+    return (data: Record<string, unknown>): unknown => {
+      if (isArray(data)) {
+        return data.map((item: Record<string, unknown>) => _pick(item, getters))
+      }
+
+      return _pick(data, getters)
+    }
+  },
+
+  groupBy: <T>(path: JSONQueryProperty) => {
+    const getter = compile(path)
+
+    return (data: T[]) => {
+      const res = {}
+
+      for (const item of data) {
+        const value = getter(item) as string
+        if (res[value]) {
+          res[value].push(item)
+        } else {
+          res[value] = [item]
         }
-
-        return value
       }
-    : (data: unknown) => data?.[path]
 
-export const string = (text: string) => () => text
-
-export const pipe = (entries: JSONQuery[]) => {
-  const _entries = entries.map((entry) => compile(entry))
-  return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
-}
-
-export const object = (query: JSONQueryObject) => {
-  const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key])])
-
-  return (data: unknown) => {
-    const obj = {}
-    getters.forEach(([key, getter]) => (obj[key] = getter(data)))
-    return obj
-  }
-}
-
-export const map = <T>(callback: JSONQuery) => {
-  const _callback = compile(callback)
-  return (data: T[]) => data.map(_callback)
-}
-
-export const filter = <T>(...predicate: JSONQuery[]) => {
-  const _predicate = compile(predicate.length === 1 ? predicate[0] : predicate)
-  return (data: T[]) => data.filter(_predicate)
-}
-
-export const sort = <T>(path: JSONPath | JSONProperty = [], direction?: 'asc' | 'desc') => {
-  const getter = get(path)
-  const sign = direction === 'desc' ? -1 : 1
-
-  function compare(itemA: unknown, itemB: unknown) {
-    const a = getter(itemA)
-    const b = getter(itemB)
-    return a > b ? sign : a < b ? -sign : 0
-  }
-
-  return (data: T[]) => data.slice().sort(compare)
-}
-
-export const pick = (...paths: (JSONPath | JSONProperty)[]) => {
-  const getters: Getter[] = paths.map((path) => [
-    isString(path) ? path : path[path.length - 1],
-    get(path)
-  ])
-
-  return (data: Record<string, unknown>): unknown => {
-    if (isArray(data)) {
-      return data.map((item: Record<string, unknown>) => _pick(item, getters))
+      return res
     }
+  },
 
-    return _pick(data, getters)
-  }
-}
+  keyBy: <T>(path: JSONQueryProperty) => {
+    const getter = compile(path)
 
-const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
-  const out = {}
+    return (data: T[]) => {
+      const res = {}
 
-  getters.forEach(([key, getter]) => {
-    out[key] = getter(object)
-  })
+      data.forEach((item) => {
+        const value = getter(item) as string
+        res[value] = res[value] ?? item
+      })
 
-  return out
-}
-
-export const groupBy = <T>(path: JSONPath | JSONProperty) => {
-  const getter = get(path)
-
-  return (data: T[]) => {
-    const res = {}
-
-    for (const item of data) {
-      const value = getter(item) as string
-      if (res[value]) {
-        res[value].push(item)
-      } else {
-        res[value] = [item]
-      }
+      return res
     }
+  },
 
-    return res
-  }
-}
+  flatten: () => (data: unknown[]) => data.flat(),
 
-export const keyBy = <T>(path: JSONPath | JSONProperty) => {
-  const getter = get(path)
+  uniq:
+    () =>
+    <T>(data: T[]) => [...new Set(data)],
 
-  return (data: T[]) => {
-    const res = {}
+  uniqBy:
+    <T>(path: JSONQueryProperty) =>
+    (data: T[]): T[] =>
+      Object.values(functions.groupBy(path)(data)).map((groups) => groups[0]),
 
-    data.forEach((item) => {
-      const value = getter(item) as string
-      res[value] = res[value] ?? item
-    })
+  limit:
+    (count: number) =>
+    <T>(data: T[]) =>
+      data.slice(0, count),
 
-    return res
-  }
-}
+  size:
+    () =>
+    <T>(data: T[]) =>
+      data.length,
 
-export const flatten = () => (data: unknown[]) => data.flat()
+  keys: () => Object.keys,
 
-export const uniq =
-  () =>
-  <T>(data: T[]) => [...new Set(data)]
+  values: () => Object.values,
 
-export const uniqBy =
-  <T>(path: JSONPath | JSONProperty) =>
-  (data: T[]): T[] =>
-    Object.values(groupBy(path)(data)).map((groups) => groups[0])
+  prod: () => (data: number[]) => data.reduce((a, b) => a * b),
 
-// operator not (looks like a function because it has no left operand)
-export const not = (query: JSONQuery) => {
-  const getter = compile(query)
-  return (data: unknown) => !getter(data)
-}
+  sum: () => (data: number[]) => data.reduce((a, b) => a + b),
 
-// operator exists (looks like a function because it has no left operand)
-export const exists = (path: JSONPath) => {
-  const getter = get(path)
-  return (data: unknown) => getter(data) !== undefined
-}
+  average: () => (data: number[]) => (functions.sum()(data) as number) / data.length,
 
-export const limit =
-  (count: number) =>
-  <T>(data: T[]) =>
-    data.slice(0, count)
+  min: () => (data: number[]) => Math.min(...data),
 
-export const keys = () => Object.keys
+  max: () => (data: number[]) => Math.max(...data),
 
-export const values = () => Object.values
+  in: (path: string, values: string[]) => {
+    const getter = compile(path)
+    return (data: unknown) => values.includes(getter(data) as string)
+  },
 
-export const prod = () => (data: number[]) => data.reduce((a, b) => a * b)
+  'not in': (path: string, values: string[]) => {
+    const getter = compile(path)
+    return (data: unknown) => !values.includes(getter(data) as string)
+  },
 
-export const sum = () => (data: number[]) => data.reduce((a, b) => a + b)
+  regex: (path: JSONQuery, expression: string, options?: string) => {
+    const regex = new RegExp(expression, options)
+    const getter = compile(path)
+    return (data: unknown) => regex.test(getter(data) as string)
+  },
 
-export const average = () => (data: number[]) => sum()(data) / data.length
+  and: buildFunction((a, b) => a && b),
+  or: buildFunction((a, b) => a || b),
+  not: buildFunction((a: unknown) => !a),
+  exists: buildFunction((a: unknown) => a !== undefined),
 
-export const min = () => (data: number[]) => Math.min(...data)
+  eq: buildFunction((a, b) => a === b),
+  gt: buildFunction((a, b) => a > b),
+  gte: buildFunction((a, b) => a >= b),
+  lt: buildFunction((a, b) => a < b),
+  lte: buildFunction((a, b) => a <= b),
+  ne: buildFunction((a, b) => a !== b),
 
-export const max = () => (data: number[]) => Math.max(...data)
-
-export const abs = () => Math.abs
-
-export const round =
-  (digits = 0) =>
-  (data: number) => {
-    const num = Math.round(Number(data + 'e' + digits))
+  add: buildFunction((a: number, b: number) => a + b),
+  subtract: buildFunction((a: number, b: number) => a - b),
+  multiply: buildFunction((a: number, b: number) => a * b),
+  divide: buildFunction((a: number, b: number) => a / b),
+  pow: buildFunction((a: number, b: number) => a ** b),
+  mod: buildFunction((a: number, b: number) => a % b),
+  abs: buildFunction(Math.abs),
+  round: buildFunction((value: number, digits = 0) => {
+    const num = Math.round(Number(value + 'e' + digits))
     return Number(num + 'e' + -digits)
-  }
-
-export const size =
-  () =>
-  <T>(data: T[]) =>
-    data.length
+  })
+}

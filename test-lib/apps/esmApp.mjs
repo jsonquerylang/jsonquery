@@ -11,8 +11,8 @@ const data = [
 ]
 
 const result = jsonquery(data, [
-  ['filter', ['city', '==', 'New York']],
-  ['map', ['name']]
+  ['filter', ['eq', ['get', 'city'], 'New York']],
+  ['map', ['get', 'name']]
 ])
 
 console.log(JSON.stringify(result))

@@ -10,11 +10,11 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small (just `1.6 kB` when minified and gzipped!)
-- Expressive
-- Easy to understand and remember
-- Serializable (it is JSON)
+- Small (just `1.4 kB` when minified and gzipped!)
 - Feature rich (40+ powerful functions and operators)
+- Serializable (it is JSON)
+- Easy to parse
+- Expressive
 - Expandable
 
 ## Documentation
@@ -25,15 +25,14 @@ On this page:
 - [Usage](#usage)
 - [Syntax](#syntax)
 - [JavaScript API](#javascript-api)
-- [Limitations](#limitations)
+- [Gotchas](#gotchas)
 - [Development](#development)
 - [Motivation](#motivation)
 - [License](#license)
 
-External links:
+External pages:
 
 - [Function reference](reference/functions.md)
-- [Operator reference](reference/operators.md)
 
 ## Installation
 
@@ -61,10 +60,10 @@ const data = {
 // get the array containing the friends from the object, filter the friends that live in New York,
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, [
-  ["friends"],
-  ["filter", "city", "==", "New York"],
-  ["sort", "age"],
-  ["pick", "name", "age"]
+  ["get", "friends"],
+  ["filter", ["eq", ["get", "city"], "New York"]],
+  ["sort", ["get", "age"]],
+  ["pick", ["get", "name"], ["get", "age"]]
 ])
 // names = [
 //   { "name": "Chris", "age": 23 },
@@ -77,12 +76,12 @@ const names = jsonquery(data, [
 // a list with names, the total number of array items, and the average value of the
 // properties `age` in all items.
 const result = jsonquery(data, [
-  ["friends"],
+  ["get", "friends"],
   {
-    "names": ["map", "name"],
+    "names": ["map", ["get", "name"]],
     "count": ["size"],
     "averageAge": [
-      ["map", "age"],
+      ["map", ["get", "age"]],
       ["average"]
     ]
   }
@@ -93,13 +92,13 @@ const result = jsonquery(data, [
 //   "averageAge": 28
 // }
 
-// use operators + - * / to do calculations
+// use mathematical functions like add, subtract, multiply and divide to do calculations
 const shoppingCart = [
   { "name": "bread", "price": 2.5, "quantity": 2 },
   { "name": "milk", "price": 1.2, "quantity": 3 }
 ]
 const totalPrice = jsonquery(shoppingCart, [
-  ["map", ["price", "*", "quantity"]],
+  ["map", ["multiply", ["get", "price"], ["get", "quantity"]]],
   ["sum"]
 ])
 // totalPrice = 8.6
@@ -121,7 +120,7 @@ const result = jsonquery(data, ["times", 3], customFunctions)
 
 ## Syntax
 
-The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _operators_, _properties_, _paths_, _pipes_, and _objects_. When writing a JSON Query, you compose a ["pipe"](https://medium.com/@efeminella/the-pipe-operator-a-glimpse-into-the-future-of-functional-javascript-7ebb578887a4) or a ["chain"](https://en.wikipedia.org/wiki/Method_chaining) of operations to be applied to the data. It resembles chaining like in [Lodash](https://lodash.com/docs/4.17.15#chain) or just [in JavaScript](https://medium.com/backticks-tildes/understanding-method-chaining-in-javascript-647a9004bd4f) itself using methods like `map` and `filter`.
+The `jsonquery` query language is written in JSON and has the following building blocks: _functions_, _pipes_, and _objects_. When writing a JSON Query, you compose a ["pipe"](https://medium.com/@efeminella/the-pipe-operator-a-glimpse-into-the-future-of-functional-javascript-7ebb578887a4) or a ["chain"](https://en.wikipedia.org/wiki/Method_chaining) of operations to be applied to the data. It resembles chaining like in [Lodash](https://lodash.com/docs/4.17.15#chain) or just [in JavaScript](https://medium.com/backticks-tildes/understanding-method-chaining-in-javascript-647a9004bd4f) itself using methods like `map` and `filter`.
 
 The examples in the following section are based on querying the following data:
 
@@ -138,129 +137,50 @@ The examples in the following section are based on querying the following data:
 ```
 Syntax overview:
 
-| Category                          | Syntax                                    | Example                                        |
-|-----------------------------------|-------------------------------------------|------------------------------------------------|
-| [Function](#functions)            | `[name, argument1, argument2, ...]`       | `["sort", ["address", "city"], "asc"]`         |
-| [Operator](#operators)            | `[left, operator, right]`                 | `[["address", "city"], "==", "New York"]`      |
-| [Property](#properties-and-paths) | `"property"`                              | `"age"`                                        |
-| [Path](#properties-and-paths)     | `[property1, property2, ...]`             | `["address", "city"]`                          |
-| [Pipe](#pipes)                    | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
-| [Object](#objects)                | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
+| Category               | Syntax                                    | Example                                        |
+|------------------------|-------------------------------------------|------------------------------------------------|
+| [Function](#functions) | `[name, argument1, argument2, ...]`       | `["sort", ["get", "age"], "asc"]`              |
+| [Pipe](#pipes)         | `[query1, query1, ...]`                   | `[["sort", "age"], ["pick", "name", "age"]]`   |
+| [Object](#objects)     | `{"prop1": query1, "prop2": query2, ...}` | `{"names": ["map", "name"], "total": ["sum"]}` |
 
 The following sections explain the syntax in more detail.
 
 ### Functions
 
-At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, 'age', 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
+At the core of the query language, we have a _function_ call which described by an array with the function name as first item followed by optional function arguments. The following example will look up the `sort` function and then call it like `sort(data, (item) => item.age, 'asc')`. Here, `data` is the input and should be an array with objects which will be sorted in ascending by the property `age`:
 
 ```json
-["sort", "age", "asc"]
+["sort", ["get", "age"], "asc"]
 ```
 
-Nested properties can be specified using a _path_: an array with properties. The following example will sort an array in descending order by a nested property `city` inside an object `address`:
+An important function is the function `get`. It allows to get a property from an object:
 
 ```json
-["sort", ["address", "city"], "desc"]
+["get", "age"]
+```
+
+A nested property can be retrieved by specifying multiple properties. The following path for example describes the value of a nested property `city` inside an object `address`:
+
+```json
+["get", "address", "city"]
+```
+
+To get the current value itself, just specify `["get"]` without properties:
+
+```json
+["multiply", ["get"], 2]
 ```
 
 See section [Function reference](reference/functions.md) for a detailed overview of all available functions.
 
-### Operators
-
-An operator is an array with a left side value, the operator, and a right side value. In the following example, the operator describes that the property `age` of an object must be 18 or larger:
-
-```json
-["age", ">", 18]
-```
-
-or here an example where an operator checks whether a nested property `city` inside an object `address` has the value `"New York"`.
-
-```json
-[["address", "city"], "==", "New York"]
-```
-
-Operators are mostly used inside the `"filter"` function, for example:
-
-```json
-["filter", [["address", "city"], "==", "New York"]]
-```
-
-See section [Operator reference](reference/operators.md) for a detailed overview of all available operators.
-
-<details>
-<summary><b>Special cases regarding operators</b></summary>
-
-There are two special cases regarding operators: relational operators interpret the left side as a property when it is a string, and interpret the right side as a text when it is a string.
-
-1. All relational operators (`==`, `>`, `>=`, `<`, `<=`, `!=`) will interpret a string on the right side as a _text_ and not as a _property_ because this is a very common use case (like the "New York" example above). To specify a property on the right side of an operator, it must be changed into a _path_ by enclosing it in brackets.
-
-    ```js
-    // WRONG: "age" is interpreted as text
-    ["filter", [18, "<", "age"]]
-
-    // RIGHT: "age" is interpreted as property
-    ["filter", [18, "<", ["age"]]]
-    ["filter", ["age", ">", 18]]
-    ```
-
-2. In order to specify a text on the left side of an operator instead of having it interpreted as a property, the `string` function can be used:
-
-    ```js
-    // WRONG: "New York" is interpreted as property
-    ["filter", ["New York", "==", ["address", "city"]]]
-
-    // RIGHT: "New York" is interpreted as text
-    ["filter", [["string", "New York"], "==", ["address", "city"]]]
-    ["filter", [["address", "city"], "==", "New York"]]
-    ```
-
-</details>
-
-### Properties and paths
-
-A _property_ is a string pointing to a value inside an object. For example the following property refers to the value of property `age` in an object:
-
-```json
-"age"
-```
-
-A _path_ is an array with _properties_. The following path for example describes the value of a nested property `city` inside an object `address`:
-
-```json
-["address", "city"]
-```
-
-Note that a path containing a single property is equivalent to just the property itself:
-
-```js
-// path ["age"] is equivalent to property "age":
-["sort", ["age"]]
-["sort", "age"]
-```
-
-<details>
-<summary><b>Special cases regarding paths</b></summary>
-
-There is one special case regarding paths:
-
-1. When having a path where the first property is a function name like `["sort"]`, it will be interpreted as a function and not as a path. To parse this as a path, use the function `get`:
-
-    ```js
-    const data = { sort: 42 }
-
-    jsonquery(data, ["get", "sort"]) // 42
-    ```
-
-</details>
-
 ### Pipes
 
-A _pipe_ is an array containing a series of _functions_, _operators_, _properties_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
+A _pipe_ is an array containing a series of _functions_, _objects_, or _pipes_. The entries in the pipeline are executed one by one, and the output of the first is the input for the next. The following example will first filter the items of an array that have a nested property `city` in the object `address` with the value `"New York"`, and next, sort the filtered items by the property `age`:
 
 ```json
 [
-  ["filter", [["address", "city"], "==", "New York"]],
-  ["sort", "age"]
+  ["filter", ["eq", ["get" ,"address", "city"], "New York"]],
+  ["sort", ["get" ,"age"]]
 ]
 ```
 
@@ -272,8 +192,8 @@ The following example will map over the items of the array and create a new obje
 
 ```json
 ["map", {
-  "firstName": "name",
-  "city": ["address", "city"]
+  "firstName": ["get", "name"],
+  "city": ["get", "address", "city"]
 }]
 ```
 
@@ -281,10 +201,10 @@ The following example will output an object with properties `names`, `count`, an
 
 ```json
 {
-  "names": ["map", "name"],
+  "names": ["map", ["get", "name"]],
   "count": ["size"],
   "averageAge": [
-    ["map", "age"], 
+    ["map", ["get", "age"]], 
     ["average"]
   ]
 }
@@ -316,7 +236,7 @@ Here:
       }
       ```
 
-      If the parameters are not a primitive value but can be a query themselves, the function `compile` can be used to compile them. For example, the actual implementation of the function `filter` is the following:
+      If the parameters are not a static value but can be a query themselves, the function `compile` can be used to compile them. For example, the actual implementation of the function `filter` is the following:
 
       ```js
       const options = {
@@ -332,24 +252,6 @@ Here:
 
       You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
 
-  - `operators` is an optional map with custom operator creators. An operator creator receives the left and right side queries as input, and must return a function that implements the operator. Example:
-
-      ```js
-      const options = {
-        operators: {
-          // a loosely equal operator
-          // usage example: ["value", "~=", 2] 
-          '~=': (left, right) => {
-              const a = compile(left)
-              const b = compile(right)
-              return (data) => a(data) == b(data)
-          }
-        }
-      }
-      ```
-
-      You can have a look at the source code of the functions in `/src/operators.ts` for more examples.
-
 Here an example of using the function `jsonquery`:
 
 ```js
@@ -361,7 +263,7 @@ const data = [
   { "name": "Joe", "age": 32 }
 ]
 
-const result = jsonquery(data, ["filter", "age", ">", 20])
+const result = jsonquery(data, ["filter", ["gt", ["get", "age"], 20]])
 // result = [
 //   { "name": "Chris", "age": 23 },
 //   { "name": "Joe", "age": 32 }
@@ -381,7 +283,7 @@ Example:
 ```js
 import { compile } from '@jsonquerylang/jsonquery'
 
-const queryIt = compile(["filter", "age", ">", 20])
+const queryIt = compile(["filter", ["gt", ["get", "age"], 20]])
 
 const data = [
   { "name": "Chris", "age": 23 },
@@ -401,43 +303,47 @@ const result = queryIt(data)
 When executing a query throws an error, the library attaches a stack to the error message which can give insight in what went wrong. The stack can be found at the property `error.jsonquery` and has type `Array<{ data: unknown, query: JSONQuery }>`.
 
 ```js
-const data = [
-  { "name": "Chris", "age": 23, "scores": [7.2, 5, 8.0] },
-  { "name": "Emily", "age": 19 }, // scores is missing here!
-  { "name": "Joe", "age": 32, "scores": [6.1, 8.1] }
-]
+const data = {
+  "participants": [
+    { "name": "Chris", "age": 23, "scores": [7.2, 5, 8.0] },
+    { "name": "Emily", "age": 19 },
+    { "name": "Joe", "age": 32, "scores": [6.1, 8.1] }
+  ]
+}
 
 try {
   jsonquery(data, [
-    ["pick", "age", "scores"],
-    ["map", ["scores", ["sum"]]]
+    ["get", "participants"],
+    ["map", [["get", "scores"], ["sum"]]]
   ])
 } catch (err) {
   console.log(err.jsonquery)
   // error stack:
   // [
   //   {
+  //     "data": {
+  //       "participants": [
+  //         { "name": "Chris", "age": 23, "scores": [7.2, 5, 8.0] },
+  //         { "name": "Emily", "age": 19 },
+  //         { "name": "Joe", "age": 32, "scores": [6.1, 8.1] }
+  //       ]
+  //     },
+  //     "query": [
+  //       ["get", "participants"],
+  //       ["map", [["get", "scores"], ["sum"]]]
+  //     ]
+  //   },
+  //   {
   //     "data": [
   //       { "name": "Chris", "age": 23, "scores": [7.2, 5, 8.0] },
   //       { "name": "Emily", "age": 19 },
   //       { "name": "Joe", "age": 32, "scores": [6.1, 8.1] }
   //     ],
-  //     "query": [
-  //       ["pick", "age", "scores"],
-  //       ["map", ["scores", ["sum"]]]
-  //     ]
+  //     "query": ["map", [["get", "scores"], ["sum"]]]
   //   },
   //   {
-  //     "data": [
-  //       { "age": 23, "scores": [7.2, 5, 8.0] },
-  //       { "age": 19 },
-  //       { "age": 32, "scores": [6.1, 8.1] }
-  //     ],
-  //     "query": ["map", ["scores", ["sum"]]]
-  //   },
-  //   {
-  //     "data": {"age": 19},
-  //     "query": ["scores", ["sum"]]
+  //     "data": { "name": "Emily", "age": 19 },
+  //     "query": [["get", "scores"], ["sum"]]
   //   },
   //   {
   //     "data" : undefined,
@@ -447,80 +353,24 @@ try {
 }
 ```
 
-## Limitations
+## Gotchas
 
-The JSON Query language has some limitations, pitfalls, and gotchas.
+The JSON Query language has some gotchas. What can be confusing at first is to understand how data is piped through the query. A traditional function call is for example `max(myValues)`, so you may expect to have to write this in JSON Query like `["max", "myValues"]`. However, JSON Query has a functional approach where we create a pipeline like: `data -> max -> result`. So, you will have to write a pipe first getting this property and then calling abs: `[["get", "myValues"], ["max"]]"`.
 
-Though the language is easy to learn and understand, it is relatively verbose due to the need for quotes around all keys, and the need for a lot of arrays in square brackets `[...]`. This is a consequence of expressing a query using JSON whilst wanting to keep the language concise.
+It's easy to forget to specify a property getter and instead, just specify a string with the property name, like:
 
-The use of arrays `[...]` is quite overloaded. An array can hold a function call, operator, pipe, or path with properties. Given a query being an array containing three strings `[string, string, string]` for example, it's meaning can only be determined by looking up whether the first string matches a known function, then looking up whether the second string matches a known operator, and lastly conclude that it is a path with properties. When making a mistake, the error message you get is mostly unhelpful, and the best way to debug is to build your query step by step, validating that it works after every step.
+```js
+const data = [
+  {"name": "Chris", "age": 23, "city": "New York"},
+  {"name": "Emily", "age": 19, "city": "Atlanta"},
+  {"name": "Joe", "age": 16, "city": "New York"}
+]
 
-What can also be confusing at first is to understand how data is piped through the query. A traditional function call is for example `abs(myValue)`, so you may expect to have to write this in JSON Query like `["abs", "myValue"]`. However, JSON Query has a functional approach where we create a pipeline like: `data -> abs -> result`. So, to get the absolute value of a property `myValue`, you will have to write a pipe first getting this property and then calling abs: `[["get", "myValue"], ["abs"]]"`.
-
-### Gotchas
-
-Here some gotchas.
-
-1. Having an problem halfway the query, resulting in a vague error. In the following example, the first part of the query results in `undefined`, and then we try to filter that, resulting in an error:
-
-    ```js
-    const data = {
-      "friends": [
-        {"name": "Chris", "age": 23, "city": "New York"},
-        {"name": "Emily", "age": 19, "city": "Atlanta"},
-        {"name": "Joe", "age": 16, "city": "New York"}
-      ]
-    }
-
-    const result = jsonquery(data, [
-      ["get", "friiends"],
-      ["filter", ["city", "==", "New York"]]
-    ])
-    // result: "Error: e is undefined" 
-    // expected: an array with two items
-    ```
-
-2. Making a typo in a function name, which then is interpreted as getting a property. This results in vague output or in an error. In the following example, the property `"filte"` is read from the data, resulting in `undefined`. After that, the property `"city"` is read from `undefined`, resulting in `undefined`, and lastly, we check whether `undefined` is equal to the string `"New York"`, which is not the case, so, the query returns `false`.
-
-    ```js
-    const data = [
-      {"name": "Chris", "age": 23, "city": "New York"},
-      {"name": "Emily", "age": 19, "city": "Atlanta"},
-      {"name": "Joe", "age": 16, "city": "New York"}
-    ]
-    
-    const result = jsonquery(data, ["filte", ["city", "==", "New York"]]) 
-    // result: the boolean value false 
-    // expected: an array with two items
-    ```
-
-3. Making a typo in a property name, resulting in unexpected results.
-
-    ```js
-    const data = [
-      {"name": "Chris", "age": 23, "city": "New York"},
-      {"name": "Emily", "age": 19, "city": "Atlanta"},
-      {"name": "Joe", "age": 16, "city": "New York"}
-    ]
-    
-    const result = jsonquery(data, ["filter", ["cities", "==", "New York"]]) 
-    // result: an empty array 
-    // expected: an array with two items
-    ```
-
-4. Forgetting brackets around a nested query. In the following example, the filter condition has no brackets. Therefore, the property `"city"` is used as condition and the arguments `"=="` and `"New York"` are ignored.
-
-    ```js
-    const data = [
-      {"name": "Chris", "age": 23, "city": "New York"},
-      {"name": "Emily", "age": 19, "city": "Atlanta"},
-      {"name": "Joe", "age": 16, "city": "New York"}
-    ]
-    
-    const result = jsonquery(data, ["filter", "age", ">", 18]) 
-    // result: the original data
-    // expected: an array with two items
-    ```
+const result = jsonquery(data, ["filter", ["eq", "city", "New York"]]) 
+// result:    empty array
+// expecteed: an array with two items
+// solution:  specify "city" as a getter like ["filter", ["eq", ["get" "city"], "New York"]]
+```
 
 ## Development
 
@@ -552,6 +402,10 @@ There are many powerful query languages out there, so why the need to develop `j
 3. **Expressiveness**
 
     The expressiveness of most query languages is limited. Since a long time, my favorite JSON query language is JavaScript+Lodash because it is so flexible. The downside however is that it is not safe to store or share queries written in JavaScript: executing arbitrary JavaScript can be a security risk.
+
+4. **Parsable**
+    
+    When a query language is simple to parse, it is easy to write integrations and adapters for it. For example, it is possible to write a visual user interface to write queries, and the query language can be implemented in various environments (frontend, backend).
 
 The `jsonquery` language is inspired by [JavaScript+Lodash](https://jsoneditoronline.org/indepth/query/10-best-json-query-languages/#javascript), [JSON Patch](https://jsonpatch.com/), and [MongoDB aggregates](https://www.mongodb.com/docs/manual/aggregation/). It is basically a JSON notation to describe making a series of function calls. It has no magic syntax except for the need to be familiar with JSON, making it flexible and easy to understand. The library is extremely small thanks to smartly utilizing built-in JavaScript functions and the built-in JSON parser, requiring very little code to make the query language work.
 
