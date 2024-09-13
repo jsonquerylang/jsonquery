@@ -14,7 +14,6 @@ export function parse(query: string): JSONQuery {
   // TODO: pass a list with function names
   // TODO: pass a list with operator names
   // TODO: operator
-  // TODO: object
   // TODO: parenthesis
   // TODO: numbers, null, boolean
 
@@ -23,6 +22,10 @@ export function parse(query: string): JSONQuery {
   return parseStart() ?? parseEnd()
 
   function parseStart() {
+    return parsePipe()
+  }
+
+  function parsePipe() {
     skipWhitespace()
 
     let evaluator = null
@@ -49,7 +52,7 @@ export function parse(query: string): JSONQuery {
 
         const property = parseString()
         if (property === undefined) {
-          throw new Error('String expected')
+          throw new SyntaxError('String expected (pos: ${i})')
         }
         props.push(property)
       }
@@ -75,7 +78,7 @@ export function parse(query: string): JSONQuery {
 
       skipWhitespace()
       if (query[i] !== '(') {
-        throw new Error(`Parenthesis "(" expected (pos: ${i})"`)
+        throw new SyntaxError(`Parenthesis "(" expected (pos: ${i})"`)
       }
       i++
 
@@ -95,11 +98,57 @@ export function parse(query: string): JSONQuery {
       }
 
       if (query[i] !== ')') {
-        throw new Error(`Comma "," or parenthesis ")" expected (pos: ${i})"`)
+        throw new SyntaxError(`Comma "," or parenthesis ")" expected (pos: ${i})`)
       }
       i++
 
       return [name, ...args]
+    }
+
+    return parseObject()
+  }
+
+  function parseObject() {
+    if (query[i] === '{') {
+      i++
+      skipWhitespace()
+
+      const object = {}
+      let initial = true
+      while (i < query.length && query[i] !== '}') {
+        if (!initial) {
+          eatComma()
+          skipWhitespace()
+        } else {
+          initial = false
+        }
+
+        const start = i
+
+        const key = parseString()
+        if (key === undefined) {
+          throw new SyntaxError(`Key expected (pos: ${start})`)
+        }
+
+        skipWhitespace()
+        eatColon()
+
+        const valueStart = i
+        const value = parseStart()
+
+        if (value === undefined) {
+          throw new SyntaxError(`Value expected (pos: ${valueStart})`)
+        }
+
+        object[key] = value
+      }
+
+      if (query[i] !== '}') {
+        throw new SyntaxError(`Key or end of object '}' expected (pos: ${i})`)
+      }
+      i++
+
+      return object
     }
 
     return parseString()
@@ -119,8 +168,10 @@ export function parse(query: string): JSONQuery {
       return JSON.parse(query.slice(start, i))
     }
 
+    // FIXME: define this regex globally and reuse it
     if (/^[A-z_$]$/.test(query[i])) {
       const start = i
+      // FIXME: regex with the correct end condition
       while (i < query.length && !isDelimiter(query[i]) && !isWhitespace(query[i])) {
         i++
       }
@@ -147,6 +198,20 @@ export function parse(query: string): JSONQuery {
       i++
     }
   }
+
+  function eatComma() {
+    if (query[i] !== ',') {
+      throw new SyntaxError(`Comma ',' expected (pos: ${i})}`)
+    }
+    i++
+  }
+
+  function eatColon() {
+    if (query[i] !== ':') {
+      throw new SyntaxError(`Colon ':' expected (pos: ${i})`)
+    }
+    i++
+  }
 }
 
 function isWhitespace(char: string): boolean {
@@ -157,7 +222,7 @@ function isDelimiter(char: string): boolean {
   return regexDelimiter.test(char)
 }
 
-const regexDelimiter = /^[.,|{}()]$/
+const regexDelimiter = /^[.:,|{}()]$/
 
 function isAlpha(char: string): boolean {
   return alphaDelimiter.test(char)

@@ -35,6 +35,20 @@ describe('parse', () => {
     ])
   })
 
+  test('should parse an object', () => {
+    expect(
+      parse(`{ 
+        name: .name, 
+        city: .address.city, 
+        averageAge: map(.age) | average() 
+      }`)
+    ).toEqual({
+      name: ['get', 'name'],
+      city: ['get', 'address', 'city'],
+      averageAge: [['map', ['get', 'age']], ['average']]
+    })
+  })
+
   test('should parse a string', () => {
     expect(parse('"hello"')).toEqual('hello')
   })

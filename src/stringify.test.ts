@@ -63,4 +63,14 @@ describe('stringify', () => {
       ])
     ).toEqual('.friends | { names: map(.name), count: size(), averageAge: map(.age) | average() }')
   })
+
+  test('should stringify a composed query (5)', () => {
+    expect(
+      stringify({
+        name: ['get', 'name'],
+        city: ['get', 'address', 'city'],
+        averageAge: [['map', ['get', 'age']], ['average']]
+      })
+    ).toEqual('{ name: .name, city: .address.city, averageAge: map(.age) | average() }')
+  })
 })
