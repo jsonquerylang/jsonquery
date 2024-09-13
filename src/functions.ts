@@ -28,7 +28,7 @@ export const filter = <T>(...predicate: JSONQuery[]) => {
   return (data: T[]) => data.filter(_predicate)
 }
 
-export const sort = <T>(path: JSONPath | JSONQueryProperty = [], direction?: 'asc' | 'desc') => {
+export const sort = <T>(path: JSONQueryProperty = ['get'], direction?: 'asc' | 'desc') => {
   const getter = compile(path)
   const sign = direction === 'desc' ? -1 : 1
 
@@ -66,7 +66,7 @@ const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
   return out
 }
 
-export const groupBy = <T>(path: JSONPath | JSONQueryProperty) => {
+export const groupBy = <T>(path: JSONQueryProperty) => {
   const getter = compile(path)
 
   return (data: T[]) => {
@@ -85,7 +85,7 @@ export const groupBy = <T>(path: JSONPath | JSONQueryProperty) => {
   }
 }
 
-export const keyBy = <T>(path: JSONPath | JSONQueryProperty) => {
+export const keyBy = <T>(path: JSONQueryProperty) => {
   const getter = compile(path)
 
   return (data: T[]) => {
@@ -107,7 +107,7 @@ export const uniq =
   <T>(data: T[]) => [...new Set(data)]
 
 export const uniqBy =
-  <T>(path: JSONPath | JSONQueryProperty) =>
+  <T>(path: JSONQueryProperty) =>
   (data: T[]): T[] =>
     Object.values(groupBy(path)(data)).map((groups) => groups[0])
 

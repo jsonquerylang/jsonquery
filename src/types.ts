@@ -6,7 +6,7 @@ export type JSONQuery = JSONQueryFunction | JSONQueryPipe | JSONQueryObject | JS
 
 export type JSONProperty = string
 export type JSONPath = JSONProperty[]
-export type JSONQueryProperty = ['get', path: string | JSONPath]
+export type JSONQueryProperty = ['get', path?: string | JSONPath]
 
 export interface JSONQueryOptions {
   functions?: FunctionBuildersMap
