@@ -42,18 +42,11 @@ describe('jsonquery', () => {
 
     test('should get the full object itself', () => {
       expect(jsonquery({ name: 'Joe' }, ['get'])).toEqual({ name: 'Joe' })
-    })
-
-    test('should get a path with a single property as array', () => {
-      expect(jsonquery({ name: 'Joe' }, ['get', ['name']])).toEqual('Joe')
-    })
-
-    test('should get a nested path as array', () => {
-      expect(jsonquery({ user: { name: 'Joe' } }, ['get', ['user', 'name']])).toEqual('Joe')
+      expect(jsonquery(2, ['get'])).toEqual(2)
     })
 
     test('should return undefined in case of a non existing path', () => {
-      expect(jsonquery({}, ['get', ['foo', 'bar']])).toEqual(undefined)
+      expect(jsonquery({}, ['get', 'foo', 'bar'])).toEqual(undefined)
     })
 
     test('should get a path using function get', () => {
@@ -65,16 +58,15 @@ describe('jsonquery', () => {
     })
 
     test('should get a nested value that has the same name as a function', () => {
-      expect(jsonquery({ sort: { name: 'Joe' } }, ['get', ['sort', 'name']])).toEqual('Joe')
+      expect(jsonquery({ sort: { name: 'Joe' } }, ['get', 'sort', 'name'])).toEqual('Joe')
     })
 
     test('should get in item from an array', () => {
       expect(jsonquery(['A', 'B', 'C'], ['get', 1])).toEqual('B')
-      expect(jsonquery(['A', 'B', 'C'], ['get', [1]])).toEqual('B')
-      expect(jsonquery({ arr: ['A', 'B', 'C'] }, ['get', ['arr', 1]])).toEqual('B')
-      expect(
-        jsonquery([{ text: 'A' }, { text: 'B' }, { text: 'C' }], ['get', [1, 'text']])
-      ).toEqual('B')
+      expect(jsonquery({ arr: ['A', 'B', 'C'] }, ['get', 'arr', 1])).toEqual('B')
+      expect(jsonquery([{ text: 'A' }, { text: 'B' }, { text: 'C' }], ['get', 1, 'text'])).toEqual(
+        'B'
+      )
     })
   })
 
@@ -243,7 +235,7 @@ describe('jsonquery', () => {
     ).toEqual([1, 2, 3, 4, 5])
   })
 
-  test('should resolve an operator', () => {
+  test('should resolve an function', () => {
     expect(jsonquery([], ['and', true, false])).toEqual(false)
     expect(jsonquery([], ['or', true, false])).toEqual(true)
     expect(jsonquery({ city: 'New York' }, ['eq', ['get', 'city'], 'New York'])).toEqual(true)
@@ -260,7 +252,7 @@ describe('jsonquery', () => {
 
     test('should filter nested data using equal', () => {
       expect(
-        jsonquery(nestedData, ['filter', ['eq', ['get', ['address', 'city']], 'New York']])
+        jsonquery(nestedData, ['filter', ['eq', ['get', 'address', 'city'], 'New York']])
       ).toEqual([
         { name: 'Chris', age: 23, address: { city: 'New York' } },
         { name: 'Joe', age: 32, address: { city: 'New York' } },
@@ -272,7 +264,7 @@ describe('jsonquery', () => {
       expect(
         jsonquery(nestedData, [
           ['filter', ['gt', ['get', 'age'], 30]],
-          ['filter', ['eq', ['get', ['address', 'city']], 'New York']]
+          ['filter', ['eq', ['get', 'address', 'city'], 'New York']]
         ])
       ).toEqual([
         { name: 'Joe', age: 32, address: { city: 'New York' } },
@@ -465,7 +457,7 @@ describe('jsonquery', () => {
     })
 
     test('should sort nested data', () => {
-      expect(jsonquery(nestedData, ['sort', ['get', ['address', 'city']]])).toEqual([
+      expect(jsonquery(nestedData, ['sort', ['get', 'address', 'city']])).toEqual([
         { name: 'Emily', age: 19, address: { city: 'Atlanta' } },
         { name: 'Kevin', age: 19, address: { city: 'Atlanta' } },
         { name: 'Michelle', age: 27, address: { city: 'Los Angeles' } },
@@ -530,7 +522,7 @@ describe('jsonquery', () => {
     })
 
     test('should pick data from an array (a single nested field)', () => {
-      expect(jsonquery(nestedData, ['pick', ['get', ['address', 'city']]])).toEqual([
+      expect(jsonquery(nestedData, ['pick', ['get', 'address', 'city']])).toEqual([
         { city: 'New York' },
         { city: 'Atlanta' },
         { city: 'New York' },
@@ -542,9 +534,7 @@ describe('jsonquery', () => {
     })
 
     test('should pick data from an array (multiple fields with nested fields)', () => {
-      expect(
-        jsonquery(nestedData, ['pick', ['get', 'name'], ['get', ['address', 'city']]])
-      ).toEqual([
+      expect(jsonquery(nestedData, ['pick', ['get', 'name'], ['get', 'address', 'city']])).toEqual([
         { name: 'Chris', city: 'New York' },
         { name: 'Emily', city: 'Atlanta' },
         { name: 'Joe', city: 'New York' },
@@ -605,7 +595,7 @@ describe('jsonquery', () => {
   })
 
   test('should get nested data from an array with objects', () => {
-    expect(jsonquery(nestedData, ['map', ['get', ['address', 'city']]])).toEqual([
+    expect(jsonquery(nestedData, ['map', ['get', 'address', 'city']])).toEqual([
       'New York',
       'Atlanta',
       'New York',
@@ -680,8 +670,8 @@ describe('jsonquery', () => {
     expect(jsonquery(data, ['not', 2])).toEqual(false)
     expect(jsonquery({ a: false }, ['not', ['get', 'a']])).toEqual(true)
     expect(jsonquery({ a: true }, ['not', ['get', 'a']])).toEqual(false)
-    expect(jsonquery({ nested: { a: false } }, ['not', ['get', ['nested', 'a']]])).toEqual(true)
-    expect(jsonquery({ nested: { a: true } }, ['not', ['get', ['nested', 'a']]])).toEqual(false)
+    expect(jsonquery({ nested: { a: false } }, ['not', ['get', 'nested', 'a']])).toEqual(true)
+    expect(jsonquery({ nested: { a: true } }, ['not', ['get', 'nested', 'a']])).toEqual(false)
 
     expect(jsonquery(data, ['filter', ['not', ['eq', ['get', 'city'], 'New York']]])).toEqual([
       { name: 'Emily', age: 19, city: 'Atlanta' },
@@ -715,7 +705,7 @@ describe('jsonquery', () => {
     ])
   })
 
-  test('should process operator eq', () => {
+  test('should process function eq', () => {
     expect(jsonquery({ a: 6 }, ['eq', ['get', 'a'], 6])).toEqual(true)
     expect(jsonquery({ a: 6 }, ['eq', ['get', 'a'], 2])).toEqual(false)
     expect(jsonquery({ a: 6 }, ['eq', ['get', 'a'], '6'])).toEqual(false)
@@ -723,31 +713,31 @@ describe('jsonquery', () => {
     expect(jsonquery({ a: 'Hi' }, ['eq', ['get', 'a'], 'Hello'])).toEqual(false)
   })
 
-  test('should process operator gt', () => {
+  test('should process function gt', () => {
     expect(jsonquery({ a: 6 }, ['gt', ['get', 'a'], 5])).toEqual(true)
     expect(jsonquery({ a: 6 }, ['gt', ['get', 'a'], 6])).toEqual(false)
     expect(jsonquery({ a: 6 }, ['gt', ['get', 'a'], 7])).toEqual(false)
   })
 
-  test('should process operator gte', () => {
+  test('should process function gte', () => {
     expect(jsonquery({ a: 6 }, ['gte', ['get', 'a'], 5])).toEqual(true)
     expect(jsonquery({ a: 6 }, ['gte', ['get', 'a'], 6])).toEqual(true)
     expect(jsonquery({ a: 6 }, ['gte', ['get', 'a'], 7])).toEqual(false)
   })
 
-  test('should process operator lt', () => {
+  test('should process function lt', () => {
     expect(jsonquery({ a: 6 }, ['lt', ['get', 'a'], 5])).toEqual(false)
     expect(jsonquery({ a: 6 }, ['lt', ['get', 'a'], 6])).toEqual(false)
     expect(jsonquery({ a: 6 }, ['lt', ['get', 'a'], 7])).toEqual(true)
   })
 
-  test('should process operator lte', () => {
+  test('should process function lte', () => {
     expect(jsonquery({ a: 6 }, ['lte', ['get', 'a'], 5])).toEqual(false)
     expect(jsonquery({ a: 6 }, ['lte', ['get', 'a'], 6])).toEqual(true)
     expect(jsonquery({ a: 6 }, ['lte', ['get', 'a'], 7])).toEqual(true)
   })
 
-  test('should process operator ne', () => {
+  test('should process function ne', () => {
     expect(jsonquery({ a: 6 }, ['ne', ['get', 'a'], 6])).toEqual(false)
     expect(jsonquery({ a: 6 }, ['ne', ['get', 'a'], 2])).toEqual(true)
     expect(jsonquery({ a: 6 }, ['ne', ['get', 'a'], '6'])).toEqual(true)
@@ -755,28 +745,28 @@ describe('jsonquery', () => {
     expect(jsonquery({ a: 'Hi' }, ['ne', ['get', 'a'], 'Hello'])).toEqual(true)
   })
 
-  test('should process operator add', () => {
+  test('should process function add', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['add', ['get', 'a'], ['get', 'b']])).toEqual(8)
   })
 
-  test('should process operator subtract', () => {
+  test('should process function subtract', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['subtract', ['get', 'a'], ['get', 'b']])).toEqual(4)
   })
 
-  test('should process operator multiply', () => {
+  test('should process function multiply', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['multiply', ['get', 'a'], ['get', 'b']])).toEqual(12)
   })
 
-  test('should process operator divide', () => {
+  test('should process function divide', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['divide', ['get', 'a'], ['get', 'b']])).toEqual(3)
   })
 
-  test('should process operator pow', () => {
+  test('should process function pow', () => {
     expect(jsonquery({ a: 2, b: 3 }, ['pow', ['get', 'a'], ['get', 'b']])).toEqual(8)
     expect(jsonquery({ a: 25, b: 1 / 2 }, ['pow', ['get', 'a'], ['get', 'b']])).toEqual(5) // sqrt
   })
 
-  test('should process operator mod (remainder)', () => {
+  test('should process function mod (remainder)', () => {
     expect(jsonquery({ a: 8, b: 3 }, ['mod', ['get', 'a'], ['get', 'b']])).toEqual(2)
   })
 
@@ -861,7 +851,7 @@ describe('jsonquery', () => {
     expect(jsonquery([2, 3, 1], ['sort'])).toEqual([1, 2, 3])
   })
 
-  test('should extend with a custom operator abouteq', () => {
+  test('should extend with a custom function abouteq', () => {
     const options = {
       functions: {
         abouteq: buildFunction((a, b) => a == b) // loosely equal
@@ -872,7 +862,7 @@ describe('jsonquery', () => {
     expect(jsonquery({ a: 2 }, ['abouteq', ['get', 'a'], '2'], options)).toEqual(true)
   })
 
-  test('should use operators to calculate a shopping cart', () => {
+  test('should use functions to calculate a shopping cart', () => {
     const data = [
       { name: 'bread', price: 2.5, quantity: 2 },
       { name: 'milk', price: 1.2, quantity: 3 }

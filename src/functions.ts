@@ -1,21 +1,29 @@
-import { Getter, JSONPath, JSONQueryProperty, JSONQuery, FunctionBuildersMap } from './types'
+import { FunctionBuildersMap, Getter, JSONPath, JSONQuery, JSONQueryProperty } from './types'
 import { compile } from './compile'
-import { isArray, isString } from './is'
+import { isArray } from './is'
 import { buildFunction } from './buildFunction'
 
 export const functions: FunctionBuildersMap = {
-  get: (path: string | number | JSONPath = []) =>
-    isArray(path)
-      ? (data: unknown) => {
-          let value = data
+  get: (...path: JSONPath) => {
+    if (path.length === 0) {
+      return (data: unknown) => data
+    }
 
-          for (const prop of path) {
-            value = value?.[prop]
-          }
+    if (path.length === 1) {
+      const prop = path[0]
+      return (data: unknown) => data?.[prop]
+    }
 
-          return value
-        }
-      : (data: unknown) => data?.[path],
+    return (data: unknown) => {
+      let value = data
+
+      for (const prop of path) {
+        value = value?.[prop]
+      }
+
+      return value
+    }
+  },
 
   map: <T>(callback: JSONQuery) => {
     const _callback = compile(callback)
@@ -41,18 +49,13 @@ export const functions: FunctionBuildersMap = {
   },
 
   pick: (...properties: JSONQueryProperty[]) => {
-    const getters: Getter[] = properties.map(([_get, path]) => [
-      isString(path) ? path : path[path.length - 1],
-      functions.get(path)
-    ])
+    const getters = properties.map(
+      ([_get, ...path]) => [path[path.length - 1], functions.get(...path)] as Getter
+    )
 
     const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
       const out = {}
-
-      getters.forEach(([key, getter]) => {
-        out[key] = getter(object)
-      })
-
+      getters.forEach(([key, getter]) => (out[key] = getter(object)))
       return out
     }
 
@@ -152,6 +155,9 @@ export const functions: FunctionBuildersMap = {
 
   and: buildFunction((a, b) => a && b),
   or: buildFunction((a, b) => a || b),
+  not: buildFunction((a: unknown) => !a),
+  exists: buildFunction((a: unknown) => a !== undefined),
+
   eq: buildFunction((a, b) => a === b),
   gt: buildFunction((a, b) => a > b),
   gte: buildFunction((a, b) => a >= b),
@@ -159,16 +165,12 @@ export const functions: FunctionBuildersMap = {
   lte: buildFunction((a, b) => a <= b),
   ne: buildFunction((a, b) => a !== b),
 
-  not: buildFunction((value: unknown) => !value),
-  exists: buildFunction((value: unknown) => value !== undefined),
-
   add: buildFunction((a: number, b: number) => a + b),
   subtract: buildFunction((a: number, b: number) => a - b),
   multiply: buildFunction((a: number, b: number) => a * b),
   divide: buildFunction((a: number, b: number) => a / b),
   pow: buildFunction((a: number, b: number) => a ** b),
   mod: buildFunction((a: number, b: number) => a % b),
-
   abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {
     const num = Math.round(Number(value + 'e' + digits))
