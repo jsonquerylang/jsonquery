@@ -785,10 +785,10 @@ describe('jsonquery', () => {
   })
 
   test('should calculate the absolute value', () => {
-    expect(jsonquery(2, ['abs'])).toEqual(2)
-    expect(jsonquery(-2, ['abs'])).toEqual(2)
-    expect(jsonquery({ a: -3 }, [['get', 'a'], ['abs']])).toEqual(3)
-    expect(jsonquery([3, -4, 1, -7], ['map', ['abs']])).toEqual([3, 4, 1, 7])
+    expect(jsonquery(null, ['abs', 2])).toEqual(2)
+    expect(jsonquery(null, ['abs', -2])).toEqual(2)
+    expect(jsonquery({ a: -3 }, ['abs', ['get', 'a']])).toEqual(3)
+    expect(jsonquery([3, -4, 1, -7], ['map', ['abs', ['get']]])).toEqual([3, 4, 1, 7])
   })
 
   test('should process multiple operations', () => {

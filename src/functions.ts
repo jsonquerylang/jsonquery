@@ -17,8 +17,6 @@ export const functions: FunctionBuildersMap = {
         }
       : (data: unknown) => data?.[path],
 
-  string: (text: string) => () => text,
-
   map: <T>(callback: JSONQuery) => {
     const _callback = compile(callback)
     return (data: T[]) => data.map(_callback)
@@ -112,42 +110,15 @@ export const functions: FunctionBuildersMap = {
     (data: T[]): T[] =>
       Object.values(functions.groupBy(path)(data)).map((groups) => groups[0]),
 
-  and: buildFunction((a, b) => a && b),
-  or: buildFunction((a, b) => a || b),
-  eq: buildFunction((a, b) => a === b),
-  gt: buildFunction((a, b) => a > b),
-  gte: buildFunction((a, b) => a >= b),
-  lt: buildFunction((a, b) => a < b),
-  lte: buildFunction((a, b) => a <= b),
-  ne: buildFunction((a, b) => a !== b),
-
-  in: (path: string, values: string[]) => {
-    const getter = compile(path)
-    return (data: unknown) => values.includes(getter(data) as string)
-  },
-  'not in': (path: string, values: string[]) => {
-    const getter = compile(path)
-    return (data: unknown) => !values.includes(getter(data) as string)
-  },
-  regex: (path: JSONQuery, expression: string, options?: string) => {
-    const regex = new RegExp(expression, options)
-    const getter = compile(path)
-    return (data: unknown) => regex.test(getter(data) as string)
-  },
-  not: buildFunction((value: unknown) => !value),
-  exists: buildFunction((value: unknown) => value !== undefined),
-
-  add: buildFunction((a: number, b: number) => a + b),
-  subtract: buildFunction((a: number, b: number) => a - b),
-  multiply: buildFunction((a: number, b: number) => a * b),
-  divide: buildFunction((a: number, b: number) => a / b),
-  pow: buildFunction((a: number, b: number) => a ** b),
-  mod: buildFunction((a: number, b: number) => a % b),
-
   limit:
     (count: number) =>
     <T>(data: T[]) =>
       data.slice(0, count),
+
+  size:
+    () =>
+    <T>(data: T[]) =>
+      data.length,
 
   keys: () => Object.keys,
 
@@ -163,15 +134,44 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  abs: () => Math.abs,
+  in: (path: string, values: string[]) => {
+    const getter = compile(path)
+    return (data: unknown) => values.includes(getter(data) as string)
+  },
 
+  'not in': (path: string, values: string[]) => {
+    const getter = compile(path)
+    return (data: unknown) => !values.includes(getter(data) as string)
+  },
+
+  regex: (path: JSONQuery, expression: string, options?: string) => {
+    const regex = new RegExp(expression, options)
+    const getter = compile(path)
+    return (data: unknown) => regex.test(getter(data) as string)
+  },
+
+  and: buildFunction((a, b) => a && b),
+  or: buildFunction((a, b) => a || b),
+  eq: buildFunction((a, b) => a === b),
+  gt: buildFunction((a, b) => a > b),
+  gte: buildFunction((a, b) => a >= b),
+  lt: buildFunction((a, b) => a < b),
+  lte: buildFunction((a, b) => a <= b),
+  ne: buildFunction((a, b) => a !== b),
+
+  not: buildFunction((value: unknown) => !value),
+  exists: buildFunction((value: unknown) => value !== undefined),
+
+  add: buildFunction((a: number, b: number) => a + b),
+  subtract: buildFunction((a: number, b: number) => a - b),
+  multiply: buildFunction((a: number, b: number) => a * b),
+  divide: buildFunction((a: number, b: number) => a / b),
+  pow: buildFunction((a: number, b: number) => a ** b),
+  mod: buildFunction((a: number, b: number) => a % b),
+
+  abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {
     const num = Math.round(Number(value + 'e' + digits))
     return Number(num + 'e' + -digits)
-  }),
-
-  size:
-    () =>
-    <T>(data: T[]) =>
-      data.length
+  })
 }
