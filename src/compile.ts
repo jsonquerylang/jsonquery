@@ -9,9 +9,9 @@ import {
   JSONQueryPipe
 } from './types'
 import { isArray, isObject, isString } from './is'
-import * as coreFunctions from './functions'
+import { functions } from './functions'
 
-const functionsStack: FunctionBuildersMap[] = [coreFunctions]
+const functionsStack: FunctionBuildersMap[] = [functions]
 
 export function compile(query: JSONQuery, options?: JSONQueryOptions): Function {
   functionsStack.unshift({ ...functionsStack[0], ...options?.functions })

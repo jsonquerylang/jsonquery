@@ -339,7 +339,7 @@ describe('jsonquery', () => {
     })
 
     test('should filter data using "_in"', () => {
-      expect(jsonquery(data, ['filter', ['_in', ['get', 'age'], [19, 23]]])).toEqual([
+      expect(jsonquery(data, ['filter', ['in', ['get', 'age'], [19, 23]]])).toEqual([
         { name: 'Chris', age: 23, city: 'New York' },
         { name: 'Emily', age: 19, city: 'Atlanta' },
         { name: 'Kevin', age: 19, city: 'Atlanta' }
@@ -347,7 +347,7 @@ describe('jsonquery', () => {
     })
 
     test('should filter data using "not in"', () => {
-      expect(jsonquery(data, ['filter', ['_not_in', ['get', 'age'], [19, 23]]])).toEqual([
+      expect(jsonquery(data, ['filter', ['not in', ['get', 'age'], [19, 23]]])).toEqual([
         { name: 'Joe', age: 32, city: 'New York' },
         { name: 'Michelle', age: 27, city: 'Los Angeles' },
         { name: 'Robert', age: 45, city: 'Manhattan' },
