@@ -1,7 +1,7 @@
 import { Getter, JSONPath, JSONQueryProperty, JSONQuery } from './types'
 import { compile } from './compile'
 import { isArray, isString } from './is'
-import { compileArgs } from './compileArgs'
+import { buildFunction } from './buildFunction'
 
 export const get = (path: string | number | JSONPath) =>
   isArray(path)
@@ -111,14 +111,14 @@ export const uniqBy =
   (data: T[]): T[] =>
     Object.values(groupBy(path)(data)).map((groups) => groups[0])
 
-export const and = compileArgs((a, b) => a && b)
-export const or = compileArgs((a, b) => a || b)
-export const eq = compileArgs((a, b) => a === b)
-export const gt = compileArgs((a, b) => a > b)
-export const gte = compileArgs((a, b) => a >= b)
-export const lt = compileArgs((a, b) => a < b)
-export const lte = compileArgs((a, b) => a <= b)
-export const ne = compileArgs((a, b) => a !== b)
+export const and = buildFunction((a, b) => a && b)
+export const or = buildFunction((a, b) => a || b)
+export const eq = buildFunction((a, b) => a === b)
+export const gt = buildFunction((a, b) => a > b)
+export const gte = buildFunction((a, b) => a >= b)
+export const lt = buildFunction((a, b) => a < b)
+export const lte = buildFunction((a, b) => a <= b)
+export const ne = buildFunction((a, b) => a !== b)
 
 export const _in = (path: string, values: string[]) => {
   const getter = compile(path)
@@ -142,12 +142,12 @@ export const exists = (path: JSONQuery) => {
   return (data: unknown) => getter(data) !== undefined
 }
 
-export const add = compileArgs((a: number, b: number) => a + b)
-export const sub = compileArgs((a: number, b: number) => a - b)
-export const mul = compileArgs((a: number, b: number) => a * b)
-export const div = compileArgs((a: number, b: number) => a / b)
-export const pow = compileArgs((a: number, b: number) => a ** b)
-export const mod = compileArgs((a: number, b: number) => a % b)
+export const add = buildFunction((a: number, b: number) => a + b)
+export const sub = buildFunction((a: number, b: number) => a - b)
+export const mul = buildFunction((a: number, b: number) => a * b)
+export const div = buildFunction((a: number, b: number) => a / b)
+export const pow = buildFunction((a: number, b: number) => a ** b)
+export const mod = buildFunction((a: number, b: number) => a % b)
 
 export const limit =
   (count: number) =>

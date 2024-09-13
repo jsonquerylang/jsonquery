@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { jsonquery } from './jsonquery.js'
 import { JSONQuery } from './types'
 import { compile } from './compile'
-import { compileArgs } from './compileArgs'
+import { buildFunction } from './buildFunction'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -859,7 +859,7 @@ describe('jsonquery', () => {
   test('should extend with a custom operator abouteq', () => {
     const options = {
       functions: {
-        abouteq: compileArgs((a, b) => a == b) // loosely equal
+        abouteq: buildFunction((a, b) => a == b) // loosely equal
       }
     }
 

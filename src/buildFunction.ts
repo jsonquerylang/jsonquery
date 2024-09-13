@@ -1,8 +1,8 @@
 // TODO: move compileArgs to compile.ts?
-import { FunctionCompiler, JSONQuery } from './types'
+import { FunctionBuilder, JSONQuery } from './types'
 import { compile } from './compile'
 
-export function compileArgs(fn: (...args: unknown[]) => unknown): FunctionCompiler {
+export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuilder {
   return (...args: JSONQuery[]) => {
     const compiledArgs = args.map((arg) => compile(arg))
 

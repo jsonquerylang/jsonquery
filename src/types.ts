@@ -9,10 +9,10 @@ export type JSONPath = JSONProperty[]
 export type JSONQueryProperty = ['get', path: string | JSONPath]
 
 export interface JSONQueryOptions {
-  functions?: FunctionsMap
+  functions?: FunctionBuildersMap
 }
 
-export type Evaluator = (data: unknown) => unknown
-export type FunctionCompiler = (...args: JSONQuery[]) => Evaluator
-export type FunctionsMap = Record<string, FunctionCompiler>
-export type Getter = [key: string, Evaluator]
+export type Function = (data: unknown) => unknown
+export type FunctionBuilder = (...args: JSONQuery[]) => Function
+export type FunctionBuildersMap = Record<string, FunctionBuilder>
+export type Getter = [key: string, Function]
