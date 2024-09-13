@@ -143,9 +143,9 @@ export const exists = (path: JSONQuery) => {
 }
 
 export const add = buildFunction((a: number, b: number) => a + b)
-export const sub = buildFunction((a: number, b: number) => a - b)
-export const mul = buildFunction((a: number, b: number) => a * b)
-export const div = buildFunction((a: number, b: number) => a / b)
+export const subtract = buildFunction((a: number, b: number) => a - b)
+export const multiply = buildFunction((a: number, b: number) => a * b)
+export const divide = buildFunction((a: number, b: number) => a / b)
 export const pow = buildFunction((a: number, b: number) => a ** b)
 export const mod = buildFunction((a: number, b: number) => a % b)
 

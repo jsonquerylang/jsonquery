@@ -754,16 +754,16 @@ describe('jsonquery', () => {
     expect(jsonquery({ a: 6, b: 2 }, ['add', ['get', 'a'], ['get', 'b']])).toEqual(8)
   })
 
-  test('should process operator sub', () => {
-    expect(jsonquery({ a: 6, b: 2 }, ['sub', ['get', 'a'], ['get', 'b']])).toEqual(4)
+  test('should process operator subtract', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['subtract', ['get', 'a'], ['get', 'b']])).toEqual(4)
   })
 
-  test('should process operator mul', () => {
-    expect(jsonquery({ a: 6, b: 2 }, ['mul', ['get', 'a'], ['get', 'b']])).toEqual(12)
+  test('should process operator multiply', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['multiply', ['get', 'a'], ['get', 'b']])).toEqual(12)
   })
 
-  test('should process operator div', () => {
-    expect(jsonquery({ a: 6, b: 2 }, ['div', ['get', 'a'], ['get', 'b']])).toEqual(3)
+  test('should process operator divide', () => {
+    expect(jsonquery({ a: 6, b: 2 }, ['divide', ['get', 'a'], ['get', 'b']])).toEqual(3)
   })
 
   test('should process operator pow', () => {
@@ -874,7 +874,7 @@ describe('jsonquery', () => {
     ]
 
     expect(
-      jsonquery(data, [['map', ['mul', ['get', 'price'], ['get', 'quantity']]], ['sum']])
+      jsonquery(data, [['map', ['multiply', ['get', 'price'], ['get', 'quantity']]], ['sum']])
     ).toEqual(8.6)
   })
 
