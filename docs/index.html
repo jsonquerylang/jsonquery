@@ -426,8 +426,8 @@
                 </p>
                 <p>Example:</p>
                 <pre><code>[
-  ["sort", ["get", "age"]],
-  ["pick", ["get", "name"], ["get", "age"]]
+  ["filter", ["gte", ["get", "age"], 18]],
+  ["sort", ["get", "name"]]
 ]</code></pre>
                 <p>
                   Documentation:
