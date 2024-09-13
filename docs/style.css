@@ -231,8 +231,8 @@ pre code {
   background: none;
 }
 
-.function-reference a,
-.operator-reference a {
+.method-reference a,
+.function-reference a {
   text-decoration: none;
 }
 

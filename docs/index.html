@@ -65,9 +65,9 @@
           <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
 [
   ["get", "friends"],
-  ["filter", "city", "==", "New York"],
-  ["sort", "age"],
-  ["pick", "name", "age"]
+  ["filter", ["eq", ["get", "city"], "New York"]],
+  ["sort", ["get", "age"]],
+  ["pick", ["get", "name"], ["get", "age"]]
 ]</textarea
           >
         </div>
@@ -89,7 +89,7 @@
                   A <b>function</b> is an array with the function name as first item followed by
                   optional function arguments.
                 </p>
-                <p>Example: <code>["sort", ["address", "city"], "asc"]</code></p>
+                <p>Example: <code>["sort", ["get", "address", "city"], "asc"]</code></p>
                 <p>
                   Documentation:
                   <a
@@ -98,13 +98,13 @@
                     >Functions</a
                   >
                 </p>
-                <p>Function reference:</p>
-                <ul class="function-reference">
+                <p>Method reference:</p>
+                <ul class="method-reference">
                   <li>
                     <a
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#get"
                       target="_blank"
-                      ><code>["get", path]</code></a
+                      ><code>["get", prop1, prop2, ...]</code></a
                     >
                   </li>
                   <li>
@@ -116,23 +116,16 @@
                   </li>
                   <li>
                     <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#filter"
-                      target="_blank"
-                      ><code>["filter", left, operator, right]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#sort"
                       target="_blank"
-                      ><code>["sort", path, direction]</code></a
+                      ><code>["sort", getter, direction]</code></a
                     >
                   </li>
                   <li>
                     <a
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#pick"
                       target="_blank"
-                      ><code>["pick", path1, path2, ...]</code></a
+                      ><code>["pick", getter1, getter2, ...]</code></a
                     >
                   </li>
                   <li>
@@ -146,14 +139,14 @@
                     <a
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#groupBy"
                       target="_blank"
-                      ><code>["groupBy", path]</code></a
+                      ><code>["groupBy", getter]</code></a
                     >
                   </li>
                   <li>
                     <a
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#keyBy"
                       target="_blank"
-                      ><code>["keyBy", path]</code></a
+                      ><code>["keyBy", getter]</code></a
                     >
                   </li>
                   <li>
@@ -247,92 +240,56 @@
                       ><code>["average"]</code></a
                     >
                   </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#abs"
-                      target="_blank"
-                      ><code>["abs"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#round"
-                      target="_blank"
-                      ><code>["round", digits]</code></a
-                    >
-                  </li>
                 </ul>
-              </div>
-            </details>
-            <details>
-              <summary>
-                <span class="category">Operator</span>
-                <code>[left, operator, right]</code>
-              </summary>
-              <div class="details-content">
-                <p>
-                  An <b>operator</b> is an array with a left side value, the operator, and a right
-                  side value. Operators are for example used in the <code>filter</code> function to
-                  specify a condition.
-                </p>
-                <p>Example:</p>
-                <pre><code>["filter", ["address", "city"], "==", "New York"]</code></pre>
-                <p>
-                  Documentation:
-                  <a
-                    href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md"
-                    target="_blank"
-                    >Operators</a
-                  >
-                </p>
-                <p>Operator reference:</p>
+
+                <p>Function reference:</p>
                 <ul class="operator-reference">
                   <li>
                     <a
                       title="equal"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#equal-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#equal-eq"
                       target="_blank"
-                      ><code>[left, "==", right]</code></a
+                      ><code>["eq", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="greater than"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#greater-than-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#greater-than-gt"
                       target="_blank"
-                      ><code>[left, ">", right]</code></a
+                      ><code>["gt", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
-                      title="greater than or equal"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#greater-than-or-equal-"
+                      title="greater than or equal to"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#greater-than-or-equal-to-gte"
                       target="_blank"
-                      ><code>[left, ">=", right]</code></a
+                      ><code>["gte", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="less than"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#less-than-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#less-than-lt"
                       target="_blank"
-                      ><code>[left, "<", right]</code></a
+                      ><code>["lt", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
-                      title="less than or equal"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#less-than-or-equal-"
+                      title="less than or equal to"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#less-than-or-equal-to-lte"
                       target="_blank"
-                      ><code>[left, "<=", right]</code></a
+                      ><code>["lte", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="not equal"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#not-equal-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#not-equal-ne"
                       target="_blank"
-                      ><code>[left, "!=", right]</code></a
+                      ><code>["ne", a, b]</code></a
                     >
                   </li>
                   <li>
@@ -340,7 +297,7 @@
                       title="and"
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#and"
                       target="_blank"
-                      ><code>[left, "and", right]</code></a
+                      ><code>["and", a, b]</code></a
                     >
                   </li>
                   <li>
@@ -348,7 +305,7 @@
                       title="or"
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#or"
                       target="_blank"
-                      ><code>[left, "or", right]</code></a
+                      ><code>["or", a, b]</code></a
                     >
                   </li>
                   <li>
@@ -364,7 +321,7 @@
                       title="exists"
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#exists"
                       target="_blank"
-                      ><code>["exists", path]</code></a
+                      ><code>["exists", getter]</code></a
                     >
                   </li>
                   <li>
@@ -372,7 +329,7 @@
                       title="in"
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#in"
                       target="_blank"
-                      ><code>[left, "in", ...values]</code></a
+                      ><code>["in", searchValue, ...values]</code></a
                     >
                   </li>
                   <li>
@@ -380,7 +337,7 @@
                       title="not in"
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#not-in"
                       target="_blank"
-                      ><code>[left, "not in", ...values]</code></a
+                      ><code>["not in", searchValue, ...values]</code></a
                     >
                   </li>
                   <li>
@@ -388,97 +345,72 @@
                       title="regex"
                       href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#regex"
                       target="_blank"
-                      ><code>[left, "regex", expression, options]</code></a
+                      ><code>["regex", text, expression, options]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="add"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#add-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#add"
                       target="_blank"
-                      ><code>[left, "+", right]</code></a
+                      ><code>["add", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="subtract"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#subtract-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#subtract"
                       target="_blank"
-                      ><code>[left, "-", right]</code></a
+                      ><code>["subtract", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="multiply"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#multiply-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#multiply"
                       target="_blank"
-                      ><code>[left, "*", right]</code></a
+                      ><code>["multiply", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="divide"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#divide-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#divide"
                       target="_blank"
-                      ><code>[left, "/", right]</code></a
+                      ><code>["divide", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="power"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#^power-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#power-pow"
                       target="_blank"
-                      ><code>[left, "^", right]</code></a
+                      ><code>["pow", a, b]</code></a
                     >
                   </li>
                   <li>
                     <a
                       title="remainder"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#^remainder-"
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/operators.md#remainder-mod"
                       target="_blank"
-                      ><code>[left, "%", right]</code></a
+                      ><code>["mod", a, b]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#round"
+                      target="_blank"
+                      ><code>["round", value, digits]</code></a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#abs"
+                      target="_blank"
+                      ><code>["abs", value]</code></a
                     >
                   </li>
                 </ul>
-              </div>
-            </details>
-            <details>
-              <summary>
-                <span class="category">Property</span>
-                <code>"property"</code>
-              </summary>
-              <div class="details-content">
-                <p>A <b>property</b> is a string pointing to a value inside an object.</p>
-                <p>Example: <code>"age"</code></p>
-                <p>
-                  Documentation:
-                  <a
-                    href="https://github.com/jsonquerylang/jsonquery#properties-and-paths"
-                    target="_blank"
-                    >Properties and paths</a
-                  >
-                </p>
-              </div>
-            </details>
-            <details>
-              <summary>
-                <span class="category">Path</span>
-                <code>[property1, property2, ...]</code>
-              </summary>
-              <div class="details-content">
-                <p>
-                  A <b>path</b> is an array containing <i>properties</i>, describing a property in a
-                  nested object.
-                </p>
-                <p>Example: <code>["address", "city"]</code></p>
-                <p>
-                  Documentation:
-                  <a
-                    href="https://github.com/jsonquerylang/jsonquery#properties-and-paths"
-                    target="_blank"
-                    >Properties and paths</a
-                  >
-                </p>
               </div>
             </details>
             <details>
@@ -494,8 +426,8 @@
                 </p>
                 <p>Example:</p>
                 <pre><code>[
-  ["sort", "age"],
-  ["pick", "name", "age"]
+  ["sort", ["get", "age"]],
+  ["pick", ["get", "name"], ["get", "age"]]
 ]</code></pre>
                 <p>
                   Documentation:
@@ -518,7 +450,7 @@
                 </p>
                 <p>Example:</p>
                 <pre><code>{
-  "names": ["map", "name"],
+  "names": ["map", ["get", "name"]],
   "numberOfNames": ["length"]
 }</code></pre>
                 <p>
@@ -589,26 +521,26 @@
   {"name": "Sarah", "age": 31, "city": "New York"}
 ]`
       const query2 = `["filter", [
-  ["city", "==", "New York"],
   "and",
-  ["age", ">", 30]
+  ["eq", ["get", "city"], "New York"],
+  ["gt", ["get", "age"], 30]
 ]]`
 
       const input3 = input2
       const query3 = `["map", {
-  "firstName": "name",
+  "firstName": ["get", "name"],
   "details": {
-    "city": "city",
-    "age": "age"
+    "city": ["get", "city"],
+    "age": ["get", "age"]
   }
 }]`
 
       const input4 = input2
       const query4 = `{
-  "names": ["map", "name"],
+  "names": ["map", ["get", "name"]],
   "count": ["size"],
   "averageAge": [
-    ["map", "age"],
+    ["map", ["get", "age"]],
     ["average"]
   ]
 }`
@@ -618,7 +550,11 @@
   { "name": "milk", "price": 1.2, "quantity": 3 }
 ]`
       const query5 = `[
-  ["map", ["price", "*", "quantity"]],
+  ["map", [
+    "multiply",
+    ["get", "price"],
+    ["get", "quantity"]
+  ]],
   ["sum"]
 ]`
 
