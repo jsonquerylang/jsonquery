@@ -1,4 +1,3 @@
-// TODO: move compileArgs to compile.ts?
 import { FunctionBuilder, JSONQuery } from './types'
 import { compile } from './compile'
 
