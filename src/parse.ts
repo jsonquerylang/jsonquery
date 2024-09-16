@@ -1,12 +1,3 @@
-/**
- * Example:
- *
- *   .friends
- *     | filter(.city == "new York")
- *     | sort(.age)
- *     | pick(.name, .age)
- *
- */
 import { functions } from './functions'
 import { JSONQuery, JSONQueryParseOptions } from './types'
 import {
@@ -18,6 +9,25 @@ import {
   startsWithWhitespaceRegex
 } from './constants'
 
+/**
+ * Parse a string containing a JSON Query into JSON.
+ *
+ * Example:
+ *
+ *     const query = `
+ *       .friends
+ *         | filter(.city == "new York")
+ *         | sort(.age)
+ *         | pick(.name, .age)
+ *     `
+ *     const jsonQuery = parse(query)
+ *     // jsonQuery = [
+ *     //    ['get', 'friends'],
+ *     //    ['filter', ['eq', ['get', 'city'], 'New York']],
+ *     //    ['sort', ['get', 'age']],
+ *     //    ['pick', ['get', 'name'], ['get', 'age']]
+ *     //  ]
+ */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
   const parseString = () => parseRegex(startsWithStringRegex, JSON.parse)
   const parseUnquotedString = () => parseRegex(startsWithUnquotedPropertyRegex, (text) => text)

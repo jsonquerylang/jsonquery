@@ -17,7 +17,6 @@ export const operators = {
   mod: '%'
 }
 
-// TODO: think through the exact conditions for unquoted properties
 export const unquotedPropertyRegex = /^[A-z_$][A-z\d_$]*$/
 export const startsWithUnquotedPropertyRegex = /^[A-z_$][A-z\d_$]*/
 export const startsWithStringRegex = /^"(?:[^"\\]|\\.)*"/ // https://stackoverflow.com/a/249937/1262753

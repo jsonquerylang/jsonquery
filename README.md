@@ -10,7 +10,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small (just `1.4 kB` when minified and gzipped!)
+- Small (just `2.5 kB` when minified and gzipped! The query engine without parser is only `1.4 kB`)
 - Feature rich (40+ powerful functions)
 - Serializable (it is JSON)
 - Easy to parse

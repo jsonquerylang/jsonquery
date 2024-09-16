@@ -8,6 +8,20 @@ import {
 import { isArray, isObject, isString } from './is'
 import { operators, unquotedPropertyRegex } from './constants'
 
+/**
+ * Stringify a JSON Query into a readable, human friendly text syntax.
+ *
+ * Example:
+ *
+ *     const jsonQuery = [
+ *         ['get', 'friends'],
+ *         ['filter', ['eq', ['get', 'city'], 'New York']],
+ *         ['sort', ['get', 'age']],
+ *         ['pick', ['get', 'name'], ['get', 'age']]
+ *       ]
+ *     const textQuery = stringify(jsonQuery)
+ *     // textQuery = '.friends | filter(.city == "new York") | sort(.age) | pick(.name, .age)'
+ */
 export function stringify(query: JSONQuery, options?: JSONQueryStringifyOptions): string {
   if (isArray(query)) {
     // function
