@@ -58,6 +58,8 @@ describe('parse', () => {
 
   test('should parse parentheses', () => {
     expect(parse('(.friends)')).toEqual(['get', 'friends'])
+    expect(parse('( .friends)')).toEqual(['get', 'friends'])
+    expect(parse('(.friends )')).toEqual(['get', 'friends'])
     expect(parse('(.age == 18)')).toEqual(['eq', ['get', 'age'], 18])
   })
 

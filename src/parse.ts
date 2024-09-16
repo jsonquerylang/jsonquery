@@ -9,7 +9,15 @@
  */
 import { functions } from './functions'
 import { JSONQuery, JSONQueryParseOptions } from './types'
-import { alphaCharacterRegex, alphaDigitCharacterRegex, operators } from './constants'
+import {
+  alphaCharacterRegex,
+  alphaDigitCharacterRegex,
+  operators,
+  startsWithKeywordRegex,
+  startsWithNumberRegex,
+  startsWithUnquotedPropertyRegex,
+  whitespaceRegex
+} from './constants'
 
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
   const allOperators = { ...operators, ...options?.operators }
@@ -46,7 +54,6 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     if (query[i] === '(') {
       i++
       const inner = parseStart()
-      skipWhitespace()
       eatChar(')')
       return inner
     }
@@ -195,62 +202,26 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   function parseUnquotedString() {
-    if (alphaCharacterRegex.test(query[i])) {
-      const start = i
-      while (alphaDigitCharacterRegex.test(query[i])) {
-        i++
-      }
-      return query.slice(start, i)
+    const match = query.substring(i).match(startsWithUnquotedPropertyRegex)
+    if (match) {
+      i += match[0].length
+      return match[0]
     }
   }
 
   function parseNumber() {
-    const start = i
-    if (query[i] === '-') {
-      i++
-      expectDigit(start)
-    }
-
-    if (query[i] === '0') {
-      i++
-    } else if (nonZeroDigitRegex.test(query[i])) {
-      i++
-      while (digitRegex.test(query[i])) {
-        i++
-      }
-    }
-
-    if (query[i] === '.') {
-      i++
-      expectDigit(start)
-      while (digitRegex.test(query[i])) {
-        i++
-      }
-    }
-
-    if (query[i] === 'e' || query[i] === 'E') {
-      i++
-      if (query[i] === '-' || query[i] === '+') {
-        i++
-      }
-      expectDigit(start)
-      while (digitRegex.test(query[i])) {
-        i++
-      }
-    }
-
-    if (i > start) {
-      return Number(query.slice(start, i))
+    const match = query.substring(i).match(startsWithNumberRegex)
+    if (match) {
+      i += match[0].length
+      return Number(match[0])
     }
   }
 
   function parseKeyword() {
-    const keywords = ['true', 'false', 'null']
-
-    const match = keywords.find((keyword) => query.substring(i, i + keyword.length) === keyword)
+    const match = query.substring(i).match(startsWithKeywordRegex)
     if (match) {
-      i += match.length
-      return JSON.parse(match)
+      i += match[0].length
+      return JSON.parse(match[0])
     }
   }
 
@@ -274,15 +245,4 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
     i++
   }
-
-  function expectDigit(start: number) {
-    if (!digitRegex.test(query[i])) {
-      const numSoFar = query.slice(start, i)
-      throw new SyntaxError(`Invalid number '${numSoFar}', expecting a digit (pos: ${start})`)
-    }
-  }
 }
-
-const digitRegex = /^[0-9]$/
-const nonZeroDigitRegex = /^[1-9]$/
-const whitespaceRegex = /^[ \n\t\r]$/
