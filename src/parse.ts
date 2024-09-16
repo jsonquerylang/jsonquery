@@ -14,13 +14,8 @@ import {
  *
  * Example:
  *
- *     const query = `
- *       .friends
- *         | filter(.city == "new York")
- *         | sort(.age)
- *         | pick(.name, .age)
- *     `
- *     const jsonQuery = parse(query)
+ *     const textQuery = '.friends | filter(.city == "new York") | sort(.age) | pick(.name, .age)'
+ *     const jsonQuery = parse(textQuery)
  *     // jsonQuery = [
  *     //    ['get', 'friends'],
  *     //    ['filter', ['eq', ['get', 'city'], 'New York']],
