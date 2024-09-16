@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { stringify } from './stringify'
+import { JSONQueryStringifyOptions } from './types'
 
 describe('stringify', () => {
   test('should stringify a function', () => {
@@ -16,6 +17,17 @@ describe('stringify', () => {
 
   test('should stringify an operator', () => {
     expect(stringify(['add', 2, 3])).toEqual('(2 + 3)')
+  })
+
+  test('should stringify an custom operator', () => {
+    const options: JSONQueryStringifyOptions = {
+      operators: { aboutEq: '~=' }
+    }
+
+    expect(stringify(['aboutEq', 2, 3], options)).toEqual('(2 ~= 3)')
+    expect(stringify(['filter', ['aboutEq', 2, 3]], options)).toEqual('filter(2 ~= 3)')
+    expect(stringify({ result: ['aboutEq', 2, 3] }, options)).toEqual('{ result: (2 ~= 3) }')
+    expect(stringify(['eq', 2, 3], options)).toEqual('(2 == 3)')
   })
 
   test('should stringify a pipe', () => {

@@ -8,18 +8,17 @@
  *
  */
 import { functions } from './functions'
-import { JSONQuery } from './types'
+import { JSONQuery, JSONQueryParseOptions } from './types'
+import { alphaCharacterRegex, alphaDigitCharacterRegex, operators } from './constants'
 
-export function parse(query: string): JSONQuery {
-  // TODO: pass a list with function names
-  // TODO: pass a list with operator names
-  // TODO: operator
-  // TODO: parenthesis
-  // TODO: numbers, null, boolean
+export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
+  const allOperators = { ...operators, ...options?.operators }
 
   let i = 0
 
-  return parseStart() ?? parseEnd()
+  const res = parseStart()
+  parseEnd()
+  return res
 
   function parseStart() {
     return parsePipe()
@@ -30,7 +29,7 @@ export function parse(query: string): JSONQuery {
 
     let evaluator = null
     const pipe = []
-    while ((evaluator = parseProperty())) {
+    while ((evaluator = parseParentheses()) !== undefined) {
       pipe.push(evaluator)
 
       skipWhitespace()
@@ -43,6 +42,35 @@ export function parse(query: string): JSONQuery {
     return pipe.length === 1 ? pipe[0] : pipe
   }
 
+  function parseParentheses() {
+    if (query[i] === '(') {
+      i++
+      const inner = parseStart()
+      skipWhitespace()
+      eatChar(')')
+      return inner
+    }
+
+    return parseOperator()
+  }
+
+  function parseOperator() {
+    const left = parseProperty()
+
+    skipWhitespace()
+    for (const name of Object.keys(allOperators)) {
+      const op = allOperators[name]
+      if (query.substring(i, i + op.length) === op) {
+        i += op.length
+        skipWhitespace()
+        const right = parseProperty()
+        return [name, left, right]
+      }
+    }
+
+    return left
+  }
+
   function parseProperty() {
     if (query[i] === '.') {
       const props = []
@@ -50,7 +78,7 @@ export function parse(query: string): JSONQuery {
       while (query[i] === '.') {
         i++
 
-        const property = parseString()
+        const property = parseString() ?? parseUnquotedString()
         if (property === undefined) {
           throw new SyntaxError('String expected (pos: ${i})')
         }
@@ -64,23 +92,22 @@ export function parse(query: string): JSONQuery {
   }
 
   function parseFunction() {
-    if (isAlpha(query[i])) {
+    if (alphaCharacterRegex.test(query[i])) {
       const start = i
-      while (isAlpha(query[i])) {
+      while (alphaDigitCharacterRegex.test(query[i])) {
         i++
       }
       const name = query.slice(start, i)
-      // console.log('parsing function', { name })
-      const fn = functions[name]
-      if (!fn) {
-        throw new Error(`Unknown function "${name}" (pos: ${i - name.length})`)
-      }
-
       skipWhitespace()
       if (query[i] !== '(') {
-        throw new SyntaxError(`Parenthesis "(" expected (pos: ${i})"`)
+        i = start
+        return parseObject()
       }
       i++
+
+      if (!options?.functions.has(name) && !functions[name]) {
+        throw new Error(`Unknown function "${name}" (pos: ${i - name.length})`)
+      }
 
       skipWhitespace()
       const args = []
@@ -117,7 +144,7 @@ export function parse(query: string): JSONQuery {
       let initial = true
       while (i < query.length && query[i] !== '}') {
         if (!initial) {
-          eatComma()
+          eatChar(',')
           skipWhitespace()
         } else {
           initial = false
@@ -125,13 +152,13 @@ export function parse(query: string): JSONQuery {
 
         const start = i
 
-        const key = parseString()
+        const key = parseString() ?? parseUnquotedString()
         if (key === undefined) {
           throw new SyntaxError(`Key expected (pos: ${start})`)
         }
 
         skipWhitespace()
-        eatColon()
+        eatChar(':')
 
         const valueStart = i
         const value = parseStart()
@@ -151,12 +178,10 @@ export function parse(query: string): JSONQuery {
       return object
     }
 
-    return parseString()
+    return parseString() ?? parseNumber() ?? parseKeyword()
   }
 
   function parseString() {
-    skipWhitespace()
-
     if (query[i] === '"') {
       const start = i
       i++
@@ -167,65 +192,97 @@ export function parse(query: string): JSONQuery {
 
       return JSON.parse(query.slice(start, i))
     }
+  }
 
-    // FIXME: define this regex globally and reuse it
-    if (/^[A-z_$]$/.test(query[i])) {
+  function parseUnquotedString() {
+    if (alphaCharacterRegex.test(query[i])) {
       const start = i
-      // FIXME: regex with the correct end condition
-      while (i < query.length && !isDelimiter(query[i]) && !isWhitespace(query[i])) {
+      while (alphaDigitCharacterRegex.test(query[i])) {
         i++
       }
       return query.slice(start, i)
     }
-
-    return undefined
   }
 
-  // TODO: use function parseEnd
+  function parseNumber() {
+    const start = i
+    if (query[i] === '-') {
+      i++
+      expectDigit(start)
+    }
+
+    if (query[i] === '0') {
+      i++
+    } else if (nonZeroDigitRegex.test(query[i])) {
+      i++
+      while (digitRegex.test(query[i])) {
+        i++
+      }
+    }
+
+    if (query[i] === '.') {
+      i++
+      expectDigit(start)
+      while (digitRegex.test(query[i])) {
+        i++
+      }
+    }
+
+    if (query[i] === 'e' || query[i] === 'E') {
+      i++
+      if (query[i] === '-' || query[i] === '+') {
+        i++
+      }
+      expectDigit(start)
+      while (digitRegex.test(query[i])) {
+        i++
+      }
+    }
+
+    if (i > start) {
+      return Number(query.slice(start, i))
+    }
+  }
+
+  function parseKeyword() {
+    const keywords = ['true', 'false', 'null']
+
+    const match = keywords.find((keyword) => query.substring(i, i + keyword.length) === keyword)
+    if (match) {
+      i += match.length
+      return JSON.parse(match)
+    }
+  }
+
   function parseEnd() {
     skipWhitespace()
 
     if (i < query.length) {
       throw new Error(`Unexpected part "${query.slice(i)}"`)
     }
-
-    // FIXME: test if anything was parsed
-    return null // nothing
   }
 
   function skipWhitespace() {
-    while (isWhitespace(query[i])) {
+    while (whitespaceRegex.test(query[i])) {
       i++
     }
   }
 
-  function eatComma() {
-    if (query[i] !== ',') {
-      throw new SyntaxError(`Comma ',' expected (pos: ${i})}`)
+  function eatChar(char: string) {
+    if (query[i] !== char) {
+      throw new SyntaxError(`Character "${char}" expected (pos: ${i})`)
     }
     i++
   }
 
-  function eatColon() {
-    if (query[i] !== ':') {
-      throw new SyntaxError(`Colon ':' expected (pos: ${i})`)
+  function expectDigit(start: number) {
+    if (!digitRegex.test(query[i])) {
+      const numSoFar = query.slice(start, i)
+      throw new SyntaxError(`Invalid number '${numSoFar}', expecting a digit (pos: ${start})`)
     }
-    i++
   }
 }
 
-function isWhitespace(char: string): boolean {
-  return char === ' ' || char === '\n' || char === '\t' || char === '\r'
-}
-
-function isDelimiter(char: string): boolean {
-  return regexDelimiter.test(char)
-}
-
-const regexDelimiter = /^[.:,|{}()]$/
-
-function isAlpha(char: string): boolean {
-  return alphaDelimiter.test(char)
-}
-
-const alphaDelimiter = /^[a-zA-Z_$]$/
+const digitRegex = /^[0-9]$/
+const nonZeroDigitRegex = /^[1-9]$/
+const whitespaceRegex = /^[ \n\t\r]$/

@@ -8,8 +8,17 @@ export type JSONProperty = string
 export type JSONPath = JSONProperty[]
 export type JSONQueryProperty = ['get', path?: string | JSONPath]
 
-export interface JSONQueryOptions {
+export interface JSONQueryCompileOptions {
   functions?: FunctionBuildersMap
+}
+
+export interface JSONQueryStringifyOptions {
+  operators?: Record<string, string>
+}
+
+export interface JSONQueryParseOptions {
+  functions?: Set<string>
+  operators?: Record<string, string>
 }
 
 export type Function = (data: unknown) => unknown

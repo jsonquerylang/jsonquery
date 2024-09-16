@@ -5,7 +5,7 @@ import {
   JSONQuery,
   JSONQueryFunction,
   JSONQueryObject,
-  JSONQueryOptions,
+  JSONQueryCompileOptions,
   JSONQueryPipe
 } from './types'
 import { isArray, isObject, isString } from './is'
@@ -13,7 +13,7 @@ import { functions } from './functions'
 
 const functionsStack: FunctionBuildersMap[] = [functions]
 
-export function compile(query: JSONQuery, options?: JSONQueryOptions): Function {
+export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Function {
   functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
 
   try {
