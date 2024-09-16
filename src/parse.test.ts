@@ -76,6 +76,7 @@ describe('parse', () => {
     expect(parse('{ a : 1 }')).toEqual({ a: 1 })
     expect(parse('{a:1,b:2}')).toEqual({ a: 1, b: 2 })
     expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
+    expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
   })
 
   test('should parse an object (2)', () => {
@@ -122,4 +123,5 @@ describe('parse', () => {
   })
 
   // FIXME: test the different whitespaces
+  // FIXME: test all characters of unquoted strings
 })
