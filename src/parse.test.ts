@@ -67,7 +67,18 @@ describe('parse', () => {
     expect(parse('(.age == 18)')).toEqual(['eq', ['get', 'age'], 18])
   })
 
-  test('should parse an object', () => {
+  test('should parse an object (1)', () => {
+    expect(parse('{}')).toEqual({})
+    expect(parse('{ }')).toEqual({})
+    expect(parse('{a:1}')).toEqual({ a: 1 })
+    expect(parse('{a1:1}')).toEqual({ a1: 1 })
+    expect(parse('{AaZz_$019:1}')).toEqual({ AaZz_$019: 1 })
+    expect(parse('{ a : 1 }')).toEqual({ a: 1 })
+    expect(parse('{a:1,b:2}')).toEqual({ a: 1, b: 2 })
+    expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
+  })
+
+  test('should parse an object (2)', () => {
     expect(
       parse(`{
         name: .name,
@@ -109,4 +120,6 @@ describe('parse', () => {
   test('should parse null', () => {
     expect(parse('null')).toEqual(null)
   })
+
+  // FIXME: test the different whitespaces
 })

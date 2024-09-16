@@ -19,30 +19,37 @@ import {
 } from './constants'
 
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
+  const parseString = () => parseRegex(startsWithStringRegex, JSON.parse)
+  const parseUnquotedString = () => parseRegex(startsWithUnquotedPropertyRegex, (text) => text)
+  const parseNumber = () => parseRegex(startsWithNumberRegex, JSON.parse)
+  const parseKeyword = () => parseRegex(startsWithKeywordRegex, JSON.parse)
+  const parseWhitespace = () => parseRegex(startsWithWhitespaceRegex, (text) => text)
+
   const allOperators = { ...operators, ...options?.operators }
 
   let i = 0
+  const output = parsePipe()
 
-  const res = parseStart()
-  parseEnd()
-  return res
-
-  function parseStart() {
-    return parsePipe()
+  // verify that there is no garbage at the end
+  parseWhitespace()
+  if (i < query.length) {
+    throw new Error(`Unexpected part "${query.substring(i)}"`)
   }
 
+  return output
+
   function parsePipe() {
-    skipWhitespace()
+    parseWhitespace()
 
     let evaluator = null
     const pipe = []
     while ((evaluator = parseParentheses()) !== undefined) {
       pipe.push(evaluator)
 
-      skipWhitespace()
+      parseWhitespace()
       if (query[i] === '|') {
         i++
-        skipWhitespace()
+        parseWhitespace()
       }
     }
 
@@ -52,7 +59,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   function parseParentheses() {
     if (query[i] === '(') {
       i++
-      const inner = parseStart()
+      const inner = parsePipe()
       eatChar(')')
       return inner
     }
@@ -63,13 +70,13 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   function parseOperator() {
     const left = parseProperty()
 
-    skipWhitespace()
+    parseWhitespace()
 
     for (const name of Object.keys(allOperators)) {
       const op = allOperators[name]
       if (query.substring(i, i + op.length) === op) {
         i += op.length
-        skipWhitespace()
+        parseWhitespace()
         const right = parseProperty()
 
         return [name, left, right]
@@ -98,7 +105,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   function parseFunction() {
     const start = i
     const name = parseUnquotedString()
-    skipWhitespace()
+    parseWhitespace()
     if (!name || query[i] !== '(') {
       i = start
       return parseObject()
@@ -109,14 +116,15 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       throw new Error(`Unknown function "${name}" (pos: ${start})`)
     }
 
-    skipWhitespace()
+    parseWhitespace()
 
-    const args = query[i] !== ')' ? [parseStart()] : []
+    const args = query[i] !== ')' ? [parsePipe()] : []
     while (i < query.length && query[i] !== ')') {
-      skipWhitespace()
+      parseWhitespace()
       eatChar(',')
-      args.push(parseStart())
+      args.push(parsePipe())
     }
+
     eatChar(')')
 
     return [name, ...args]
@@ -125,42 +133,39 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   function parseObject() {
     if (query[i] === '{') {
       i++
-      skipWhitespace()
+      parseWhitespace()
 
       const object = {}
-      let initial = true
+
+      if (query[i] === '}') {
+        // empty object
+        i++
+        return object
+      }
+
       while (i < query.length && query[i] !== '}') {
-        if (!initial) {
-          eatChar(',')
-          skipWhitespace()
-        } else {
-          initial = false
-        }
-
-        const start = i
-
         const key = parseString() ?? parseUnquotedString()
         if (key === undefined) {
-          throw new SyntaxError(`Key expected (pos: ${start})`)
+          throw new SyntaxError(`Key expected (pos: ${i})`)
         }
 
-        skipWhitespace()
+        parseWhitespace()
         eatChar(':')
 
-        const valueStart = i
-        const value = parseStart()
-
+        const value = parsePipe()
         if (value === undefined) {
-          throw new SyntaxError(`Value expected (pos: ${valueStart})`)
+          throw new SyntaxError(`Value expected (pos: ${i})`)
         }
-
         object[key] = value
+
+        parseWhitespace()
+        if (query[i] !== '}') {
+          eatChar(',')
+          parseWhitespace()
+        }
       }
 
-      if (query[i] !== '}') {
-        throw new SyntaxError(`Key or end of object '}' expected (pos: ${i})`)
-      }
-      i++
+      eatChar('}')
 
       return object
     }
@@ -168,38 +173,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     return parseString() ?? parseNumber() ?? parseKeyword()
   }
 
-  function parseString() {
-    return parseRegex(startsWithStringRegex, JSON.parse)
-  }
-
-  function parseUnquotedString() {
-    return parseRegex(startsWithUnquotedPropertyRegex)
-  }
-
-  function parseNumber() {
-    return parseRegex(startsWithNumberRegex, Number)
-  }
-
-  function parseKeyword() {
-    return parseRegex(startsWithKeywordRegex, JSON.parse)
-  }
-
-  function parseEnd() {
-    skipWhitespace()
-
-    if (i < query.length) {
-      throw new Error(`Unexpected part "${query.slice(i)}"`)
-    }
-  }
-
-  function skipWhitespace() {
-    parseRegex(startsWithWhitespaceRegex)
-  }
-
-  function parseRegex<T = string>(
-    regex: RegExp,
-    callback: (match: string) => T = (match) => match as T
-  ): T | undefined {
+  function parseRegex<T = string>(regex: RegExp, callback: (match: string) => T): T | undefined {
     const match = query.substring(i).match(regex)
     if (match) {
       i += match[0].length
