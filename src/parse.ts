@@ -106,28 +106,18 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     i++
 
     if (!options?.functions.has(name) && !functions[name]) {
-      throw new Error(`Unknown function "${name}" (pos: ${i - name.length})`)
+      throw new Error(`Unknown function "${name}" (pos: ${start})`)
     }
 
     skipWhitespace()
-    const args = []
+
+    const args = query[i] !== ')' ? [parseStart()] : []
     while (i < query.length && query[i] !== ')') {
-      const arg = parseStart()
-      if (arg) {
-        args.push(arg)
-      }
       skipWhitespace()
-
-      if (query[i] === ',') {
-        i++
-        skipWhitespace()
-      }
+      eatChar(',')
+      args.push(parseStart())
     }
-
-    if (query[i] !== ')') {
-      throw new SyntaxError(`Comma "," or parenthesis ")" expected (pos: ${i})`)
-    }
-    i++
+    eatChar(')')
 
     return [name, ...args]
   }
