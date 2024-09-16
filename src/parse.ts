@@ -10,13 +10,12 @@
 import { functions } from './functions'
 import { JSONQuery, JSONQueryParseOptions } from './types'
 import {
-  alphaCharacterRegex,
-  alphaDigitCharacterRegex,
   operators,
   startsWithKeywordRegex,
   startsWithNumberRegex,
+  startsWithStringRegex,
   startsWithUnquotedPropertyRegex,
-  whitespaceRegex
+  startsWithWhitespaceRegex
 } from './constants'
 
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
@@ -65,12 +64,14 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     const left = parseProperty()
 
     skipWhitespace()
+
     for (const name of Object.keys(allOperators)) {
       const op = allOperators[name]
       if (query.substring(i, i + op.length) === op) {
         i += op.length
         skipWhitespace()
         const right = parseProperty()
+
         return [name, left, right]
       }
     }
@@ -79,67 +80,56 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   function parseProperty() {
-    if (query[i] === '.') {
-      const props = []
+    const props = []
 
-      while (query[i] === '.') {
-        i++
+    while (query[i] === '.') {
+      i++
 
-        const property = parseString() ?? parseUnquotedString()
-        if (property === undefined) {
-          throw new SyntaxError('String expected (pos: ${i})')
-        }
-        props.push(property)
+      const property = parseString() ?? parseUnquotedString()
+      if (property === undefined) {
+        throw new SyntaxError('Property expected (pos: ${i})')
       }
-
-      return ['get', ...props]
+      props.push(property)
     }
 
-    return parseFunction()
+    return props.length ? ['get', ...props] : parseFunction()
   }
 
   function parseFunction() {
-    if (alphaCharacterRegex.test(query[i])) {
-      const start = i
-      while (alphaDigitCharacterRegex.test(query[i])) {
-        i++
-      }
-      const name = query.slice(start, i)
-      skipWhitespace()
-      if (query[i] !== '(') {
-        i = start
-        return parseObject()
-      }
-      i++
+    const start = i
+    const name = parseUnquotedString()
+    skipWhitespace()
+    if (!name || query[i] !== '(') {
+      i = start
+      return parseObject()
+    }
+    i++
 
-      if (!options?.functions.has(name) && !functions[name]) {
-        throw new Error(`Unknown function "${name}" (pos: ${i - name.length})`)
-      }
-
-      skipWhitespace()
-      const args = []
-      while (i < query.length && query[i] !== ')') {
-        const arg = parseStart()
-        if (arg) {
-          args.push(arg)
-        }
-        skipWhitespace()
-
-        if (query[i] === ',') {
-          i++
-          skipWhitespace()
-        }
-      }
-
-      if (query[i] !== ')') {
-        throw new SyntaxError(`Comma "," or parenthesis ")" expected (pos: ${i})`)
-      }
-      i++
-
-      return [name, ...args]
+    if (!options?.functions.has(name) && !functions[name]) {
+      throw new Error(`Unknown function "${name}" (pos: ${i - name.length})`)
     }
 
-    return parseObject()
+    skipWhitespace()
+    const args = []
+    while (i < query.length && query[i] !== ')') {
+      const arg = parseStart()
+      if (arg) {
+        args.push(arg)
+      }
+      skipWhitespace()
+
+      if (query[i] === ',') {
+        i++
+        skipWhitespace()
+      }
+    }
+
+    if (query[i] !== ')') {
+      throw new SyntaxError(`Comma "," or parenthesis ")" expected (pos: ${i})`)
+    }
+    i++
+
+    return [name, ...args]
   }
 
   function parseObject() {
@@ -189,40 +179,19 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   function parseString() {
-    if (query[i] === '"') {
-      const start = i
-      i++
-      while (i < query.length && (query[i] !== '"' || query[i - 1] === '\\')) {
-        i++
-      }
-      i++
-
-      return JSON.parse(query.slice(start, i))
-    }
+    return parseRegex(startsWithStringRegex, JSON.parse)
   }
 
   function parseUnquotedString() {
-    const match = query.substring(i).match(startsWithUnquotedPropertyRegex)
-    if (match) {
-      i += match[0].length
-      return match[0]
-    }
+    return parseRegex(startsWithUnquotedPropertyRegex)
   }
 
   function parseNumber() {
-    const match = query.substring(i).match(startsWithNumberRegex)
-    if (match) {
-      i += match[0].length
-      return Number(match[0])
-    }
+    return parseRegex(startsWithNumberRegex, Number)
   }
 
   function parseKeyword() {
-    const match = query.substring(i).match(startsWithKeywordRegex)
-    if (match) {
-      i += match[0].length
-      return JSON.parse(match[0])
-    }
+    return parseRegex(startsWithKeywordRegex, JSON.parse)
   }
 
   function parseEnd() {
@@ -234,8 +203,17 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   function skipWhitespace() {
-    while (whitespaceRegex.test(query[i])) {
-      i++
+    parseRegex(startsWithWhitespaceRegex)
+  }
+
+  function parseRegex<T = string>(
+    regex: RegExp,
+    callback: (match: string) => T = (match) => match as T
+  ): T | undefined {
+    const match = query.substring(i).match(regex)
+    if (match) {
+      i += match[0].length
+      return callback(match[0])
     }
   }
 

@@ -19,10 +19,13 @@ describe('parse', () => {
 
   test('should parse a function without arguments', () => {
     expect(parse('sort()')).toEqual(['sort'])
+    expect(parse('sort( )')).toEqual(['sort'])
+    expect(parse('sort ( )')).toEqual(['sort'])
   })
 
   test('should parse a function with one argument', () => {
     expect(parse('sort(.age)')).toEqual(['sort', ['get', 'age']])
+    expect(parse('sort ( .age )')).toEqual(['sort', ['get', 'age']])
   })
 
   test('should parse a function with multiple arguments', () => {
@@ -38,6 +41,7 @@ describe('parse', () => {
   })
 
   test('should parse an operator', () => {
+    expect(parse('.score==8')).toEqual(['eq', ['get', 'score'], 8])
     expect(parse('.score == 8')).toEqual(['eq', ['get', 'score'], 8])
   })
 
