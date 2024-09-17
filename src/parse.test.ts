@@ -3,54 +3,60 @@ import { parse } from './parse'
 import { JSONQueryParseOptions } from './types'
 
 describe('parse', () => {
-  test('should parse a property without quotes', () => {
-    expect(parse('.name')).toEqual(['get', 'name'])
+  describe('property', () => {
+    test('should parse a property without quotes', () => {
+      expect(parse('.name')).toEqual(['get', 'name'])
+    })
+
+    test('should parse a property with quotes', () => {
+      expect(parse('."name"')).toEqual(['get', 'name'])
+    })
+
+    test('should parse a nested property', () => {
+      expect(parse('.address.city')).toEqual(['get', 'address', 'city'])
+      expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
+      expect(parse('.array.2')).toEqual(['get', 'array', 2])
+    })
   })
 
-  test('should parse a property with quotes', () => {
-    expect(parse('."name"')).toEqual(['get', 'name'])
+  describe('property', () => {
+    test('should parse a function without arguments', () => {
+      expect(parse('sort()')).toEqual(['sort'])
+      expect(parse('sort( )')).toEqual(['sort'])
+      expect(parse('sort ( )')).toEqual(['sort'])
+    })
+
+    test('should parse a function with one argument', () => {
+      expect(parse('sort(.age)')).toEqual(['sort', ['get', 'age']])
+      expect(parse('sort ( .age )')).toEqual(['sort', ['get', 'age']])
+    })
+
+    test('should parse a function with multiple arguments', () => {
+      expect(parse('sort(.age, "desc")')).toEqual(['sort', ['get', 'age'], 'desc'])
+    })
+
+    test('should parse a custom function', () => {
+      const options: JSONQueryParseOptions = {
+        functions: { customFn: true }
+      }
+
+      expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
+    })
   })
 
-  test('should parse a nested property', () => {
-    expect(parse('.address.city')).toEqual(['get', 'address', 'city'])
-    expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
-    expect(parse('.array.2')).toEqual(['get', 'array', 2])
-  })
+  describe('operator', () => {
+    test('should parse an operator', () => {
+      expect(parse('.score==8')).toEqual(['eq', ['get', 'score'], 8])
+      expect(parse('.score == 8')).toEqual(['eq', ['get', 'score'], 8])
+    })
 
-  test('should parse a function without arguments', () => {
-    expect(parse('sort()')).toEqual(['sort'])
-    expect(parse('sort( )')).toEqual(['sort'])
-    expect(parse('sort ( )')).toEqual(['sort'])
-  })
+    test('should parse a custom operator', () => {
+      const options: JSONQueryParseOptions = {
+        operators: { aboutEq: '~=' }
+      }
 
-  test('should parse a function with one argument', () => {
-    expect(parse('sort(.age)')).toEqual(['sort', ['get', 'age']])
-    expect(parse('sort ( .age )')).toEqual(['sort', ['get', 'age']])
-  })
-
-  test('should parse a function with multiple arguments', () => {
-    expect(parse('sort(.age, "desc")')).toEqual(['sort', ['get', 'age'], 'desc'])
-  })
-
-  test('should parse a custom function', () => {
-    const options: JSONQueryParseOptions = {
-      functions: { customFn: true }
-    }
-
-    expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
-  })
-
-  test('should parse an operator', () => {
-    expect(parse('.score==8')).toEqual(['eq', ['get', 'score'], 8])
-    expect(parse('.score == 8')).toEqual(['eq', ['get', 'score'], 8])
-  })
-
-  test('should parse a custom operator', () => {
-    const options: JSONQueryParseOptions = {
-      operators: { aboutEq: '~=' }
-    }
-
-    expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])
+      expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])
+    })
   })
 
   test('should parse a pipe', () => {
@@ -67,30 +73,32 @@ describe('parse', () => {
     expect(parse('(.age == 18)')).toEqual(['eq', ['get', 'age'], 18])
   })
 
-  test('should parse an object (1)', () => {
-    expect(parse('{}')).toEqual({})
-    expect(parse('{ }')).toEqual({})
-    expect(parse('{a:1}')).toEqual({ a: 1 })
-    expect(parse('{a1:1}')).toEqual({ a1: 1 })
-    expect(parse('{AaZz_$019:1}')).toEqual({ AaZz_$019: 1 })
-    expect(parse('{ a : 1 }')).toEqual({ a: 1 })
-    expect(parse('{a:1,b:2}')).toEqual({ a: 1, b: 2 })
-    expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
-    expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
-    expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
-  })
+  describe('object', () => {
+    test('should parse an object (1)', () => {
+      expect(parse('{}')).toEqual({})
+      expect(parse('{ }')).toEqual({})
+      expect(parse('{a:1}')).toEqual({ a: 1 })
+      expect(parse('{a1:1}')).toEqual({ a1: 1 })
+      expect(parse('{AaZz_$019:1}')).toEqual({ AaZz_$019: 1 })
+      expect(parse('{ a : 1 }')).toEqual({ a: 1 })
+      expect(parse('{a:1,b:2}')).toEqual({ a: 1, b: 2 })
+      expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
+      expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
+      expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
+    })
 
-  test('should parse an object (2)', () => {
-    expect(
-      parse(`{
+    test('should parse an object (2)', () => {
+      expect(
+        parse(`{
         name: .name,
         city: .address.city,
         averageAge: map(.age) | average()
       }`)
-    ).toEqual({
-      name: ['get', 'name'],
-      city: ['get', 'address', 'city'],
-      averageAge: [['map', ['get', 'age']], ['average']]
+      ).toEqual({
+        name: ['get', 'name'],
+        city: ['get', 'address', 'city'],
+        averageAge: [['map', ['get', 'age']], ['average']]
+      })
     })
   })
 
