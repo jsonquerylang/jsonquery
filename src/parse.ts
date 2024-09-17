@@ -2,6 +2,7 @@ import { functions } from './functions'
 import { JSONQuery, JSONQueryParseOptions } from './types'
 import {
   operators,
+  startsWithIntRegex,
   startsWithKeywordRegex,
   startsWithNumberRegex,
   startsWithStringRegex,
@@ -27,6 +28,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   const parseString = () => parseRegex(startsWithStringRegex, JSON.parse)
   const parseUnquotedString = () => parseRegex(startsWithUnquotedPropertyRegex, (text) => text)
   const parseNumber = () => parseRegex(startsWithNumberRegex, JSON.parse)
+  const parseInteger = () => parseRegex(startsWithIntRegex, JSON.parse)
   const parseKeyword = () => parseRegex(startsWithKeywordRegex, JSON.parse)
   const parseWhitespace = () => parseRegex(startsWithWhitespaceRegex, (text) => text)
 
@@ -86,7 +88,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     while (query[i] === '.') {
       i++
 
-      const property = parseString() ?? parseUnquotedString()
+      const property = parseString() ?? parseUnquotedString() ?? parseInteger()
       if (property === undefined) {
         throw new SyntaxError('Property expected (pos: ${i})')
       }
@@ -138,7 +140,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       }
 
       while (i < query.length && query[i] !== '}') {
-        const key = parseString() ?? parseUnquotedString()
+        const key = parseString() ?? parseUnquotedString() ?? parseInteger()
         if (key === undefined) {
           throw new SyntaxError(`Key expected (pos: ${i})`)
         }

@@ -14,7 +14,7 @@ describe('parse', () => {
   test('should parse a nested property', () => {
     expect(parse('.address.city')).toEqual(['get', 'address', 'city'])
     expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
-    // expect(parse('.array.2')).toEqual(['get', 'array', 2]) // FIXME: parse a number
+    expect(parse('.array.2')).toEqual(['get', 'array', 2])
   })
 
   test('should parse a function without arguments', () => {
@@ -77,6 +77,7 @@ describe('parse', () => {
     expect(parse('{a:1,b:2}')).toEqual({ a: 1, b: 2 })
     expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
     expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
+    expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
   })
 
   test('should parse an object (2)', () => {
