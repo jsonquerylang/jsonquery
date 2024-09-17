@@ -145,6 +145,16 @@ button:hover {
   min-height: 220px;
 }
 
+.row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  &.double {
+    flex: 2;
+  }
+}
+
 @media (max-width: 860px) {
   .playground {
     display: flex;
@@ -155,6 +165,14 @@ button:hover {
   .column {
     display: flex;
   }
+
+  .row {
+    min-height: 110px;
+
+    &.double {
+      min-height: 220px;
+    }
+  }
 }
 
 .separator {
@@ -163,7 +181,8 @@ button:hover {
 
 label {
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-top: var(--padding);
+  margin-bottom: 5px;
 }
 
 textarea {

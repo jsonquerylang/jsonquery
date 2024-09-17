@@ -61,15 +61,26 @@
           >
         </div>
         <div class="column">
-          <label for="query-text">Query</label>
-          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <div class="row">
+            <label for="query-text">Query Text</label>
+            <textarea
+              id="query-text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+            ></textarea>
+          </div>
+          <div class="row double">
+            <label for="query-json">Query JSON</label>
+            <textarea id="query-json" autocomplete="off" autocapitalize="off" spellcheck="false">
 [
   ["get", "friends"],
   ["filter", ["eq", ["get", "city"], "New York"]],
   ["sort", ["get", "age"]],
   ["pick", ["get", "name"], ["get", "age"]]
 ]</textarea
-          >
+            >
+          </div>
         </div>
         <div class="column">
           <label for="output-text">Output</label>
@@ -493,10 +504,11 @@
     <script type="module">
       import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
 
-      window.jsonquery = jsonquery
+      window.jsonquery = { jsonquery, stringify, parse, compile }
 
       const refInputText = document.getElementById('input-text')
       const refQueryText = document.getElementById('query-text')
+      const refQueryJson = document.getElementById('query-json')
       const refOutputText = document.getElementById('output-text')
       const refShowDebugger = document.getElementById('show-debugger')
       const refDebugger = document.getElementById('debugger')
@@ -509,7 +521,7 @@
       const refErrorQuery = document.getElementById('error-query')
 
       const input1 = refInputText.value
-      const query1 = refQueryText.value
+      const query1 = refQueryJson.value
 
       const input2 = `[
   {"name": "Chris", "age": 23, "city": "New York"},
@@ -561,11 +573,33 @@
       let error = undefined
       let errorIndex = 0
 
+      function updateQueryText() {
+        try {
+          const queryJson = JSON.parse(refQueryJson.value)
+          refQueryText.value = stringify(queryJson)
+          refQueryText.classList.remove('error')
+        } catch (err) {
+          refQueryText.value = String(err)
+          refQueryText.classList.add('error')
+        }
+      }
+
+      function updateQueryJson() {
+        try {
+          const queryText = refQueryText.value
+          refQueryJson.value = JSON.stringify(parse(queryText), null, 2)
+          refQueryJson.classList.remove('error')
+        } catch (err) {
+          refQueryJson.value = String(err)
+          refQueryJson.classList.add('error')
+        }
+      }
+
       function go() {
         try {
           const input = JSON.parse(refInputText.value)
-          const query = JSON.parse(refQueryText.value)
-          const output = jsonquery(input, query)
+          const queryJson = JSON.parse(refQueryJson.value)
+          const output = jsonquery(input, queryJson)
 
           refOutputText.value = JSON.stringify(output, null, 2)
           refOutputText.classList.remove('error')
@@ -622,12 +656,20 @@
 
       function load(input, query) {
         refInputText.value = input
-        refQueryText.value = query
+        refQueryText.value = stringify(JSON.parse(query))
+        refQueryJson.value = query
         go()
       }
 
       refInputText.addEventListener('input', go)
-      refQueryText.addEventListener('input', go)
+      refQueryText.addEventListener('input', () => {
+        updateQueryJson()
+        go()
+      })
+      refQueryJson.addEventListener('input', () => {
+        updateQueryText()
+        go()
+      })
       refShowDebugger.addEventListener('click', showDebugger)
       refErrorPrevious.addEventListener('click', previousDebugEntry)
       refErrorNext.addEventListener('click', nextDebugEntry)
@@ -644,6 +686,7 @@
       document.getElementById('example4').addEventListener('click', () => load(input4, query4))
       document.getElementById('example5').addEventListener('click', () => load(input5, query5))
 
+      updateQueryText()
       go()
     </script>
   </body>
