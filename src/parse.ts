@@ -106,7 +106,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
     i++
 
-    if (!options?.functions.has(name) && !functions[name]) {
+    if (!options?.functions[name] && !functions[name]) {
       throw new Error(`Unknown function "${name}" (pos: ${start})`)
     }
 

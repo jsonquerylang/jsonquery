@@ -34,7 +34,7 @@ describe('parse', () => {
 
   test('should parse a custom function', () => {
     const options: JSONQueryParseOptions = {
-      functions: new Set(['customFn'])
+      functions: { customFn: true }
     }
 
     expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])

@@ -217,7 +217,7 @@ The following example will output an object with properties `names`, `count`, an
 The `jsonquery` library has one core function where you pass the data, the query, and optionally an object with custom functions to extend the built-in functions:
 
 ```
-jsonquery(data: JSON, query: JSONQuery, options: JSONQueryOptions) : JSON
+jsonquery(data: JSON, query: string | JSONQuery, options: JSONQueryOptions) : JSON
 ```
 
 Here:
@@ -251,6 +251,19 @@ Here:
       ```
 
       You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
+  -   `operators` is an optional map with operators, for example `{ eq: '==' }`. The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
+      ```js
+      import { buildFunction } from 'jsonquery'
+      
+      const options = {
+        operators: {
+          notEqual: '<>'
+        },
+        functions: {
+          notEqual: buildFunction((a, b) => a !== b)
+        }
+      }
+      ```
 
 Here an example of using the function `jsonquery`:
 
