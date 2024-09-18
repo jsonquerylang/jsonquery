@@ -7,5 +7,6 @@ export default {
     },
     outDir: './lib',
     sourcemap: true
-  }
+  },
+  ssr: false
 }

@@ -1,7 +1,28 @@
-import { FunctionBuildersMap, Getter, JSONPath, JSONQuery, JSONQueryProperty } from './types'
 import { compile } from './compile'
 import { isArray } from './is'
-import { buildFunction } from './buildFunction'
+import type {
+  FunctionBuilder,
+  FunctionBuildersMap,
+  Getter,
+  JSONPath,
+  JSONQuery,
+  JSONQueryProperty
+} from './types'
+
+export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuilder {
+  return (...args: JSONQuery[]) => {
+    const compiledArgs = args.map((arg) => compile(arg))
+
+    const arg0 = compiledArgs[0]
+    const arg1 = compiledArgs[1]
+
+    return compiledArgs.length === 1
+      ? (data: unknown) => fn(arg0(data))
+      : compiledArgs.length === 2
+        ? (data: unknown) => fn(arg0(data), arg1(data))
+        : (data: unknown) => fn(...compiledArgs.map((arg) => arg(data)))
+  }
+}
 
 export const functions: FunctionBuildersMap = {
   get: (...path: JSONPath) => {
@@ -55,7 +76,9 @@ export const functions: FunctionBuildersMap = {
 
     const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
       const out = {}
-      getters.forEach(([key, getter]) => (out[key] = getter(object)))
+      for (const [key, getter] of getters) {
+        out[key] = getter(object)
+      }
       return out
     }
 
@@ -93,10 +116,10 @@ export const functions: FunctionBuildersMap = {
     return (data: T[]) => {
       const res = {}
 
-      data.forEach((item) => {
+      for (const item of data) {
         const value = getter(item) as string
         res[value] = res[value] ?? item
-      })
+      }
 
       return res
     }
@@ -173,7 +196,7 @@ export const functions: FunctionBuildersMap = {
   mod: buildFunction((a: number, b: number) => a % b),
   abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {
-    const num = Math.round(Number(value + 'e' + digits))
-    return Number(num + 'e' + -digits)
+    const num = Math.round(Number(`${value}e${digits}`))
+    return Number(`${num}e${-digits}`)
   })
 }

@@ -1,20 +1,20 @@
-import {
-  Function,
+import { functions } from './functions'
+import { isArray, isObject, isString } from './is'
+import type {
+  Fun,
   FunctionBuildersMap,
   Getter,
   JSONQuery,
+  JSONQueryCompileOptions,
   JSONQueryFunction,
   JSONQueryObject,
-  JSONQueryCompileOptions,
   JSONQueryPipe
 } from './types'
-import { isArray, isObject, isString } from './is'
-import { functions } from './functions'
 
-const functionsStack: FunctionBuildersMap[] = [functions]
+const functionsStack: FunctionBuildersMap[] = []
 
-export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Function {
-  functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
+export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Fun {
+  functionsStack.unshift({ ...functions, ...functionsStack[0], ...options?.functions })
 
   try {
     const exec = _compile(query, functionsStack[0])
@@ -34,7 +34,7 @@ export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Fu
   }
 }
 
-function _compile(query: JSONQuery, functions: FunctionBuildersMap): Function {
+function _compile(query: JSONQuery, functions: FunctionBuildersMap): Fun {
   if (isArray(query)) {
     // function
     if (isString(query[0])) {
@@ -75,7 +75,9 @@ function object(query: JSONQueryObject) {
 
   return (data: unknown) => {
     const obj = {}
-    getters.forEach(([key, getter]) => (obj[key] = getter(data)))
+    for (const [key, getter] of getters) {
+      obj[key] = getter(data)
+    }
     return obj
   }
 }

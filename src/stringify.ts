@@ -1,12 +1,12 @@
-import {
+import { operators, unquotedPropertyRegex } from './constants'
+import { isArray, isObject, isString } from './is'
+import type {
   JSONPath,
   JSONQuery,
   JSONQueryFunction,
   JSONQueryObject,
   JSONQueryStringifyOptions
 } from './types'
-import { isArray, isObject, isString } from './is'
-import { operators, unquotedPropertyRegex } from './constants'
 
 /**
  * Stringify a JSON Query into a readable, human friendly text syntax.
@@ -74,7 +74,7 @@ function stringifyObject(query: JSONQueryObject, options: JSONQueryStringifyOpti
 }
 
 function stringifyPath(path: JSONPath): string {
-  return path.map((prop) => '.' + stringifyProperty(prop)).join('')
+  return path.map((prop) => `.${stringifyProperty(prop)}`).join('')
 }
 
 function stringifyProperty(prop: string): string {

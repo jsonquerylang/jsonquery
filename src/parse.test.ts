@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { parse } from './parse'
-import { JSONQueryParseOptions } from './types'
+import type { JSONQueryParseOptions } from './types'
 
 describe('parse', () => {
   describe('property', () => {

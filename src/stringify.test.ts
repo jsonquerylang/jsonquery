@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { stringify } from './stringify'
-import { JSONQueryStringifyOptions } from './types'
+import type { JSONQueryStringifyOptions } from './types'
 
 describe('stringify', () => {
   test('should stringify a function', () => {

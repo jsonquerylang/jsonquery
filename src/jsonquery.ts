@@ -1,7 +1,7 @@
-import { JSONQuery, JSONQueryOptions } from './types'
 import { compile } from './compile'
 import { isString } from './is'
 import { parse } from './parse'
+import type { JSONQuery, JSONQueryOptions } from './types'
 
 export function jsonquery(
   data: unknown,

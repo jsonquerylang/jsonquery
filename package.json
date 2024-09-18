@@ -28,11 +28,7 @@
       "types": "./lib/jsonquery.d.ts"
     }
   },
-  "files": [
-    "lib",
-    "LICENSE.md",
-    "README.md"
-  ],
+  "files": ["lib", "LICENSE.md", "README.md"],
   "scripts": {
     "test": "vitest src",
     "test-ci": "vitest run src",
@@ -40,19 +36,19 @@
     "build:esm": "vite build",
     "build:types": "tsc --project tsconfig-types.json",
     "build:validate": "vitest run test-lib",
-    "lint": "prettier . --check",
-    "format": "prettier . --write",
+    "lint": "biome check",
+    "format": "biome check --write",
     "format:readme": "prettier README.md --write --ignore-path notneeded",
     "build-and-test": "npm-run-all test-ci lint build",
     "prepublishOnly": "npm run build-and-test",
     "release": "semantic-release"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.1",
     "npm-run-all": "4.1.5",
-    "prettier": "3.3.3",
-    "semantic-release": "24.1.0",
-    "typescript": "5.5.4",
-    "vite": "5.4.2",
-    "vitest": "2.0.5"
+    "semantic-release": "24.1.1",
+    "typescript": "5.6.2",
+    "vite": "5.4.6",
+    "vitest": "2.1.1"
   }
 }

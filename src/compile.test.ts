@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { JSONQuery, JSONQueryCompileOptions } from './types'
 import { compile } from './compile'
-import { buildFunction } from './buildFunction'
+import { buildFunction } from './functions'
+import type { JSONQuery, JSONQueryCompileOptions } from './types'
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -848,15 +848,16 @@ describe('compile', () => {
     expect(go([2, 3, 1], ['sort'])).toEqual([1, 2, 3])
   })
 
-  test('should extend with a custom function abouteq', () => {
+  test('should extend with a custom function aboutEq', () => {
     const options = {
       functions: {
-        abouteq: buildFunction((a, b) => a == b) // loosely equal
+        // biome-ignore lint/suspicious/noDoubleEquals: we want to test loosely equal here
+        aboutEq: buildFunction((a, b) => a == b) // loosely equal
       }
     }
 
-    expect(go({ a: 2 }, ['abouteq', ['get', 'a'], 2], options)).toEqual(true)
-    expect(go({ a: 2 }, ['abouteq', ['get', 'a'], '2'], options)).toEqual(true)
+    expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], 2], options)).toEqual(true)
+    expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], '2'], options)).toEqual(true)
   })
 
   test('should use functions to calculate a shopping cart', () => {

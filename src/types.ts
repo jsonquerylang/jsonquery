@@ -26,7 +26,7 @@ export interface JSONQueryParseOptions {
   operators?: Record<string, string>
 }
 
-export type Function = (data: unknown) => unknown
-export type FunctionBuilder = (...args: JSONQuery[]) => Function
+export type Fun = (data: unknown) => unknown
+export type FunctionBuilder = (...args: JSONQuery[]) => Fun
 export type FunctionBuildersMap = Record<string, FunctionBuilder>
-export type Getter = [key: string, Function]
+export type Getter = [key: string, Fun]

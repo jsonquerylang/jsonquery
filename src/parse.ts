@@ -1,5 +1,3 @@
-import { functions } from './functions'
-import { JSONQuery, JSONQueryParseOptions } from './types'
 import {
   operators,
   startsWithIntRegex,
@@ -9,6 +7,8 @@ import {
   startsWithUnquotedPropertyRegex,
   startsWithWhitespaceRegex
 } from './constants'
+import { functions } from './functions'
+import type { JSONQuery, JSONQueryParseOptions } from './types'
 
 /**
  * Parse a string containing a JSON Query into JSON.
@@ -86,7 +86,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       while (query[i] === '.') {
         i++
 
-        const property = parseString() ?? parseUnquotedString() ?? parseInt()
+        const property = parseString() ?? parseUnquotedString() ?? parseInteger()
         if (property !== undefined) {
           props.push(property)
         }
@@ -140,9 +140,9 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       }
 
       while (i < query.length && query[i] !== '}') {
-        const key = parseString() ?? parseUnquotedString() ?? parseInt()
+        const key = parseString() ?? parseUnquotedString() ?? parseInteger()
         if (key === undefined) {
-          throwError(`Key expected`)
+          throwError('Key expected')
         }
 
         skipWhitespace()
@@ -150,7 +150,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
         const value = parsePipe()
         if (value === undefined) {
-          throwError(`Value expected`)
+          throwError('Value expected')
         }
         object[key] = value
 
@@ -175,7 +175,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
   const parseNumber = () => parseRegex(startsWithNumberRegex, JSON.parse)
 
-  const parseInt = () => parseRegex(startsWithIntRegex, JSON.parse)
+  const parseInteger = () => parseRegex(startsWithIntRegex, JSON.parse)
 
   const parseKeyword = () => {
     const keyword = parseRegex(startsWithKeywordRegex, JSON.parse)
@@ -184,7 +184,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
 
     // end of the parsing chain
-    throwError(`Value expected`)
+    throwError('Value expected')
   }
 
   const parseEnd = () => {
