@@ -249,7 +249,7 @@ describe('parse', () => {
     expect(parse('"hello"')).toEqual('hello')
     expect(parse(' "hello"')).toEqual('hello')
     expect(parse('"hello" ')).toEqual('hello')
-    expect(() => parse('"hello')).toThrow("Unexpected part '\"hello'")
+    expect(() => parse('"hello')).toThrow('Value expected (pos: 0)')
   })
 
   test('should parse a number', () => {

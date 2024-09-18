@@ -25,34 +25,19 @@ import {
  *     //  ]
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
-  const parseString = () => parseRegex(startsWithStringRegex, JSON.parse)
-  const parseUnquotedString = () => parseRegex(startsWithUnquotedPropertyRegex, (text) => text)
-  const parseNumber = () => parseRegex(startsWithNumberRegex, JSON.parse)
-  const parseInt = () => parseRegex(startsWithIntRegex, JSON.parse)
-  const parseKeyword = () => parseRegex(startsWithKeywordRegex, JSON.parse)
-  const parseWhitespace = () => parseRegex(startsWithWhitespaceRegex, (text) => text)
-
   const parsePipe = () => {
-    parseWhitespace()
+    skipWhitespace()
     const first = parseOperator()
-    parseWhitespace()
+    skipWhitespace()
 
     if (query[i] === '|') {
       const pipe = [first]
 
-      if (first === undefined) {
-        throw new SyntaxError(`Value expected (pos: ${i})`)
-      }
-
       while (query[i] === '|') {
         i++
-        parseWhitespace()
+        skipWhitespace()
 
-        const next = parseOperator()
-        if (next === undefined) {
-          throw new SyntaxError(`Value expected (pos: ${i})`)
-        }
-        pipe.push(next)
+        pipe.push(parseOperator())
       }
 
       return pipe
@@ -66,22 +51,15 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
     const left = parseParentheses()
 
-    parseWhitespace()
+    skipWhitespace()
 
     // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
     for (const name of Object.keys(allOperators).sort((a, b) => b.length - a.length)) {
       const op = allOperators[name]
       if (query.substring(i, i + op.length) === op) {
         i += op.length
-        parseWhitespace()
+        skipWhitespace()
         const right = parseParentheses()
-
-        if (left === undefined) {
-          throw new SyntaxError(`Value expected (pos: ${i - op.length})`)
-        }
-        if (right === undefined) {
-          throw new SyntaxError(`Value expected (pos: ${i})`)
-        }
 
         return [name, left, right]
       }
@@ -120,7 +98,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   const parseFunction = () => {
     const start = i
     const name = parseUnquotedString()
-    parseWhitespace()
+    skipWhitespace()
     if (!name || query[i] !== '(') {
       i = start
       return parseObject()
@@ -131,11 +109,11 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       throw new SyntaxError(`Unknown function '${name}' (pos: ${start})`)
     }
 
-    parseWhitespace()
+    skipWhitespace()
 
     const args = query[i] !== ')' ? [parsePipe()] : []
     while (i < query.length && query[i] !== ')') {
-      parseWhitespace()
+      skipWhitespace()
       eatChar(',')
       args.push(parsePipe())
     }
@@ -148,7 +126,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   const parseObject = () => {
     if (query[i] === '{') {
       i++
-      parseWhitespace()
+      skipWhitespace()
 
       const object = {}
 
@@ -164,7 +142,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
           throw new SyntaxError(`Key expected (pos: ${i})`)
         }
 
-        parseWhitespace()
+        skipWhitespace()
         eatChar(':')
 
         const value = parsePipe()
@@ -173,10 +151,10 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         }
         object[key] = value
 
-        parseWhitespace()
+        skipWhitespace()
         if (query[i] !== '}') {
           eatChar(',')
-          parseWhitespace()
+          skipWhitespace()
         }
       }
 
@@ -188,6 +166,32 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     return parseString() ?? parseNumber() ?? parseKeyword()
   }
 
+  const parseString = () => parseRegex(startsWithStringRegex, JSON.parse)
+
+  const parseUnquotedString = () => parseRegex(startsWithUnquotedPropertyRegex, (text) => text)
+
+  const parseNumber = () => parseRegex(startsWithNumberRegex, JSON.parse)
+
+  const parseInt = () => parseRegex(startsWithIntRegex, JSON.parse)
+
+  const parseKeyword = () => {
+    const keyword = parseRegex(startsWithKeywordRegex, JSON.parse)
+    if (keyword !== undefined) {
+      return keyword
+    }
+
+    // end of the parsing chain
+    throw new SyntaxError(`Value expected (pos: ${i})`)
+  }
+
+  const parseEnd = () => {
+    skipWhitespace()
+
+    if (i < query.length) {
+      throw new SyntaxError(`Unexpected part '${query.substring(i)}' (pos: ${i})`)
+    }
+  }
+
   const parseRegex = <T = string>(regex: RegExp, callback: (match: string) => T): T | undefined => {
     const match = query.substring(i).match(regex)
     if (match) {
@@ -195,6 +199,8 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       return callback(match[0])
     }
   }
+
+  const skipWhitespace = () => parseRegex(startsWithWhitespaceRegex, (text) => text)
 
   const eatChar = (char: string) => {
     if (query[i] !== char) {
@@ -205,15 +211,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
   let i = 0
   const output = parsePipe()
-
-  // verify that there is no garbage at the end
-  parseWhitespace()
-  if (i < query.length) {
-    throw new SyntaxError(`Unexpected part '${query.substring(i)}' (pos: ${i})`)
-  }
-  if (output === undefined) {
-    throw new SyntaxError(`Value expected (pos: ${i})`)
-  }
+  parseEnd()
 
   return output
 }
