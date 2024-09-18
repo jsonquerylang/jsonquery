@@ -11,14 +11,17 @@ describe('parse', () => {
       expect(parse('.9')).toEqual(['get', 9])
       expect(parse('.123')).toEqual(['get', 123])
       expect(parse('.0')).toEqual(['get', 0])
+      expect(parse(' .name ')).toEqual(['get', 'name'])
     })
 
     test('should throw an error in case of an invalid unquoted property', () => {
       expect(() => parse('.01')).toThrow("Unexpected part '1'")
+      expect(() => parse('.1abc')).toThrow("Unexpected part 'abc'")
     })
 
     test('should parse a property with quotes', () => {
       expect(parse('."name"')).toEqual(['get', 'name'])
+      expect(parse(' ."name" ')).toEqual(['get', 'name'])
       expect(parse('."escape \\n \\"chars"')).toEqual(['get', 'escape \n "chars'])
     })
 
@@ -26,8 +29,15 @@ describe('parse', () => {
       expect(() => parse('."name')).toThrow('Property expected (pos: 1)')
     })
 
+    test('should throw an error when there is whitespace between the dot and the property name', () => {
+      expect(() => parse('. "name"')).toThrow('Property expected (pos: 1)')
+      expect(() => parse('."address" ."city"')).toThrow('Unexpected part \'."city"\' (pos: 11)')
+      expect(() => parse('.address .city')).toThrow("Unexpected part '.city' (pos: 9)")
+    })
+
     test('should parse a nested property', () => {
       expect(parse('.address.city')).toEqual(['get', 'address', 'city'])
+      expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
       expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
       expect(parse('.array.2')).toEqual(['get', 'array', 2])
     })
@@ -43,6 +53,7 @@ describe('parse', () => {
       expect(parse('sort()')).toEqual(['sort'])
       expect(parse('sort( )')).toEqual(['sort'])
       expect(parse('sort ( )')).toEqual(['sort'])
+      expect(parse(' sort ( ) ')).toEqual(['sort'])
     })
 
     test('should parse a function with one argument', () => {
@@ -99,23 +110,44 @@ describe('parse', () => {
         ['eq', ['get', 'a'], 'A'],
         ['eq', ['get', 'b'], 'B']
       ])
+
+      expect(parse('(.a == "A") or (.b == "B")')).toEqual([
+        'or',
+        ['eq', ['get', 'a'], 'A'],
+        ['eq', ['get', 'b'], 'B']
+      ])
+
+      expect(parse('(.a == "A") or ((.b == "B") and (.c == "C"))')).toEqual([
+        'or',
+        ['eq', ['get', 'a'], 'A'],
+        ['and', ['eq', ['get', 'b'], 'B'], ['eq', ['get', 'c'], 'C']]
+      ])
+
+      expect(parse('(.a * 2) + 3')).toEqual(['add', ['multiply', ['get', 'a'], 2], 3])
+      expect(parse('3 + (.a * 2)')).toEqual(['add', 3, ['multiply', ['get', 'a'], 2]])
     })
 
     test('should throw an error when using multiple operators without brackets', () => {
       expect(() => parse('.a == "A" and .b == "B"')).toThrow('Unexpected part \'and .b == "B"\'')
+      expect(() => parse('(.a == "A") and (.b == "B") and (.C == "C")')).toThrow(
+        'Unexpected part \'and (.C == "C")\' (pos: 28)'
+      )
+      expect(() => parse('.a + 2 * 3')).toThrow("Unexpected part '* 3' (pos: 7)")
     })
 
     test('should throw an error in case of an unknown operator', () => {
-      expect(() => parse('.a === "A"')).toThrow('Unexpected part \'= "A"\'')
-      expect(() => parse('.a <> "A"')).toThrow('Unexpected part \'> "A"\'')
+      // TODO: can we improve on these error messages, so that they say "Unknown operator ..."?
+      expect(() => parse('.a === "A"')).toThrow('Value expected (pos: 5)')
+      expect(() => parse('.a <> "A"')).toThrow('Value expected (pos: 4)')
     })
 
     test('should throw an error in case a missing right hand side', () => {
-      expect(() => parse('.a ==')).toThrow('Unexpected part "= "A""')
+      expect(() => parse('.a ==')).toThrow('Value expected (pos: 5)')
     })
 
     test('should throw an error in case a missing left and right hand side', () => {
-      expect(() => parse('+')).toThrow('Foo')
+      expect(() => parse('+')).toThrow('Value expected (pos: 0)')
+      expect(() => parse(' +')).toThrow('Value expected (pos: 1)')
     })
 
     test('should parse a custom operator', () => {
@@ -127,15 +159,31 @@ describe('parse', () => {
     })
   })
 
-  test('should parse a pipe', () => {
-    expect(parse('.friends | sort(.age)')).toEqual([
-      ['get', 'friends'],
-      ['sort', ['get', 'age']]
-    ])
+  describe('pipe', () => {
+    test('should parse a pipe', () => {
+      expect(parse('.friends | sort(.age)')).toEqual([
+        ['get', 'friends'],
+        ['sort', ['get', 'age']]
+      ])
+
+      expect(parse('.friends | sort(.age) | filter(.age >= 18)')).toEqual([
+        ['get', 'friends'],
+        ['sort', ['get', 'age']],
+        ['filter', ['gte', ['get', 'age'], 18]]
+      ])
+    })
+
+    test('should throw an error when a value is missing after a pipe', () => {
+      expect(() => parse('.friends |')).toThrow('Value expected (pos: 10)')
+    })
+
+    test('should throw an error when a value is missing before a pipe', () => {
+      expect(() => parse('| .friends ')).toThrow('Value expected (pos: 0)')
+    })
   })
 
-  describe('parenthesis', () => {
-    test('should parse parenthesis', () => {
+  describe('parentheses', () => {
+    test('should parse parentheses', () => {
       expect(parse('(.friends)')).toEqual(['get', 'friends'])
       expect(parse('( .friends)')).toEqual(['get', 'friends'])
       expect(parse('(.friends )')).toEqual(['get', 'friends'])
@@ -148,7 +196,7 @@ describe('parse', () => {
   })
 
   describe('object', () => {
-    test('should parse an object (1)', () => {
+    test('should parse a basic object', () => {
       expect(parse('{}')).toEqual({})
       expect(parse('{ }')).toEqual({})
       expect(parse('{a:1}')).toEqual({ a: 1 })
@@ -161,7 +209,7 @@ describe('parse', () => {
       expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
     })
 
-    test('should parse an object (2)', () => {
+    test('should parse a larger object', () => {
       expect(
         parse(`{
         name: .name,
@@ -214,8 +262,6 @@ describe('parse', () => {
     expect(parse('2.3e-2')).toEqual(0.023)
     expect(parse('2.3E+2')).toEqual(230)
     expect(parse('2.3E-2')).toEqual(0.023)
-
-    // TODO: test throwing an exception in case of an invalid number
   })
 
   test('should parse a boolean', () => {
@@ -228,14 +274,15 @@ describe('parse', () => {
   })
 
   test('should throw an error in case of garbage at the end', () => {
-    expect(() => parse('null 2')).toThrow("Unexpected part '2' (pos 5)")
-    expect(() => parse('["sort"] 2')).toThrow("Unexpected part '2' (pos 9)")
+    expect(() => parse('null 2')).toThrow("Unexpected part '2' (pos: 5)")
+    expect(() => parse('sort() 2')).toThrow("Unexpected part '2' (pos: 7)")
   })
 
-  test('should ship whitespace characters', () => {
+  test('should skip whitespace characters', () => {
     expect(parse(' \n\r\t"hello" \n\r\t')).toEqual('hello')
   })
 
-  // FIXME: test the different whitespaces
-  // FIXME: test all characters of unquoted strings
+  test('should throw when the query is empty', () => {
+    expect(() => parse('')).toThrow('Value expected (pos: 0)')
+  })
 })

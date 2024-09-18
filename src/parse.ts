@@ -34,22 +34,60 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
   const parsePipe = () => {
     parseWhitespace()
-    const first = parseParentheses()
+    const first = parseOperator()
     parseWhitespace()
 
     if (query[i] === '|') {
       const pipe = [first]
+
+      if (first === undefined) {
+        throw new SyntaxError(`Value expected (pos: ${i})`)
+      }
+
       while (query[i] === '|') {
         i++
         parseWhitespace()
 
-        pipe.push(parseParentheses())
+        const next = parseOperator()
+        if (next === undefined) {
+          throw new SyntaxError(`Value expected (pos: ${i})`)
+        }
+        pipe.push(next)
       }
 
       return pipe
     }
 
     return first
+  }
+
+  const parseOperator = () => {
+    const allOperators = { ...operators, ...options?.operators }
+
+    const left = parseParentheses()
+
+    parseWhitespace()
+
+    // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
+    for (const name of Object.keys(allOperators).sort((a, b) => b.length - a.length)) {
+      const op = allOperators[name]
+      if (query.substring(i, i + op.length) === op) {
+        i += op.length
+        parseWhitespace()
+        const right = parseParentheses()
+
+        if (left === undefined) {
+          throw new SyntaxError(`Value expected (pos: ${i - op.length})`)
+        }
+        if (right === undefined) {
+          throw new SyntaxError(`Value expected (pos: ${i})`)
+        }
+
+        return [name, left, right]
+      }
+    }
+
+    return left
   }
 
   const parseParentheses = () => {
@@ -60,29 +98,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       return inner
     }
 
-    return parseOperator()
-  }
-
-  const parseOperator = () => {
-    const allOperators = { ...operators, ...options?.operators }
-
-    const left = parseProperty()
-
-    parseWhitespace()
-
-    // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
-    for (const name of Object.keys(allOperators).sort((a, b) => b.length - a.length)) {
-      const op = allOperators[name]
-      if (query.substring(i, i + op.length) === op) {
-        i += op.length
-        parseWhitespace()
-        const right = parseProperty()
-
-        return [name, left, right]
-      }
-    }
-
-    return left
+    return parseProperty()
   }
 
   const parseProperty = () => {
@@ -112,7 +128,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     i++
 
     if (!options?.functions[name] && !functions[name]) {
-      throw new Error(`Unknown function '${name}' (pos: ${start})`)
+      throw new SyntaxError(`Unknown function '${name}' (pos: ${start})`)
     }
 
     parseWhitespace()
@@ -193,7 +209,10 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   // verify that there is no garbage at the end
   parseWhitespace()
   if (i < query.length) {
-    throw new Error(`Unexpected part '${query.substring(i)}' (pos ${i})`)
+    throw new SyntaxError(`Unexpected part '${query.substring(i)}' (pos: ${i})`)
+  }
+  if (output === undefined) {
+    throw new SyntaxError(`Value expected (pos: ${i})`)
   }
 
   return output
