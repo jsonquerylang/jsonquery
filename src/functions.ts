@@ -6,6 +6,7 @@ import type {
   Getter,
   JSONPath,
   JSONQuery,
+  JSONQueryObject,
   JSONQueryProperty
 } from './types'
 
@@ -25,6 +26,25 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
 }
 
 export const functions: FunctionBuildersMap = {
+  pipe: (...entries: JSONQuery[]) => {
+    const _entries = entries.map((entry) => compile(entry))
+    return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
+  },
+
+  object: (query: JSONQueryObject) => {
+    const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key])])
+
+    return (data: unknown) => {
+      const obj = {}
+      for (const [key, getter] of getters) {
+        obj[key] = getter(data)
+      }
+      return obj
+    }
+  },
+
+  array: (items: unknown) => (_data: unknown) => items,
+
   get: (...path: JSONPath) => {
     if (path.length === 0) {
       return (data: unknown) => data

@@ -82,13 +82,13 @@ describe('compile', () => {
   describe('object', () => {
     test('should create an object', () => {
       expect(
-        go(
-          { a: 2, b: 3 },
+        go({ a: 2, b: 3 }, [
+          'object',
           {
             aa: ['get', 'a'],
             bb: 42
           }
-        )
+        ])
       ).toEqual({
         aa: 2,
         bb: 42
@@ -97,13 +97,19 @@ describe('compile', () => {
 
     test('should create a nested object', () => {
       expect(
-        go(data, {
-          names: ['map', ['get', 'name']],
-          stats: {
-            count: ['size'],
-            averageAge: [['map', ['get', 'age']], ['average']]
+        go(data, [
+          'object',
+          {
+            names: ['map', ['get', 'name']],
+            stats: [
+              'object',
+              {
+                count: ['size'],
+                averageAge: ['pipe', ['map', ['get', 'age']], ['average']]
+              }
+            ]
           }
-        })
+        ])
       ).toEqual({
         names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
         stats: {
@@ -114,23 +120,29 @@ describe('compile', () => {
     })
   })
 
+  describe('array', () => {
+    test('should create an array', () => {
+      expect(go(null, ['array', [1, 2, 3]])).toEqual([1, 2, 3])
+    })
+  })
+
   describe('pipe', () => {
     test('should execute a pipeline', () => {
-      expect(
-        go({ user: { name: 'Joe' } }, [
-          ['get', 'user'],
-          ['get', 'name']
-        ])
-      ).toEqual('Joe')
+      expect(go({ user: { name: 'Joe' } }, ['pipe', ['get', 'user'], ['get', 'name']])).toEqual(
+        'Joe'
+      )
     })
 
     test('should create an object containing pipelines', () => {
       expect(
-        go(data, {
-          names: ['map', ['get', 'name']],
-          count: ['size'],
-          averageAge: [['map', ['get', 'age']], ['average']]
-        })
+        go(data, [
+          'object',
+          {
+            names: ['map', ['get', 'name']],
+            count: ['size'],
+            averageAge: ['pipe', ['map', ['get', 'age']], ['average']]
+          }
+        ])
       ).toEqual({
         names: ['Chris', 'Emily', 'Joe', 'Kevin', 'Michelle', 'Robert', 'Sarah'],
         count: 7,
@@ -157,10 +169,7 @@ describe('compile', () => {
           { name: 'Joe', age: 32, scores: [6.1, 8.1] }
         ]
       }
-      const query = [
-        ['get', 'participants'],
-        ['map', [['get', 'scores'], ['sum']]]
-      ]
+      const query = ['pipe', ['get', 'participants'], ['map', ['pipe', ['get', 'scores'], ['sum']]]]
 
       let actualErr = undefined
       try {
@@ -174,9 +183,9 @@ describe('compile', () => {
         { data: scoreData, query },
         {
           data: scoreData.participants,
-          query: ['map', [['get', 'scores'], ['sum']]]
+          query: ['map', ['pipe', ['get', 'scores'], ['sum']]]
         },
-        { data: { name: 'Emily', age: 19 }, query: [['get', 'scores'], ['sum']] },
+        { data: { name: 'Emily', age: 19 }, query: ['pipe', ['get', 'scores'], ['sum']] },
         { data: undefined, query: ['sum'] }
       ])
     })
@@ -186,13 +195,17 @@ describe('compile', () => {
     test('should map over an array', () => {
       expect(
         go(scoresData, [
+          'pipe',
           [
             'map',
-            {
-              name: ['get', 'name'],
-              maxScore: [['get', 'scores'], ['max']],
-              minScore: [['get', 'scores'], ['min']]
-            }
+            [
+              'object',
+              {
+                name: ['get', 'name'],
+                maxScore: ['pipe', ['get', 'scores'], ['max']],
+                minScore: ['pipe', ['get', 'scores'], ['min']]
+              }
+            ]
           ],
           ['sort', ['get', 'maxScore'], 'desc']
         ])
@@ -266,6 +279,7 @@ describe('compile', () => {
     test('should filter multiple conditions (and)', () => {
       expect(
         go(nestedData, [
+          'pipe',
           ['filter', ['gt', ['get', 'age'], 30]],
           ['filter', ['eq', ['get', 'address', 'city'], 'New York']]
         ])
@@ -276,7 +290,7 @@ describe('compile', () => {
     })
 
     test('should filter with a condition being a function', () => {
-      expect(go(scoresData, ['filter', ['gte', [['get', 'scores'], ['max']], 7]])).toEqual([
+      expect(go(scoresData, ['filter', ['gte', ['pipe', ['get', 'scores'], ['max']], 7]])).toEqual([
         { name: 'Chris', scores: [5, 7, 3] },
         { name: 'Emily', scores: [8, 5, 2, 5] }
       ])
@@ -315,6 +329,7 @@ describe('compile', () => {
     test('should filter data using gte and lte', () => {
       expect(
         go(data, [
+          'pipe',
           ['filter', ['gte', ['get', 'age'], 23]],
           ['filter', ['lte', ['get', 'age'], 27]]
         ])
@@ -324,7 +339,7 @@ describe('compile', () => {
       ])
 
       expect(
-        go(data, [['filter', ['and', ['gte', ['get', 'age'], 23], ['lte', ['get', 'age'], 27]]]])
+        go(data, ['filter', ['and', ['gte', ['get', 'age'], 23], ['lte', ['get', 'age'], 27]]])
       ).toEqual([
         { name: 'Chris', age: 23, city: 'New York' },
         { name: 'Michelle', age: 27, city: 'Los Angeles' }
@@ -471,7 +486,7 @@ describe('compile', () => {
 
     test('should sort a list with numbers rather than objects', () => {
       expect(go([3, 7, 2, 6], ['sort'])).toEqual([2, 3, 6, 7])
-      expect(go([3, 7, 2, 6], ['sort', [], 'desc'])).toEqual([7, 6, 3, 2])
+      expect(go([3, 7, 2, 6], ['sort', ['get'], 'desc'])).toEqual([7, 6, 3, 2])
     })
 
     test('should not crash when sorting a list with nested arrays', () => {
@@ -781,6 +796,7 @@ describe('compile', () => {
   test('should process multiple operations', () => {
     expect(
       go(friendsData, [
+        'pipe',
         ['get', 'friends'],
         ['filter', ['eq', ['get', 'city'], 'New York']],
         ['sort', ['get', 'age']],
@@ -881,7 +897,7 @@ describe('compile', () => {
     ]
 
     expect(
-      go(data, [['map', ['multiply', ['get', 'price'], ['get', 'quantity']]], ['sum']])
+      go(data, ['pipe', ['map', ['multiply', ['get', 'price'], ['get', 'quantity']]], ['sum']])
     ).toEqual(8.6)
   })
 
@@ -909,11 +925,12 @@ describe('compile', () => {
       go(
         data,
         [
+          'pipe',
           ['get', 'locations'],
           ['filter', ['eq', ['get', 'state'], 'WA']],
           ['map', ['get', 'name']],
           ['sort'],
-          { WashingtonCities: ['join'] }
+          ['object', { WashingtonCities: ['join'] }]
         ],
         options
       )
