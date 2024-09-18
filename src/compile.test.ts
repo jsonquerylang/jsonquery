@@ -801,6 +801,20 @@ describe('compile', () => {
     expect(() => go([1, 2, 3], ['times', 2])).toThrow('Unknown function "times"')
   })
 
+  test('should extend with a custom function with more than 2 arguments', () => {
+    const options = {
+      functions: {
+        oneOf: buildFunction(
+          (value: unknown, a: unknown, b: unknown, c: unknown) =>
+            value === a || value === b || value === c
+        )
+      }
+    }
+
+    expect(go('C', ['oneOf', ['get'], 'A', 'B', 'C'], options)).toEqual(true)
+    expect(go('D', ['oneOf', ['get'], 'A', 'B', 'C'], options)).toEqual(false)
+  })
+
   test('should override an existing function', () => {
     const options = {
       functions: {

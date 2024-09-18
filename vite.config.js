@@ -8,5 +8,7 @@ export default {
     outDir: './lib',
     sourcemap: true
   },
-  ssr: false
+  coverage: {
+    provider: 'v8'
+  }
 }

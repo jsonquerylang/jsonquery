@@ -140,19 +140,13 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       }
 
       while (i < query.length && query[i] !== '}') {
-        const key = parseString() ?? parseUnquotedString() ?? parseInteger()
-        if (key === undefined) {
-          throwError('Key expected')
-        }
+        const key =
+          parseString() ?? parseUnquotedString() ?? parseInteger() ?? throwError('Key expected')
 
         skipWhitespace()
         eatChar(':')
 
-        const value = parsePipe()
-        if (value === undefined) {
-          throwError('Value expected')
-        }
-        object[key] = value
+        object[key] = parsePipe()
 
         skipWhitespace()
         if (query[i] !== '}') {

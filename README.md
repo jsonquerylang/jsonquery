@@ -394,6 +394,7 @@ npm run test
 npm run test-ci
 npm run lint
 npm run format
+npm run coverage
 npm run build
 npm run build-and-test
 ```

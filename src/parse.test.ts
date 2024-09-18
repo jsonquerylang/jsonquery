@@ -76,6 +76,10 @@ describe('parse', () => {
       expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
     })
 
+    test('should throw an error in case of an unknown function name', () => {
+      expect(() => parse('foo(42)')).toThrow("Unknown function 'foo' (pos: 4)")
+    })
+
     test('should throw an error when the end bracket is missing', () => {
       expect(() => parse('sort(.age, "desc"')).toThrow("Character ')' expected (pos: 17)")
     })
@@ -211,6 +215,7 @@ describe('parse', () => {
       expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
       expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
       expect(parse('{null:null}')).toEqual({ null: null })
+      expect(parse('{"":"empty"}')).toEqual({ '': 'empty' })
     })
 
     test('should parse a larger object', () => {
@@ -245,6 +250,7 @@ describe('parse', () => {
     })
 
     test('should throw an error when missing a value', () => {
+      expect(() => parse('{a:')).toThrow('Value expected (pos: 3)')
       expect(() => parse('{a:2,b:}')).toThrow('Value expected (pos: 7)')
     })
   })

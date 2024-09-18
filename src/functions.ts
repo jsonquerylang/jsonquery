@@ -51,8 +51,8 @@ export const functions: FunctionBuildersMap = {
     return (data: T[]) => data.map(_callback)
   },
 
-  filter: <T>(...predicate: JSONQuery[]) => {
-    const _predicate = compile(predicate.length === 1 ? predicate[0] : predicate)
+  filter: <T>(predicate: JSONQuery[]) => {
+    const _predicate = compile(predicate)
     return (data: T[]) => data.filter(_predicate)
   },
 
