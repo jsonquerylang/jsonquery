@@ -65,6 +65,7 @@ describe('parse', () => {
 
     test('should parse a function with multiple arguments', () => {
       expect(parse('sort(.age, "desc")')).toEqual(['sort', ['get', 'age'], 'desc'])
+      expect(parse('sort(., "desc")')).toEqual(['sort', ['get'], 'desc'])
     })
 
     test('should parse a custom function', () => {
@@ -209,6 +210,7 @@ describe('parse', () => {
       expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
       expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
       expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
+      expect(parse('{null:null}')).toEqual({ null: null })
     })
 
     test('should parse a larger object', () => {

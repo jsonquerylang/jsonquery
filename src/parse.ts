@@ -109,7 +109,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     i++
 
     if (!options?.functions[name] && !functions[name]) {
-      throw new SyntaxError(`Unknown function '${name}' (pos: ${start})`)
+      throwError(`Unknown function '${name}'`)
     }
 
     skipWhitespace()
@@ -142,7 +142,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       while (i < query.length && query[i] !== '}') {
         const key = parseString() ?? parseUnquotedString() ?? parseInt()
         if (key === undefined) {
-          throw new SyntaxError(`Key expected (pos: ${i})`)
+          throwError(`Key expected`)
         }
 
         skipWhitespace()
@@ -150,7 +150,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
         const value = parsePipe()
         if (value === undefined) {
-          throw new SyntaxError(`Value expected (pos: ${i})`)
+          throwError(`Value expected`)
         }
         object[key] = value
 
@@ -184,14 +184,14 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
 
     // end of the parsing chain
-    throw new SyntaxError(`Value expected (pos: ${i})`)
+    throwError(`Value expected`)
   }
 
   const parseEnd = () => {
     skipWhitespace()
 
     if (i < query.length) {
-      throw new SyntaxError(`Unexpected part '${query.substring(i)}' (pos: ${i})`)
+      throwError(`Unexpected part '${query.substring(i)}'`)
     }
   }
 
@@ -207,9 +207,13 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
   const eatChar = (char: string) => {
     if (query[i] !== char) {
-      throw new SyntaxError(`Character '${char}' expected (pos: ${i})`)
+      throwError(`Character '${char}' expected`)
     }
     i++
+  }
+
+  const throwError = (message: string, pos = i) => {
+    throw new SyntaxError(`${message} (pos: ${pos})`)
   }
 
   let i = 0
