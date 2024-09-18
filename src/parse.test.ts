@@ -12,6 +12,7 @@ describe('parse', () => {
       expect(parse('.123')).toEqual(['get', 123])
       expect(parse('.0')).toEqual(['get', 0])
       expect(parse(' .name ')).toEqual(['get', 'name'])
+      expect(parse('.')).toEqual(['get'])
     })
 
     test('should throw an error in case of an invalid unquoted property', () => {
@@ -26,11 +27,11 @@ describe('parse', () => {
     })
 
     test('should throw an error when a property misses an end quote', () => {
-      expect(() => parse('."name')).toThrow('Property expected (pos: 1)')
+      expect(() => parse('."name')).toThrow("Unexpected part '\"name' (pos: 1)")
     })
 
     test('should throw an error when there is whitespace between the dot and the property name', () => {
-      expect(() => parse('. "name"')).toThrow('Property expected (pos: 1)')
+      expect(() => parse('. "name"')).toThrow('Unexpected part \'"name"\' (pos: 2)')
       expect(() => parse('."address" ."city"')).toThrow('Unexpected part \'."city"\' (pos: 11)')
       expect(() => parse('.address .city')).toThrow("Unexpected part '.city' (pos: 9)")
     })
@@ -58,6 +59,7 @@ describe('parse', () => {
 
     test('should parse a function with one argument', () => {
       expect(parse('sort(.age)')).toEqual(['sort', ['get', 'age']])
+      expect(parse('sort(.)')).toEqual(['sort', ['get']])
       expect(parse('sort ( .age )')).toEqual(['sort', ['get', 'age']])
     })
 
