@@ -122,7 +122,8 @@ describe('compile', () => {
 
   describe('array', () => {
     test('should create an array', () => {
-      expect(go(null, ['array', [1, 2, 3]])).toEqual([1, 2, 3])
+      expect(go(null, ['array', 1, 2, 3])).toEqual([1, 2, 3])
+      expect(go(null, ['array', ['add', 1, 3], 2, 4])).toEqual([4, 2, 4])
     })
   })
 
@@ -158,7 +159,7 @@ describe('compile', () => {
         actualErr = err
       }
 
-      expect(actualErr?.message).toBe('Unknown function "foo"')
+      expect(actualErr?.message).toBe("Unknown function 'foo'")
     })
 
     test('should throw a helpful error when a pipe contains a runtime error', () => {
@@ -346,8 +347,8 @@ describe('compile', () => {
       ])
     })
 
-    test('should filter data using "_in"', () => {
-      expect(go(data, ['filter', ['in', ['get', 'age'], [19, 23]]])).toEqual([
+    test('should filter data using "in"', () => {
+      expect(go(data, ['filter', ['in', ['get', 'age'], ['array', ['add', 10, 9], 23]]])).toEqual([
         { name: 'Chris', age: 23, city: 'New York' },
         { name: 'Emily', age: 19, city: 'Atlanta' },
         { name: 'Kevin', age: 19, city: 'Atlanta' }
@@ -355,7 +356,9 @@ describe('compile', () => {
     })
 
     test('should filter data using "not in"', () => {
-      expect(go(data, ['filter', ['not in', ['get', 'age'], [19, 23]]])).toEqual([
+      expect(
+        go(data, ['filter', ['not in', ['get', 'age'], ['array', ['add', 10, 9], 23]]])
+      ).toEqual([
         { name: 'Joe', age: 32, city: 'New York' },
         { name: 'Michelle', age: 27, city: 'Los Angeles' },
         { name: 'Robert', age: 45, city: 'Manhattan' },
@@ -814,7 +817,7 @@ describe('compile', () => {
     }
 
     expect(go([1, 2, 3], ['times', 2], options)).toEqual([2, 4, 6])
-    expect(() => go([1, 2, 3], ['times', 2])).toThrow('Unknown function "times"')
+    expect(() => go([1, 2, 3], ['times', 2])).toThrow("Unknown function 'times'")
   })
 
   test('should extend with a custom function with more than 2 arguments', () => {
@@ -861,7 +864,7 @@ describe('compile', () => {
     expect(go([1, 2, 3], ['times', ['foo']], options)).toEqual([42, 84, 126])
 
     // The function `foo` must not be available outside the `times` function
-    expect(() => go([1, 2, 3], ['foo'], options)).toThrow('Unknown function "foo"')
+    expect(() => go([1, 2, 3], ['foo'], options)).toThrow("Unknown function 'foo'")
   })
 
   test('should cleanup the custom function stack when creating a query throws an error', () => {

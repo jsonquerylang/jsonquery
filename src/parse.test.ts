@@ -18,6 +18,7 @@ describe('parse', () => {
     test('should throw an error in case of an invalid unquoted property', () => {
       expect(() => parse('.01')).toThrow("Unexpected part '1'")
       expect(() => parse('.1abc')).toThrow("Unexpected part 'abc'")
+      expect(() => parse('.[')).toThrow("Unexpected part '['")
     })
 
     test('should parse a property with quotes', () => {
@@ -169,11 +170,13 @@ describe('parse', () => {
   describe('pipe', () => {
     test('should parse a pipe', () => {
       expect(parse('.friends | sort(.age)')).toEqual([
+        'pipe',
         ['get', 'friends'],
         ['sort', ['get', 'age']]
       ])
 
       expect(parse('.friends | sort(.age) | filter(.age >= 18)')).toEqual([
+        'pipe',
         ['get', 'friends'],
         ['sort', ['get', 'age']],
         ['filter', ['gte', ['get', 'age'], 18]]
@@ -195,6 +198,9 @@ describe('parse', () => {
       expect(parse('( .friends)')).toEqual(['get', 'friends'])
       expect(parse('(.friends )')).toEqual(['get', 'friends'])
       expect(parse('(.age == 18)')).toEqual(['eq', ['get', 'age'], 18])
+      expect(parse('(42)')).toEqual(42)
+      expect(parse(' ( 42 ) ')).toEqual(42)
+      expect(parse('((42))')).toEqual(42)
     })
 
     test('should throw an error when missing closing parenthesis', () => {
@@ -204,18 +210,18 @@ describe('parse', () => {
 
   describe('object', () => {
     test('should parse a basic object', () => {
-      expect(parse('{}')).toEqual({})
-      expect(parse('{ }')).toEqual({})
-      expect(parse('{a:1}')).toEqual({ a: 1 })
-      expect(parse('{a1:1}')).toEqual({ a1: 1 })
-      expect(parse('{AaZz_$019:1}')).toEqual({ AaZz_$019: 1 })
-      expect(parse('{ a : 1 }')).toEqual({ a: 1 })
-      expect(parse('{a:1,b:2}')).toEqual({ a: 1, b: 2 })
-      expect(parse('{ a : 1 , b : 2 }')).toEqual({ a: 1, b: 2 })
-      expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual({ a: 1, b: 2 })
-      expect(parse('{2:"two"}')).toEqual({ 2: 'two' })
-      expect(parse('{null:null}')).toEqual({ null: null })
-      expect(parse('{"":"empty"}')).toEqual({ '': 'empty' })
+      expect(parse('{}')).toEqual(['object', {}])
+      expect(parse('{ }')).toEqual(['object', {}])
+      expect(parse('{a:1}')).toEqual(['object', { a: 1 }])
+      expect(parse('{a1:1}')).toEqual(['object', { a1: 1 }])
+      expect(parse('{AaZz_$019:1}')).toEqual(['object', { AaZz_$019: 1 }])
+      expect(parse('{ a : 1 }')).toEqual(['object', { a: 1 }])
+      expect(parse('{a:1,b:2}')).toEqual(['object', { a: 1, b: 2 }])
+      expect(parse('{ a : 1 , b : 2 }')).toEqual(['object', { a: 1, b: 2 }])
+      expect(parse('{ "a" : 1 , "b" : 2 }')).toEqual(['object', { a: 1, b: 2 }])
+      expect(parse('{2:"two"}')).toEqual(['object', { 2: 'two' }])
+      expect(parse('{null:null}')).toEqual(['object', { null: null }])
+      expect(parse('{"":"empty"}')).toEqual(['object', { '': 'empty' }])
     })
 
     test('should parse a larger object', () => {
@@ -225,15 +231,18 @@ describe('parse', () => {
         city: .address.city,
         averageAge: map(.age) | average()
       }`)
-      ).toEqual({
-        name: ['get', 'name'],
-        city: ['get', 'address', 'city'],
-        averageAge: [['map', ['get', 'age']], ['average']]
-      })
+      ).toEqual([
+        'object',
+        {
+          name: ['get', 'name'],
+          city: ['get', 'address', 'city'],
+          averageAge: ['pipe', ['map', ['get', 'age']], ['average']]
+        }
+      ])
     })
 
     test('should throw an error when missing closing parenthesis', () => {
-      expect(() => parse('{a:1')).toThrow("Character ',' expected (pos: 4)")
+      expect(() => parse('{a:1')).toThrow("Character '}' expected (pos: 4)")
     })
 
     test('should throw an error when missing a comma', () => {
@@ -252,6 +261,37 @@ describe('parse', () => {
     test('should throw an error when missing a value', () => {
       expect(() => parse('{a:')).toThrow('Value expected (pos: 3)')
       expect(() => parse('{a:2,b:}')).toThrow('Value expected (pos: 7)')
+    })
+
+    test('should throw an error in case of a trailing comma', () => {
+      expect(() => parse('{a:2,}')).toThrow('Key expected (pos: 5)')
+    })
+  })
+
+  describe('array', () => {
+    test('should parse an array', () => {
+      expect(parse('[]')).toEqual(['array'])
+      expect(parse(' [ ] ')).toEqual(['array'])
+      expect(parse('[1, 2, 3]')).toEqual(['array', 1, 2, 3])
+      expect(parse(' [ 1 , 2 , 3 ] ')).toEqual(['array', 1, 2, 3])
+      expect(parse('[(1 + 3), 2, 4]')).toEqual(['array', ['add', 1, 3], 2, 4])
+      expect(parse('[2, (1 + 2), 4]')).toEqual(['array', 2, ['add', 1, 2], 4])
+    })
+
+    test('should throw an error when missing closing bracket', () => {
+      expect(() => parse('[1,2')).toThrow("Character ']' expected (pos: 4)")
+    })
+
+    test('should throw an error when missing a comma', () => {
+      expect(() => parse('[1 2]')).toThrow("Character ',' expected (pos: 3)")
+    })
+
+    test('should throw an error when missing a value', () => {
+      expect(() => parse('[1,')).toThrow('Value expected (pos: 3)')
+    })
+
+    test('should throw an error in case of a trailing comma', () => {
+      expect(() => parse('[1,2,]')).toThrow('Value expected (pos: 5)')
     })
   })
 

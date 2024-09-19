@@ -28,6 +28,7 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
 export const functions: FunctionBuildersMap = {
   pipe: (...entries: JSONQuery[]) => {
     const _entries = entries.map((entry) => compile(entry))
+
     return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
   },
 
@@ -43,7 +44,11 @@ export const functions: FunctionBuildersMap = {
     }
   },
 
-  array: (items: unknown) => (_data: unknown) => items,
+  array: (...items: JSONQuery[]) => {
+    const _items = items.map((entry: JSONQuery) => compile(entry))
+
+    return (data: unknown) => _items.map((item) => item(data))
+  },
 
   get: (...path: JSONPath) => {
     if (path.length === 0) {
@@ -68,11 +73,13 @@ export const functions: FunctionBuildersMap = {
 
   map: <T>(callback: JSONQuery) => {
     const _callback = compile(callback)
+
     return (data: T[]) => data.map(_callback)
   },
 
   filter: <T>(predicate: JSONQuery[]) => {
     const _predicate = compile(predicate)
+
     return (data: T[]) => data.filter(_predicate)
   },
 
@@ -180,19 +187,23 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  in: (path: string, values: string[]) => {
+  in: (path: string, values: JSONQuery) => {
     const getter = compile(path)
-    return (data: unknown) => values.includes(getter(data) as string)
+    const _values = compile(values)
+
+    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
   },
 
-  'not in': (path: string, values: string[]) => {
-    const getter = compile(path)
-    return (data: unknown) => !values.includes(getter(data) as string)
+  'not in': (path: string, values: JSONQuery) => {
+    const _in = functions.in(path, values)
+
+    return (data: unknown) => !_in(data)
   },
 
   regex: (path: JSONQuery, expression: string, options?: string) => {
     const regex = new RegExp(expression, options)
     const getter = compile(path)
+
     return (data: unknown) => regex.test(getter(data) as string)
   },
 

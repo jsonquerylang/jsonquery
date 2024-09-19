@@ -40,7 +40,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         pipe.push(parseOperator())
       }
 
-      return pipe
+      return ['pipe', ...pipe]
     }
 
     return first
@@ -132,14 +132,15 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       skipWhitespace()
 
       const object = {}
-
-      if (query[i] === '}') {
-        // empty object
-        i++
-        return object
-      }
-
+      let first = true
       while (i < query.length && query[i] !== '}') {
+        if (first) {
+          first = false
+        } else {
+          eatChar(',')
+          skipWhitespace()
+        }
+
         const key =
           parseString() ?? parseUnquotedString() ?? parseInteger() ?? throwError('Key expected')
 
@@ -147,17 +148,38 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         eatChar(':')
 
         object[key] = parsePipe()
-
-        skipWhitespace()
-        if (query[i] !== '}') {
-          eatChar(',')
-          skipWhitespace()
-        }
       }
 
       eatChar('}')
 
-      return object
+      return ['object', object]
+    }
+
+    return parseArray()
+  }
+
+  const parseArray = () => {
+    if (query[i] === '[') {
+      i++
+      skipWhitespace()
+
+      const array = []
+
+      let first = true
+      while (i < query.length && query[i] !== ']') {
+        if (first) {
+          first = false
+        } else {
+          eatChar(',')
+          skipWhitespace()
+        }
+
+        array.push(parsePipe())
+      }
+
+      eatChar(']')
+
+      return ['array', ...array]
     }
 
     return parseString() ?? parseNumber() ?? parseKeyword()

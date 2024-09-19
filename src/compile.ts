@@ -39,7 +39,7 @@ function compileFunction(query: JSONQueryFunction, functions: FunctionBuildersMa
 
   const fnBuilder = functions[fnName]
   if (!fnBuilder) {
-    throw new Error(`Unknown function "${fnName}"`)
+    throw new Error(`Unknown function '${fnName}'`)
   }
 
   return fnBuilder(...args)
