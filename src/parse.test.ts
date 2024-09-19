@@ -105,6 +105,16 @@ describe('parse', () => {
       expect(parse('.score / 8')).toEqual(['divide', ['get', 'score'], 8])
       expect(parse('.score ^ 8')).toEqual(['pow', ['get', 'score'], 8])
       expect(parse('.score % 8')).toEqual(['mod', ['get', 'score'], 8])
+      expect(parse('.name in ["Joe", "Sarah"]')).toEqual([
+        'in',
+        ['get', 'name'],
+        ['array', 'Joe', 'Sarah']
+      ])
+      expect(parse('.name not in ["Joe", "Sarah"]')).toEqual([
+        'not in',
+        ['get', 'name'],
+        ['array', 'Joe', 'Sarah']
+      ])
     })
 
     test('should parse an operator having the same name as a function', () => {
