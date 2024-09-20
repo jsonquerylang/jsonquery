@@ -282,8 +282,8 @@ pre code {
   background: none;
 }
 
-.method-reference a,
-.function-reference a {
+.function-reference a,
+.operator-reference a {
   text-decoration: none;
 }
 

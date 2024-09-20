@@ -194,7 +194,7 @@ See section [Function reference](reference/functions.md) for a detailed overview
 
 ### Operators
 
-JSON Query has a limited ability to use operators. Operators must be wrapped in parentheses `(...)`, must have both a left and right hand side, and do not have precedence since parentheses are required. The syntax is:
+JSON Query supports all basic operators. Operators must be wrapped in parentheses `(...)`, must have both a left and right hand side, and do not have precedence since parentheses are required. The syntax is:
 
 ```text
 (left operator right)
