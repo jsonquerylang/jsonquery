@@ -1,10 +1,12 @@
 :root {
   --theme-color: #d5f3bb;
+  --theme-color-highlight: #e1f6ce;
   --background-color: #fafafa;
   --color: #222b00;
   --error-color: #f65252;
   --padding: 10px;
   --border-radius: 3px;
+  --tab-border-width: 5px;
 }
 
 html,
@@ -143,9 +145,49 @@ button:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
 
-  &.double {
-    flex: 2;
+.tab-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  .tabs {
+    padding: 0 var(--tab-border-width);
+
+    button {
+      margin: 0;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      background: white;
+      border: 1px solid var(--theme-color);
+      border-bottom: none;
+      color: var(--color);
+      font-family: inherit;
+      font-size: inherit;
+      padding: 2px 10px 5px;
+
+      &:hover {
+        background: var(--theme-color-highlight);
+      }
+
+      &.selected {
+        background: var(--theme-color);
+        padding: 5px 10px;
+      }
+    }
+  }
+
+  .tab-contents {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+    padding: var(--tab-border-width);
+    background: var(--theme-color);
+
+    textarea:not(.selected) {
+      display: none;
+    }
   }
 }
 
@@ -162,10 +204,6 @@ button:hover {
 
   .row {
     min-height: 110px;
-
-    &.double {
-      min-height: 220px;
-    }
   }
 }
 
