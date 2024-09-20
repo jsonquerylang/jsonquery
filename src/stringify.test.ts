@@ -43,9 +43,9 @@ describe('stringify', () => {
   })
 
   test('should stringify an array', () => {
-    expect(stringify(['array', [1, 2, 3]])).toEqual('[1, 2, 3]')
-    expect(stringify(['array', [['add', 1, 2], 4, 5]])).toEqual('[(1 + 2), 4, 5]')
-    expect(stringify(['filter', ['in', ['get', 'age'], ['array', [19, 23]]]])).toEqual(
+    expect(stringify(['array', 1, 2, 3])).toEqual('[1, 2, 3]')
+    expect(stringify(['array', ['add', 1, 2], 4, 5])).toEqual('[(1 + 2), 4, 5]')
+    expect(stringify(['filter', ['in', ['get', 'age'], ['array', 19, 23]]])).toEqual(
       'filter(.age in [19, 23])'
     )
   })

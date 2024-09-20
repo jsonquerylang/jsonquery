@@ -47,7 +47,7 @@ function stringifyFunction(
   }
 
   if (name === 'array') {
-    const argsStr = (query[1] as JSONQuery[]).map((arg) => stringify(arg, options)).join(', ')
+    const argsStr = args.map((arg) => stringify(arg, options)).join(', ')
     return `[${argsStr}]`
   }
 
