@@ -153,7 +153,19 @@ button:hover {
   flex-direction: column;
 
   .tabs {
+    display: flex;
+    align-items: end;
+    gap: var(--tab-border-width);
     padding: 0 var(--tab-border-width);
+
+    label {
+      margin: 0;
+    }
+
+    .query-label {
+      flex: 1;
+      margin: 0 0 2px;
+    }
 
     button {
       margin: 0;
@@ -183,6 +195,7 @@ button:hover {
     flex-direction: column;
     border-radius: var(--border-radius);
     padding: var(--tab-border-width);
+    margin-bottom: -5px;
     background: var(--theme-color);
 
     textarea:not(.selected) {
@@ -214,7 +227,7 @@ button:hover {
 label {
   font-weight: bold;
   margin-top: var(--padding);
-  margin-bottom: 5px;
+  margin-bottom: 7px;
 }
 
 textarea {

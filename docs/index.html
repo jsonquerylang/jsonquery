@@ -57,9 +57,9 @@
       </div>
       <div class="column">
         <div class="row">
-            <label>Query</label>
           <div class="tab-section text-format">
             <div class="tabs">
+              <label class="query-label">Query</label>
               <label for="query-text"><button id="toggle-text-format" title="Text format" class="selected">Text</button></label>
               <label for="query-json"><button id="toggle-json-format" title="JSON format">JSON</button></label>
             </div>
@@ -443,7 +443,8 @@
   </div>
 
   <script type="module">
-    import { jsonquery, stringify, parse, compile } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
+    // import { jsonquery, stringify, parse, compile } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
+    import { jsonquery, stringify, parse, compile } from '../lib/jsonquery.js'
     import { Formatter, FracturedJsonOptions } from 'https://cdn.jsdelivr.net/npm/fracturedjsonjs/+esm'
 
     window.jsonquery = { jsonquery, stringify, parse, compile }
