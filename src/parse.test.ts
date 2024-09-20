@@ -154,7 +154,6 @@ describe('parse', () => {
     })
 
     test('should throw an error in case of an unknown operator', () => {
-      // TODO: can we improve on these error messages, so that they say "Unknown operator ..."?
       expect(() => parse('.a === "A"')).toThrow('Value expected (pos: 5)')
       expect(() => parse('.a <> "A"')).toThrow('Value expected (pos: 4)')
     })

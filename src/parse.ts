@@ -18,6 +18,7 @@ import type { JSONQuery, JSONQueryParseOptions } from './types'
  *     const textQuery = '.friends | filter(.city == "new York") | sort(.age) | pick(.name, .age)'
  *     const jsonQuery = parse(textQuery)
  *     // jsonQuery = [
+ *     //    'pipe',
  *     //    ['get', 'friends'],
  *     //    ['filter', ['eq', ['get', 'city'], 'New York']],
  *     //    ['sort', ['get', 'age']],
