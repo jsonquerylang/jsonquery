@@ -64,15 +64,12 @@
               <label for="query-json"><button id="toggle-json-format" title="JSON format">JSON</button></label>
             </div>
             <div class="tab-contents">
-              <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false" class="selected"></textarea>
-              <textarea id="query-json" autocomplete="off" autocapitalize="off" spellcheck="false">
-[
-  "pipe",
-  ["get", "friends"],
-  ["filter", ["eq", ["get", "city"], "New York"]],
-  ["sort", ["get", "age"]],
-  ["pick", ["get", "name"], ["get", "age"]]
-]</textarea>
+              <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false" class="selected">.friends
+  | filter(.city == "New York")
+  | sort(.age)
+  | pick(.name, .age)
+</textarea>
+              <textarea id="query-json" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
             </div>
           </div>
         </div>
@@ -361,8 +358,10 @@
     </dialog>
   </div>
 
-    <script type="module">
-      import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
+  <script type="module">
+    // import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
+    import { jsonquery, stringify, parse, compile } from '../lib/jsonquery.js'
+    import { Formatter, FracturedJsonOptions } from 'https://cdn.jsdelivr.net/npm/fracturedjsonjs/+esm'
 
     window.jsonquery = { jsonquery, stringify, parse, compile }
 
@@ -383,7 +382,7 @@
     const refErrorQuery = document.getElementById('error-query')
 
     const input1 = refInputText.value
-    const query1 = refQueryJson.value
+    const query1 = refQueryText.value
 
     const input2 = `[
   {"name": "Chris", "age": 23, "city": "New York"},
@@ -393,49 +392,49 @@
   {"name": "Michelle", "age": 27, "city": "Los Angeles"},
   {"name": "Robert", "age": 45, "city": "Manhattan"},
   {"name": "Sarah", "age": 31, "city": "New York"}
-]`
-    const query2 = `["filter", [
-  "and",
-  ["eq", ["get", "city"], "New York"],
-  ["gt", ["get", "age"], 30]
-]]`
+]
+`
+    const query2 = `filter((.city == "New York") and (.age > 30))\n`
 
     const input3 = input2
-    const query3 = `["map", ["object", {
-  "firstName": ["get", "name"],
-  "details": ["object", {
-    "city": ["get", "city"],
-    "age": ["get", "age"]
-  }]
-}]]`
+    const query3 = `map({
+  firstName: .name,
+  details: {
+    city: .city,
+    age: .age
+  }
+})
+`
 
     const input4 = input2
-    const query4 = `["object", {
-  "names": ["map", ["get", "name"]],
-  "count": ["size"],
-  "averageAge": [
-    "pipe",
-    ["map", ["get", "age"]],
-    ["average"]
-  ]
-}]`
+    const query4 = `{
+  names: map(.name),
+  count: size(),
+  averageAge: map(.age) | average()
+}
+`
 
     const input5 = `[
   { "name": "bread", "price": 2.5, "quantity": 2 },
   { "name": "milk", "price": 1.2, "quantity": 3 }
-]`
-    const query5 = `[
-  "pipe",
-  ["map", [
-    "multiply",
-    ["get", "price"],
-    ["get", "quantity"]
-  ]],
-  ["sum"]
-]`
+]
+`
+    const query5 = `map(.price * .quantity) | sum()\n`
 
     let error = undefined
     let errorIndex = 0
+
+    function stringifyJson(json) {
+      const formatter = new Formatter()
+      formatter.Options = new FracturedJsonOptions()
+      formatter.Options.MaxTotalLineLength = 55
+      formatter.Options.IndentSpaces = 2
+      formatter.Options.MaxInlineComplexity = 3
+      formatter.Options.SimpleBracketPadding = false
+      formatter.Options.NestedBracketPadding = false
+
+      return formatter.Reformat(JSON.stringify(json, null, 2))
+    }
 
     function updateQueryText() {
       try {
@@ -451,7 +450,7 @@
     function updateQueryJson() {
       try {
         const queryText = refQueryText.value
-        refQueryJson.value = JSON.stringify(parse(queryText), null, 2)
+        refQueryJson.value = stringifyJson(parse(queryText))
         refQueryJson.classList.remove('error')
       } catch (err) {
         refQueryJson.value = String(err)
@@ -467,6 +466,8 @@
 
         refOutputText.value = JSON.stringify(output, null, 2)
         refOutputText.classList.remove('error')
+        refQueryText.classList.remove('error')
+        refQueryJson.classList.remove('error')
         refShowDebugger.style.display = 'none'
         error = undefined
         errorIndex = 0
@@ -534,8 +535,8 @@
 
     function load(input, query) {
       refInputText.value = input
-      refQueryText.value = stringify(JSON.parse(query))
-      refQueryJson.value = query
+      refQueryText.value = query
+      refQueryJson.value = stringifyJson(parse(query))
       go('text')
     }
 
@@ -566,7 +567,7 @@
     document.getElementById('example4').addEventListener('click', () => load(input4, query4))
     document.getElementById('example5').addEventListener('click', () => load(input5, query5))
 
-    updateQueryText()
+    updateQueryJson()
     go('text')
   </script>
 </body>
