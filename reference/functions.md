@@ -1,13 +1,105 @@
 # Functions
 
-This reference contains two types of functions:
+This reference lists all functions and operators.
 
-- [_methods_](#methods) which are applied to a data input such as an array. For example: `map`, `filter`, `sort`, `max`.
-- [_functions and operators_](#functions-and-operators) which only execute on the arguments provided in the function or operator itself. For example: `==`, `<`, `*`, `round`.
+## pipe (`|`)
 
-## Methods
+The pipe operator executes a series of query operations one by one, and the output of the first is the input for the next.
 
-### get
+```text
+query1 | query2 | ...
+pipe(query1, query2, ...)
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
+  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } }
+]
+
+jsonquery(data, 'sort(.age) | pick(.name, .age)')
+// [
+//   { "name": "Emily", "age": 19 },
+//   { "name": "Chris", "age": 23 },
+//   { "name": "Michelle", "age": 27 }
+// ]
+```
+
+## object
+
+Create an object.
+
+```text
+{ prop1: query1, prop2: query2, ...}
+object({ prop1: query1, prop2: query2, ...})
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
+  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } }
+]
+
+jsonquery(data, '{ names: map(.name), total: size() }')
+// {
+//   "names": ["Chris", "Emily", "Michelle"],
+//   "total" 3
+// }
+
+
+jsonquery(data, 'map({ firstName: .name, city: .address.city})')
+// [
+//   { "firstName": "Chris", "city": "New York" },
+//   { "firstName": "Emily", "city": "Atlanta" },
+//   { "firstName": "Michelle", "city": "Los Angeles" }
+// ]
+```
+
+## array
+
+Create an array
+
+```text
+[query1, query2, ...]
+array(query2, query2, ...)
+```
+
+Examples:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, 'filter(.age in [16, 18])')
+// [
+//   { "name": "Chris", "age": 16 },
+//   { "name": "Joe", "age": 18 }
+// ]
+
+const locations: [
+  {"latitude": 52.33, "longitude": 4.01},
+  {"latitude": 52.18, "longitude": 3.99},
+  {"latitude": 51.97, "longitude": 4.05}
+]
+
+jsonquery(locations, 'map([.latitude, .longitude])')
+// [
+//   [52.33, 4.01],
+//   [52.18, 3.99],
+//   [51.97, 4.05]
+// ]
+```
+
+## get
 
 Get a path from an object.
 
@@ -35,7 +127,7 @@ jsonquery(data, '.name') // "Joe"
 jsonquery(data, '.address.city') // "New York"
 ```
 
-### filter
+## filter
 
 Filter a list with objects or values.
 
@@ -77,7 +169,7 @@ jsonquery(data, 'filter((.age > 30) and (.address.city == "New York"))')
 // ]
 ```
 
-### sort
+## sort
 
 Sort a list with objects or values.
 
@@ -123,7 +215,7 @@ jsonquery(values, 'sort()') // [2, 7, 9]
 jsonquery(values, 'sort(get(), "desc")') // [9, 7, 2]
 ```
 
-### pick
+## pick
 
 Pick one or multiple properties or paths, and create a new, flat object for each of them. Can be used on both an object or an array.
 
@@ -159,7 +251,7 @@ const item = { "price": 25 }
 jsonquery(item, 'pick(.price)') // 25
 ```
 
-### map
+## map
 
 Map over an array and apply the provided query to each of the items in the array.
 
@@ -194,7 +286,7 @@ jsonquery(data, 'map(.price * .quantity)')
 // 8.6
 ```
 
-### groupBy
+## groupBy
 
 Group a list with objects grouped by the value of given path. This creates an object with the different properties as key, and an array with all items having that property as value.
 
@@ -235,7 +327,7 @@ jsonquery(data, 'groupBy(.city)')
 // }
 ```
 
-### keyBy
+## keyBy
 
 Turn an array with objects into an object by key. When there are multiple items with the same key, the first item will be kept.
 
@@ -260,7 +352,7 @@ jsonquery(data, 'keyBy(.id)')
 // }
 ```
 
-### keys
+## keys
 
 Return an array with the keys of an object.
 
@@ -282,7 +374,7 @@ const data = {
 jsonquery(data, 'keys()') // ["name", "age", "address"]
 ```
 
-### values
+## values
 
 Return the values of an object.
 
@@ -302,7 +394,7 @@ const data = {
 jsonquery(data, 'values()') // ["Joe", 32, "New York"]
 ```
 
-### flatten
+## flatten
 
 Flatten an array containing arrays.
 
@@ -322,7 +414,7 @@ const data2 = [[1, 2, [3, 4]]]
 jsonquery(data2, 'flatten()') // [1, 2, [3, 4]]
 ```
 
-### uniq
+## uniq
 
 Create a copy of an array where all duplicates are removed.
 
@@ -336,7 +428,7 @@ Example:
 jsonquery([1, 5, 3, 3, 1], 'uniq()') // [1, 3, 5]
 ```
 
-### uniqBy
+## uniqBy
 
 Create a copy of an array where all objects with a duplicate value for the selected path are removed. In case of duplicates, the first object is kept.
 
@@ -366,7 +458,7 @@ jsonquery(data, 'uniqBy(.address.city)')
 // ]
 ```
 
-### limit
+## limit
 
 Create a copy of an array cut off at the selected limit.
 
@@ -383,7 +475,7 @@ jsonquery(data, 'limit(2)') // [1, 2]
 jsonquery(data, 'limit(4)') // [1, 2, 3, 4]
 ```
 
-### size
+## size
 
 Return the size of an array.
 
@@ -398,7 +490,7 @@ jsonquery([1, 2], 'size()') // 2
 jsonquery([1, 2, 3, 4], 'size()') // 4
 ```
 
-### sum
+## sum
 
 Calculate the sum of all values in an array.
 
@@ -413,7 +505,7 @@ jsonquery([7, 4, 2], 'sum()') // 13
 jsonquery([2.4, 5.7], 'sum()') // 8.1
 ```
 
-### min
+## min
 
 Return the minimum of the values in an array.
 
@@ -428,7 +520,7 @@ jsonquery([5, 1, 1, 6], 'min()') // 1
 jsonquery([5, 7, 3], 'min()') // 3
 ```
 
-### max
+## max
 
 Return the maximum of the values in an array.
 
@@ -443,7 +535,7 @@ jsonquery([1, 1, 6, 5], 'max()') // 6
 jsonquery([5, 7, 3], 'max()') // 7
 ```
 
-### prod
+## prod
 
 Calculate the product of the values in an array.
 
@@ -458,7 +550,7 @@ jsonquery([2, 3], 'prod()') // 6
 jsonquery([2, 3, 2, 7, 1, 1], 'prod()') // 84
 ```
 
-### average
+## average
 
 Calculate the average of the values in an array.
 
@@ -473,11 +565,7 @@ jsonquery([2, 4], 'average()') // 3
 jsonquery([2, 3, 2, 7, 1], 'average()') // 3
 ```
 
-## Functions and operators
-
-The following list gives an overview of all operators an their function equivalents.
-
-### equal (`==`)
+## equal (`==`)
 
 Test whether two values are strictly equal. This will consider a string `"2"` and a number `2` to be _not_ equal for example since their data type differs.
 
@@ -507,7 +595,7 @@ jsonquery({ a: 2 }, '.a == "2"') // false (since not strictly equal)
 jsonquery({ a: 2 }, 'eq(.a, 2)') // true
 ```
 
-### greater than (`>`)
+## greater than (`>`)
 
 Test whether `a` is greater than `b`.
 
@@ -531,7 +619,7 @@ jsonquery(data, 'filter(.age > 18)')
 // ]
 ```
 
-### greater than or equal to (`>=`)
+## greater than or equal to (`>=`)
 
 Test whether `a` is greater than or equal to `b`.
 
@@ -556,7 +644,7 @@ jsonquery(data, 'filter(.age >= 18)')
 // ]
 ```
 
-### less than (`<`)
+## less than (`<`)
 
 Test whether `a` is less than `b`.
 
@@ -580,7 +668,7 @@ jsonquery(data, 'filter(.age < 18)')
 // ]
 ```
 
-### less than or equal to (`<=`)
+## less than or equal to (`<=`)
 
 Test whether `a` is less than or equal to `b`.
 
@@ -605,7 +693,7 @@ jsonquery(data, ["filter", 'filter(.age <= 18)')
 // ]
 ```
 
-### not equal (`!=`)
+## not equal (`!=`)
 
 Test whether two values are unequal. This is the opposite of the strict equal function `eq`. Two values are considered unequal when their data type differs (for example one is a string and another is a number), or when the value itself is different. For example a string `"2"` and a number `2` are considered unequal, even though their mathematical value is equal.
 
@@ -634,7 +722,7 @@ jsonquery({ a: 2 }, 'a != 3') // true
 jsonquery({ a: 2 }, 'a != "2"') // true (since not strictly equal)
 ```
 
-### and
+## and
 
 Test whether both values are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
 
@@ -658,7 +746,7 @@ jsonquery(data, 'filter((.name == "Chris") and (.age == 16))')
 // ]
 ```
 
-### or
+## or
 
 Test whether one or both values are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
 
@@ -683,7 +771,7 @@ jsonquery(data, 'filter((.age == 16) or (.age == 18))')
 // ]
 ```
 
-### not
+## not
 
 Function `not` inverts the value. When the value is truthy it returns `false`, and otherwise it returns `true`.
 
@@ -707,7 +795,7 @@ jsonquery(data, 'filter(not(.age == 18))')
 // ]
 ```
 
-### exists
+## exists
 
 Returns true if the value at the provided path exists, and returns false when it is `undefined`.
 
@@ -733,7 +821,7 @@ jsonquery(data, 'filter(exists(.details))')
 jsonquery({ "value": null }, ["exists", "value"]) // true
 ```
 
-### in
+## in
 
 Test whether the search value is one of the values of the provided list.
 
@@ -758,7 +846,7 @@ jsonquery(data, 'filter(.age in [16, 18])')
 // ]
 ```
 
-### not in
+## not in
 
 Test whether the search value is _not_ one of the values of the provided list.
 
@@ -781,7 +869,7 @@ jsonquery(data, ["filter", 'filter(.age not in [16, 18])')
 // ]
 ```
 
-### regex
+## regex
 
 Test the `text` against the regular expression.
 
@@ -816,7 +904,7 @@ jsonquery(data, 'filter(regex(.message, "like|awesome", "i"))')
 // ]
 ```
 
-### add (`+`)
+## add (`+`)
 
 Add two values.
 
@@ -833,7 +921,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, '.a + .b') // 8
 ```
 
-### subtract (`-`)
+## subtract (`-`)
 
 Subtract two values.
 
@@ -850,7 +938,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, '.a - .b') // 4
 ```
 
-### multiply (`*`)
+## multiply (`*`)
 
 Multiply two values.
 
@@ -867,7 +955,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, '.a * .b') // 12
 ```
 
-### divide (`/`)
+## divide (`/`)
 
 Divide two values.
 
@@ -884,7 +972,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, '.a / .b') // 3
 ```
 
-### power (`^`)
+## power (`^`)
 
 Calculate the exponent. Returns the result of raising `a` to the power of `b`, like `a^b`
 
@@ -901,7 +989,7 @@ const data = { "a": 2, "b": 3 }
 jsonquery(data, '.a ^ .b') // 8
 ```
 
-### remainder (`%`)
+## remainder (`%`)
 
 Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`.
 
@@ -918,7 +1006,7 @@ const data = { "a": 8, "b": 3 }
 jsonquery(data, '.a % .b') // 2
 ```
 
-### abs
+## abs
 
 Calculate the absolute value.
 
@@ -932,7 +1020,7 @@ Examples:
 jsonquery({"a": -7}, 'abs(.a)') // 7
 ```
 
-### round
+## round
 
 Round a value. When `digits` is provided, the value will be rounded to the selected number of digits.
 
