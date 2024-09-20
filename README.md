@@ -190,7 +190,7 @@ Important to understand is that the functions are executed as a method in a chai
 filter(.age >= 21) | sort(.age, "asc")
 ```
 
-See section [Function reference](reference/functions.md) for a detailed overview of all available functions.
+See section [Function reference](reference/functions.md) for a detailed overview of all available functions and operators.
 
 ### Operators
 
@@ -218,7 +218,7 @@ When composing multiple operators, it is necessary to use parentheses:
 filter((.age >= 18) and (.age <= 65))
 ```
 
-See section [Function reference](reference/operators.md) for a detailed overview of all available operators.
+See section [Function reference](reference/functions.md) for a detailed overview of all available functions and operators.
 
 ### Pipes
 
