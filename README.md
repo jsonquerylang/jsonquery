@@ -57,7 +57,7 @@ const data = {
   ]
 }
 
-// get the array containing the friends from the object, filter the friends that live in New York,
+// Get the array containing the friends from the object, filter the friends that live in New York,
 // sort them by age, and pick just the name and age out of the objects.
 const names = jsonquery(data, `
   .friends 
@@ -71,30 +71,16 @@ const names = jsonquery(data, `
 //   { "name": "Joe", "age": 32 }
 // ]
 
-// get the array containing the friends from the object, then create an object with
-// properties `names`, `count`, and `averageAge` containing the results of their query:
-// a list with names, the total number of array items, and the average value of the
-// properties `age` in all items.
-const result = jsonquery(data, `
-  .friends | {
-    names: map(.name),
-    count: size(),
-    averageAge: map(.age) | average()
-  }
-`)
-// result = {
-//   "names": ["Chris", "Emily", "Joe", "Kevin", "Michelle", "Robert", "Sarah"],
-//   "count": 7,
-//   "averageAge": 28
-// }
-
-// use mathematical functions like add, subtract, multiply and divide to do calculations
-const shoppingCart = [
-  { "name": "bread", "price": 2.5, "quantity": 2 },
-  { "name": "milk", "price": 1.2, "quantity": 3 }
-]
-const totalPrice = jsonquery(shoppingCart, 'map(.price * .quantity) | sum()')
-// totalPrice = 8.6
+// The same query can be written in JSON format.
+// The functions `parse` and `stringify` can be used 
+// to convert from text format to JSON format and vice versa.
+jsonquery(shoppingCart, [
+  "pipe",
+  ["get", "friends"],
+  ["filter", ["eq", ["get", "city"], "New York"]],
+  ["sort", ["get", "age"]],
+  ["pick", ["get", "name"], ["get", "age"]]
+])
 ```
 
 The build in functions can be extended with custom functions, like `times` in the following example:
@@ -139,20 +125,6 @@ The JSON format is mostly used under the hood. It allows for easy integrations l
 
 ### Syntax overview
 
-The examples in the following section are based on querying the following data:
-
-```json
-[
-  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
-  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
-  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
-  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
-  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
-  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
-]
-```
-
 The following table gives an overview of the JSON query text format:
 
 | Type                    | Syntax                                       | Example                                          |
@@ -168,7 +140,19 @@ The following table gives an overview of the JSON query text format:
 | [Boolean](#values)      | `true` or `false`                            | `true`                                           |
 | [null](#values)         | `null`                                       | `null`                                           |
 
-The syntax is explained in details in the following sections.
+The syntax is explained in details in the following sections. The examples are based on querying the following data:
+
+```json
+[
+  { "name": "Chris", "age": 23, "address": { "city": "New York" } },
+  { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Joe", "age": 32, "address": { "city": "New York" } },
+  { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
+  { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
+  { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
+  { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
+]
+```
 
 ### Functions
 
