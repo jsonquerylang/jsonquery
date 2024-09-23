@@ -1,52 +1,48 @@
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-  <head>
-    <meta charset="UTF-8" />
-    <title>JSON Query - a small, flexible, and expandable JSON query language</title>
-    <link rel="stylesheet" href="style.css" />
-    <meta name="description" content="Repair broken JSON documents" />
-    <meta name="keywords" content="json, repair, simple, json-simple-repair, fix, invalid" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="frog-756900-100.png" />
-  </head>
-  <body>
-    <div class="app">
-      <div class="header">
-        <div class="header-contents">
-          <!-- source: https://pixy.org/756900/ -->
-          <img
-            src="frog-756900-100.png"
-            srcset="frog-756900-200.png 2x"
-            alt="JSON Query logo"
-            class="header-icon"
-            width="100"
-            height="98"
-          />
-          <div class="header-text">
-            <h1>JSON Query</h1>
-            <p>A small, flexible, and expandable JSON query language.</p>
-            <p>
-              Documentation:
-              <a href="https://github.com/jsonquerylang/jsonquery">
-                https://github.com/jsonquerylang/jsonquery
-              </a>
-            </p>
-          </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>JSON Query - a small, flexible, and expandable JSON query language</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Repair broken JSON documents" />
+  <meta name="keywords" content="json, repair, simple, json-simple-repair, fix, invalid" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="frog-756900-100.png" />
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="header-contents">
+        <!-- source: https://pixy.org/756900/ -->
+        <img src="frog-756900-100.png" srcset="frog-756900-200.png 2x" alt="JSON Query logo" class="header-icon"
+          width="100" height="98" />
+        <div class="header-text">
+          <h1>JSON Query</h1>
+          <p>A small, flexible, and expandable JSON query language.</p>
+          <p>
+            Documentation:
+            <a href="https://github.com/jsonquerylang/jsonquery">
+              https://github.com/jsonquerylang/jsonquery
+            </a>
+          </p>
         </div>
       </div>
-      <div class="examples">
-        <div class="examples-inner">
-          <button class="example" id="example1">example 1</button>
-          <button class="example" id="example2">example 2</button>
-          <button class="example" id="example3">example 3</button>
-          <button class="example" id="example4">example 4</button>
-          <button class="example" id="example5">example 5</button>
-        </div>
+    </div>
+    <div class="examples">
+      <div class="examples-inner">
+        <button class="example" id="example1">example 1</button>
+        <button class="example" id="example2">example 2</button>
+        <button class="example" id="example3">example 3</button>
+        <button class="example" id="example4">example 4</button>
+        <button class="example" id="example5">example 5</button>
       </div>
-      <div class="playground">
-        <div class="column">
-          <label for="input-text">Input</label>
-          <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="playground">
+      <div class="column">
+        <label for="input-text">Input</label>
+        <textarea id="input-text" autocomplete="off" autocapitalize="off" spellcheck="false">
 {
   "friends": [
     {"name": "Chris", "age": 23, "city": "New York"},
@@ -57,461 +53,421 @@
     {"name": "Robert", "age": 45, "city": "Manhattan"},
     {"name": "Sarah", "age": 31, "city": "New York"}
   ]
-}</textarea
-          >
-        </div>
-        <div class="column">
-          <label for="query-text">Query</label>
-          <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false">
-[
-  ["get", "friends"],
-  ["filter", ["eq", ["get", "city"], "New York"]],
-  ["sort", ["get", "age"]],
-  ["pick", ["get", "name"], ["get", "age"]]
-]</textarea
-          >
-        </div>
-        <div class="column">
-          <label for="output-text">Output</label>
-          <button type="button" id="show-debugger">Debug</button>
-          <textarea id="output-text" readonly>loading...</textarea>
-        </div>
-        <div class="column">
-          <label for="output-text">Quick Reference</label>
-          <div class="quick-reference">
-            <details>
-              <summary>
-                <span class="category">Function</span>
-                <code>[name, argument1, argument2, ...]</code>
-              </summary>
-              <div class="details-content">
-                <p>
-                  A <b>function</b> is an array with the function name as first item followed by
-                  optional function arguments.
-                </p>
-                <p>Example: <code>["sort", ["get", "address", "city"], "asc"]</code></p>
-                <p>
-                  Documentation:
-                  <a
-                    href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md"
-                    target="_blank"
-                    >Functions</a
-                  >
-                </p>
-                <p>Method reference:</p>
-                <ul class="method-reference">
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#get"
-                      target="_blank"
-                      ><code>["get", prop1, prop2, ...]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#filter"
-                      target="_blank"
-                      ><code>["filter", condition]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#sort"
-                      target="_blank"
-                      ><code>["sort", getter, direction]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#pick"
-                      target="_blank"
-                      ><code>["pick", getter1, getter2, ...]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#map"
-                      target="_blank"
-                      ><code>["map", query]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#groupBy"
-                      target="_blank"
-                      ><code>["groupBy", getter]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#keyBy"
-                      target="_blank"
-                      ><code>["keyBy", getter]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#keys"
-                      target="_blank"
-                      ><code>["keys"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#values"
-                      target="_blank"
-                      ><code>["values"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#flatten"
-                      target="_blank"
-                      ><code>["flatten"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#uniq"
-                      target="_blank"
-                      ><code>["uniq"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#uniqBy"
-                      target="_blank"
-                      ><code>["uniqBy", path]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#limit"
-                      target="_blank"
-                      ><code>["limit", size]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#size"
-                      target="_blank"
-                      ><code>["size", path]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#string"
-                      target="_blank"
-                      ><code>["string", text]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#sum"
-                      target="_blank"
-                      ><code>["sum"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#min"
-                      target="_blank"
-                      ><code>["min"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#max"
-                      target="_blank"
-                      ><code>["max"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#prod"
-                      target="_blank"
-                      ><code>["prod"]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#average"
-                      target="_blank"
-                      ><code>["average"]</code></a
-                    >
-                  </li>
-                </ul>
-
-                <p>Function reference:</p>
-                <ul class="operator-reference">
-                  <li>
-                    <a
-                      title="equal"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#equal-eq"
-                      target="_blank"
-                      ><code>["eq", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="greater than"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#greater-than-gt"
-                      target="_blank"
-                      ><code>["gt", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="greater than or equal to"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#greater-than-or-equal-to-gte"
-                      target="_blank"
-                      ><code>["gte", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="less than"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#less-than-lt"
-                      target="_blank"
-                      ><code>["lt", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="less than or equal to"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#less-than-or-equal-to-lte"
-                      target="_blank"
-                      ><code>["lte", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="not equal"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#not-equal-ne"
-                      target="_blank"
-                      ><code>["ne", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="and"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#and"
-                      target="_blank"
-                      ><code>["and", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="or"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#or"
-                      target="_blank"
-                      ><code>["or", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="not"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#not"
-                      target="_blank"
-                      ><code>["not", value]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="exists"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#exists"
-                      target="_blank"
-                      ><code>["exists", getter]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="in"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#in"
-                      target="_blank"
-                      ><code>["in", searchValue, ...values]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="not in"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#not-in"
-                      target="_blank"
-                      ><code>["not in", searchValue, ...values]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="regex"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#regex"
-                      target="_blank"
-                      ><code>["regex", text, expression, options]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="add"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#add"
-                      target="_blank"
-                      ><code>["add", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="subtract"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#subtract"
-                      target="_blank"
-                      ><code>["subtract", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="multiply"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#multiply"
-                      target="_blank"
-                      ><code>["multiply", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="divide"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#divide"
-                      target="_blank"
-                      ><code>["divide", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="power"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#power-pow"
-                      target="_blank"
-                      ><code>["pow", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      title="remainder"
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#remainder-mod"
-                      target="_blank"
-                      ><code>["mod", a, b]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#round"
-                      target="_blank"
-                      ><code>["round", value, digits]</code></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#abs"
-                      target="_blank"
-                      ><code>["abs", value]</code></a
-                    >
-                  </li>
-                </ul>
-              </div>
-            </details>
-            <details>
-              <summary>
-                <span class="category">Pipe</span>
-                <code>[query1, query1, ...]</code>
-              </summary>
-              <div class="details-content">
-                <p>
-                  A <b>pipe</b> is an array containing a series of queries. The queries in the
-                  pipeline are executed one by one, and the output of the first is the input for the
-                  next.
-                </p>
-                <p>Example:</p>
-                <pre><code>[
-  ["filter", ["gte", ["get", "age"], 18]],
-  ["sort", ["get", "name"]]
-]</code></pre>
-                <p>
-                  Documentation:
-                  <a href="https://github.com/jsonquerylang/jsonquery#pipes" target="_blank"
-                    >Pipes</a
-                  >
-                </p>
-              </div>
-            </details>
-            <details>
-              <summary>
-                <span class="category">Object</span>
-                <code>{"prop1": query1, "prop2": query2, ...}</code>
-              </summary>
-              <div class="details-content">
-                <p>
-                  An <b>object</b> is defined as a regular JSON object with a property name as key,
-                  and a <i>function</i>, <i>pipe</i>, or <i>object</i> as value. Objects can be used
-                  to transform data or to execute multiple query pipelines in parallel.
-                </p>
-                <p>Example:</p>
-                <pre><code>{
-  "names": ["map", ["get", "name"]],
-  "numberOfNames": ["length"]
-}</code></pre>
-                <p>
-                  Documentation:
-                  <a href="https://github.com/jsonquerylang/jsonquery#objects" target="_blank"
-                    >Objects</a
-                  >
-                </p>
-              </div>
-            </details>
+}</textarea>
+      </div>
+      <div class="column">
+        <div class="row">
+          <div class="tab-section text-format">
+            <div class="tabs">
+              <label class="query-label">Query</label>
+              <label for="query-text"><button id="toggle-text-format" title="Text format" class="selected">Text</button></label>
+              <label for="query-json"><button id="toggle-json-format" title="JSON format">JSON</button></label>
+            </div>
+            <div class="tab-contents">
+              <textarea id="query-text" autocomplete="off" autocapitalize="off" spellcheck="false" class="selected">.friends
+  | filter(.city == "New York")
+  | sort(.age)
+  | pick(.name, .age)
+</textarea>
+              <textarea id="query-json" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+            </div>
           </div>
         </div>
       </div>
-      <dialog id="debugger">
-        <div class="dialog-header">
-          <h3 class="title">Debugger</h3>
-          <button type="button" id="close-dialog">Close</button>
-        </div>
-        <div class="dialog-contents">
-          <div id="error-message">Error message...</div>
-          <div class="stack-toggles">
-            Stack: <button type="button" id="error-previous">Previous</button>
-            <span id="error-index">2/4</span>
-            <button type="button" id="error-next">Next</button>
-          </div>
-          <div class="debug-columns">
-            <div class="debug-column">
-              <label class="debug-label" for="error-data">Input</label>
-              <textarea class="debug-content" id="error-data" readonly></textarea>
+      <div class="column">
+        <label for="output-text">Output</label>
+        <button type="button" id="show-debugger">Debug</button>
+        <textarea id="output-text" readonly>loading...</textarea>
+      </div>
+      <div class="column">
+        <label for="output-text">Quick Reference</label>
+        <div class="quick-reference">
+          <details>
+            <summary>
+              <span class="category">Function</span>
+              <code>name(argument1, argument2, ...)</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                A <b>function</b> is defined as a function name followed by comma separated arguments wrapped in round brackets. it is important to understand functions like <code>filter</code>, <code>sort</code>, and <code>max</code> are executed as a method in a chain: the operation is applied to the data input, and forwarded to the next method in the chain (if any).
+              </p>
+              <p>
+                Examples:
+              </p>
+              <pre><code>sort(.address.city, "asc")</code></pre>
+              <pre><code>filter(.age >= 21) | sort(.age, "asc")</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#functions"
+                  target="_blank">Functions</a>
+              </p>
+              <p>Function reference:</p>
+              <ul class="function-reference">
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#get"
+                    target="_blank"><code>get(prop1, prop2)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#filter"
+                    target="_blank"><code>filter(condition)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#sort"
+                    target="_blank"><code>sort(property, direction)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#pick"
+                    target="_blank"><code>pick(property1, property2, ...)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#map"
+                    target="_blank"><code>map(query)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#pipe"
+                     target="_blank"><code>pipe(query1, query2, ...)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#object"
+                     target="_blank"><code>object({ prop1: query1, prop2: query2, ...)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#array"
+                     target="_blank"><code>array(query1, query2, ...)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#groupBy"
+                    target="_blank"><code>groupBy(property)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#keyBy"
+                    target="_blank"><code>keyBy(property)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#keys"
+                    target="_blank"><code>keys()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#values"
+                    target="_blank"><code>values()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#flatten"
+                    target="_blank"><code>flatten()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#uniq"
+                    target="_blank"><code>uniq()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#uniqBy"
+                    target="_blank"><code>uniqBy(property)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#limit"
+                    target="_blank"><code>limit(size)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#size"
+                    target="_blank"><code>size()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#sum"
+                    target="_blank"><code>sum()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#min"
+                    target="_blank"><code>min()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#max"
+                    target="_blank"><code>max()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#prod"
+                    target="_blank"><code>prod()</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#average"
+                    target="_blank"><code>average()</code></a>
+                </li>
+                <li>
+                  <a title="not" href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#not"
+                     target="_blank"><code>not(value)</code></a>
+                </li>
+                <li>
+                  <a title="exists"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#exists"
+                     target="_blank"><code>exists(property)</code></a>
+                </li>
+                <li>
+                  <a title="regex"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#regex"
+                     target="_blank"><code>regex(text, expression, options)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#round"
+                     target="_blank"><code>round(value, digits)</code></a>
+                </li>
+                <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#abs"
+                     target="_blank"><code>abs(value)</code></a>
+                </li>
+              </ul>
             </div>
-            <div class="debug-column">
-              <label class="debug-label" for="error-query">Query</label>
-              <textarea class="debug-content" id="error-query" readonly></textarea>
+          </details>
+          <details>
+            <summary>
+              <span class="category">Operator</span>
+              <code>(left operator right)</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                JSON Query supports all basic <b>operators</b>. When composing multiple operators, it is necessary to use parentheses. Operators do not have precedence since parentheses are required.
+              </p>
+              <p>Examples:</p>
+              <pre><code>filter(.age >= 18)</code></pre>
+              <pre><code>filter((.age >= 18) and (.age <= 65))</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#operators" target="_blank">Operators</a>
+              </p>
+
+              <p>Operator reference:</p>
+              <ul class="operator-reference">
+                <li>
+                  <a title="equal"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#equal-"
+                     target="_blank"><code>a == b</code></a>
+                </li>
+                <li>
+                  <a title="greater than"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#greater-than-"
+                     target="_blank"><code>a &gt; b</code></a>
+                </li>
+                <li>
+                  <a title="greater than or equal to"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#greater-than-or-equal-to-gte"
+                     target="_blank"><code>a &gt;= b</code></a>
+                </li>
+                <li>
+                  <a title="less than"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#less-than-"
+                     target="_blank"><code>a &lt; b</code></a>
+                </li>
+                <li>
+                  <a title="less than or equal to"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#less-than-or-equal-to-lte"
+                     target="_blank"><code>a &lt= b</code></a>
+                </li>
+                <li>
+                  <a title="not equal"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#not-equal-"
+                     target="_blank"><code>a != b</code></a>
+                </li>
+                <li>
+                  <a title="and" href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#and"
+                     target="_blank"><code>a and b</code></a>
+                </li>
+                <li>
+                  <a title="or" href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#or"
+                     target="_blank"><code>a or b</code></a>
+                </li>
+                <li>
+                  <a title="in" href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#in"
+                     target="_blank"><code>a in [value1, value2, ...]</code></a>
+                </li>
+                <li>
+                  <a title="not in"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#not-in"
+                     target="_blank"><code>a not in [value1, value2, ...]</code></a>
+                </li>
+                <li>
+                  <a title="add" href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#add-"
+                     target="_blank"><code>a + b</code></a>
+                </li>
+                <li>
+                  <a title="subtract"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#subtract-"
+                     target="_blank"><code>a - b</code></a>
+                </li>
+                <li>
+                  <a title="multiply"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#multiply-"
+                     target="_blank"><code>a * b</code></a>
+                </li>
+                <li>
+                  <a title="divide"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#divide-"
+                     target="_blank"><code>a / b</code></a>
+                </li>
+                <li>
+                  <a title="power"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#power-"
+                     target="_blank"><code>a ^ b</code></a>
+                </li>
+                <li>
+                  <a title="remainder"
+                     href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#remainder-"
+                     target="_blank"><code>a % b</code></a>
+                </li>
+              </ul>
             </div>
-          </div>
+          </details>
+          <details>
+            <summary>
+              <span class="category">Pipe</span>
+              <code>query2 | query2 | ...</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                A <b>pipe</b> is an array containing a series of queries. The queries in the
+                pipeline are executed one by one, and the output of the first is the input for the
+                next.
+              </p>
+              <p>Example:</p>
+              <pre><code>filter(.age >= 18) | sort(.name)</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#pipes" target="_blank">Pipes</a>
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="category">Object</span>
+              <code>{prop1: query1, prop2: query2, ...}</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                An <b>object</b> is defined as a regular JSON object with a property name as key, and a query as value. Objects can be used to transform data or to execute multiple query pipelines in parallel.
+              </p>
+              <p>Example:</p>
+              <pre><code>{
+  names: map(.name),
+  numberOfNames: size()
+}</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#objects" target="_blank">Objects</a>
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="category">Array</span>
+              <code>[query1, query2, ...]</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                An <b>array</b> is defined as a regular JSON array: enclosed in square brackets, with items separated by a comma.
+              </p>
+              <p>Example:</p>
+              <pre><code>filter(.city in ["New York", "Atlanta"])</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#arrays" target="_blank">Arrays</a>
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="category">Property</span>
+              <code>.prop1.prop2</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                A <b>property</b> retrieves a property from an object. Multiple consecutive properties will retrieve a nested property.
+              </p>
+              <p>Examples:</p>
+              <pre><code>.age</code></pre>
+              <pre><code>.address.city</code></pre>
+              <pre><code>."first name"</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#properties" target="_blank">Properties</a>
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="category">Value</span>
+              <code>"string"</code>, <code>number</code>, <code>boolean</code>, <code>null</code>
+            </summary>
+            <div class="details-content">
+              <p>
+                JSON Query supports the following primitive <b>values</b>, the same as in <a href="https://www.json.org" target="_blank">JSON</a>: <code>"string"</code>, <code>number</code>, <code>boolean</code>, <code>null</code>.
+              </p>
+              <p>Examples:</p>
+              <pre><code>"Hello world"</code></pre>
+              <pre><code>"Multi line text\nwith \"quoted\" contents"</code></pre>
+              <pre><code>42</code></pre>
+              <pre><code>2.74</code></pre>
+              <pre><code>-1.2e3</code></pre>
+              <pre><code>true</code></pre>
+              <pre><code>false</code></pre>
+              <pre><code>null</code></pre>
+              <p>
+                Documentation:
+                <a href="https://github.com/jsonquerylang/jsonquery#values" target="_blank">Values</a>
+              </p>
+            </div>
+          </details>
         </div>
-      </dialog>
+      </div>
     </div>
+    <dialog id="debugger">
+      <div class="dialog-header">
+        <h3 class="title">Debugger</h3>
+        <button type="button" id="close-dialog">Close</button>
+      </div>
+      <div class="dialog-contents">
+        <div id="error-message">Error message...</div>
+        <div class="stack-toggles">
+          Stack: <button type="button" id="error-previous">Previous</button>
+          <span id="error-index">2/4</span>
+          <button type="button" id="error-next">Next</button>
+        </div>
+        <div class="debug-columns">
+          <div class="debug-column">
+            <label class="debug-label" for="error-data">Input</label>
+            <textarea class="debug-content" id="error-data" readonly></textarea>
+          </div>
+          <div class="debug-column">
+            <label class="debug-label" for="error-query">Query</label>
+            <textarea class="debug-content" id="error-query" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  </div>
 
-    <script type="module">
-      import { jsonquery } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
+  <script type="module">
+    import { jsonquery, stringify, parse, compile } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery/lib/jsonquery.js'
+    import { Formatter, FracturedJsonOptions } from 'https://cdn.jsdelivr.net/npm/fracturedjsonjs/+esm'
 
-      window.jsonquery = jsonquery
+    window.jsonquery = { jsonquery, stringify, parse, compile }
 
-      const refInputText = document.getElementById('input-text')
-      const refQueryText = document.getElementById('query-text')
-      const refOutputText = document.getElementById('output-text')
-      const refShowDebugger = document.getElementById('show-debugger')
-      const refDebugger = document.getElementById('debugger')
-      const refCloseDebugger = document.getElementById('close-dialog')
-      const refErrorMessage = document.getElementById('error-message')
-      const refErrorPrevious = document.getElementById('error-previous')
-      const refErrorNext = document.getElementById('error-next')
-      const refErrorIndex = document.getElementById('error-index')
-      const refErrorData = document.getElementById('error-data')
-      const refErrorQuery = document.getElementById('error-query')
+    const refInputText = document.getElementById('input-text')
+    const refToggleTextFormat = document.getElementById('toggle-text-format')
+    const refToggleJsonFormat = document.getElementById('toggle-json-format')
+    const refQueryText = document.getElementById('query-text')
+    const refQueryJson = document.getElementById('query-json')
+    const refOutputText = document.getElementById('output-text')
+    const refShowDebugger = document.getElementById('show-debugger')
+    const refDebugger = document.getElementById('debugger')
+    const refCloseDebugger = document.getElementById('close-dialog')
+    const refErrorMessage = document.getElementById('error-message')
+    const refErrorPrevious = document.getElementById('error-previous')
+    const refErrorNext = document.getElementById('error-next')
+    const refErrorIndex = document.getElementById('error-index')
+    const refErrorData = document.getElementById('error-data')
+    const refErrorQuery = document.getElementById('error-query')
 
-      const input1 = refInputText.value
-      const query1 = refQueryText.value
+    const input1 = refInputText.value
+    const query1 = refQueryText.value
 
-      const input2 = `[
+    const input2 = `[
   {"name": "Chris", "age": 23, "city": "New York"},
   {"name": "Emily", "age": 19, "city": "Atlanta"},
   {"name": "Joe", "age": 32, "city": "New York"},
@@ -519,132 +475,185 @@
   {"name": "Michelle", "age": 27, "city": "Los Angeles"},
   {"name": "Robert", "age": 45, "city": "Manhattan"},
   {"name": "Sarah", "age": 31, "city": "New York"}
-]`
-      const query2 = `["filter", [
-  "and",
-  ["eq", ["get", "city"], "New York"],
-  ["gt", ["get", "age"], 30]
-]]`
+]
+`
+    const query2 = `filter((.city == "New York") and (.age > 30))\n`
 
-      const input3 = input2
-      const query3 = `["map", {
-  "firstName": ["get", "name"],
-  "details": {
-    "city": ["get", "city"],
-    "age": ["get", "age"]
+    const input3 = input2
+    const query3 = `map({
+  firstName: .name,
+  details: {
+    city: .city,
+    age: .age
   }
-}]`
+})
+`
 
-      const input4 = input2
-      const query4 = `{
-  "names": ["map", ["get", "name"]],
-  "count": ["size"],
-  "averageAge": [
-    ["map", ["get", "age"]],
-    ["average"]
-  ]
-}`
+    const input4 = input2
+    const query4 = `{
+  names: map(.name),
+  count: size(),
+  averageAge: map(.age) | average()
+}
+`
 
-      const input5 = `[
+    const input5 = `[
   { "name": "bread", "price": 2.5, "quantity": 2 },
   { "name": "milk", "price": 1.2, "quantity": 3 }
-]`
-      const query5 = `[
-  ["map", [
-    "multiply",
-    ["get", "price"],
-    ["get", "quantity"]
-  ]],
-  ["sum"]
-]`
+]
+`
+    const query5 = `map(.price * .quantity) | sum()\n`
 
-      let error = undefined
-      let errorIndex = 0
+    let error = undefined
+    let errorIndex = 0
 
-      function go() {
-        try {
-          const input = JSON.parse(refInputText.value)
-          const query = JSON.parse(refQueryText.value)
-          const output = jsonquery(input, query)
+    function stringifyJson(json) {
+      const formatter = new Formatter()
+      formatter.Options = new FracturedJsonOptions()
+      formatter.Options.MaxTotalLineLength = 55
+      formatter.Options.IndentSpaces = 2
+      formatter.Options.MaxInlineComplexity = 3
+      formatter.Options.SimpleBracketPadding = false
+      formatter.Options.NestedBracketPadding = false
+      formatter.Options.OmitTrailingWhitespace = true
 
-          refOutputText.value = JSON.stringify(output, null, 2)
-          refOutputText.classList.remove('error')
-          refShowDebugger.style.display = 'none'
-          error = undefined
-          errorIndex = 0
-        } catch (err) {
-          console.error(err)
-          error = err
+      return formatter.Reformat(JSON.stringify(json, null, 2))
+    }
 
-          if (err.jsonquery) {
-            const lastQuery = err.jsonquery[err.jsonquery.length - 1].query
-            refOutputText.value = `${err}\n\nWhilst executing the following part of the query:\n\n${JSON.stringify(lastQuery)}`
-            refOutputText.classList.add('error')
-            refShowDebugger.style.display = ''
-          } else {
-            refOutputText.value = String(err)
-            refOutputText.classList.add('error')
-          }
+    function updateQueryText() {
+      try {
+        const queryJson = JSON.parse(refQueryJson.value)
+        refQueryText.value = stringify(queryJson)
+        refQueryText.classList.remove('error')
+      } catch (err) {
+        refQueryText.value = String(err)
+        refQueryText.classList.add('error')
+      }
+    }
+
+    function updateQueryJson() {
+      try {
+        const queryText = refQueryText.value
+        refQueryJson.value = stringifyJson(parse(queryText))
+        refQueryJson.classList.remove('error')
+      } catch (err) {
+        refQueryJson.value = String(err)
+        refQueryJson.classList.add('error')
+      }
+    }
+
+    function go(format) {
+      try {
+        const input = JSON.parse(refInputText.value)
+        const query = format === 'json' ? JSON.parse(refQueryJson.value) : refQueryText.value
+        const output = jsonquery(input, query)
+
+        refOutputText.value = JSON.stringify(output, null, 2)
+        refOutputText.classList.remove('error')
+        refQueryText.classList.remove('error')
+        refQueryJson.classList.remove('error')
+        refShowDebugger.style.display = 'none'
+        error = undefined
+        errorIndex = 0
+      } catch (err) {
+        console.error(err)
+        error = err
+
+        if (err.jsonquery) {
+          const lastQuery = err.jsonquery[err.jsonquery.length - 1].query
+          refOutputText.value = `${err}\n\nWhilst executing the following part of the query:\n\n${JSON.stringify(lastQuery)}`
+          refOutputText.classList.add('error')
+          refShowDebugger.style.display = ''
+        } else {
+          refOutputText.value = String(err)
+          refOutputText.classList.add('error')
         }
       }
+    }
 
-      function showDebugger() {
-        if (error?.jsonquery) {
-          errorIndex = error.jsonquery.length - 1
-          renderDebugEntry()
-          refDebugger.showModal()
-        }
+    function showDebugger() {
+      if (error?.jsonquery) {
+        errorIndex = error.jsonquery.length - 1
+        renderDebugEntry()
+        refDebugger.showModal()
       }
+    }
 
-      function previousDebugEntry() {
-        if (errorIndex > 0) {
-          errorIndex--
-          renderDebugEntry()
-        }
+    function showTextFormat() {
+      refToggleTextFormat.classList.add('selected')
+      refToggleJsonFormat.classList.remove('selected')
+      refQueryText.classList.add('selected')
+      refQueryJson.classList.remove('selected')
+    }
+
+    function showJsonFormat() {
+      refToggleTextFormat.classList.remove('selected')
+      refToggleJsonFormat.classList.add('selected')
+      refQueryText.classList.remove('selected')
+      refQueryJson.classList.add('selected')
+    }
+
+    function previousDebugEntry() {
+      if (errorIndex > 0) {
+        errorIndex--
+        renderDebugEntry()
       }
+    }
 
-      function nextDebugEntry() {
-        if (errorIndex < error?.jsonquery?.length - 1) {
-          errorIndex++
-          renderDebugEntry()
-        }
+    function nextDebugEntry() {
+      if (errorIndex < error?.jsonquery?.length - 1) {
+        errorIndex++
+        renderDebugEntry()
       }
+    }
 
-      function renderDebugEntry() {
-        const current = error?.jsonquery?.[errorIndex]
-        if (current) {
-          refErrorMessage.innerText = String(error)
-          refErrorIndex.innerText = `${errorIndex + 1}/${error.jsonquery.length}`
-          refErrorData.value = JSON.stringify(current.data, null, 2)
-          refErrorQuery.value = JSON.stringify(current.query, null, 2)
-        }
+    function renderDebugEntry() {
+      const current = error?.jsonquery?.[errorIndex]
+      if (current) {
+        refErrorMessage.innerText = String(error)
+        refErrorIndex.innerText = `${errorIndex + 1}/${error.jsonquery.length}`
+        refErrorData.value = JSON.stringify(current.data, null, 2)
+        refErrorQuery.value = JSON.stringify(current.query, null, 2)
       }
+    }
 
-      function load(input, query) {
-        refInputText.value = input
-        refQueryText.value = query
-        go()
+    function load(input, query) {
+      refInputText.value = input
+      refQueryText.value = query
+      refQueryJson.value = stringifyJson(parse(query))
+      go('text')
+    }
+
+    refInputText.addEventListener('input', go)
+    refQueryText.addEventListener('input', () => {
+      updateQueryJson()
+      go('text')
+    })
+    refQueryJson.addEventListener('input', () => {
+      updateQueryText()
+      go('json')
+    })
+    refToggleTextFormat.addEventListener('click', showTextFormat)
+    refToggleJsonFormat.addEventListener('click', showJsonFormat)
+    refShowDebugger.addEventListener('click', showDebugger)
+    refErrorPrevious.addEventListener('click', previousDebugEntry)
+    refErrorNext.addEventListener('click', nextDebugEntry)
+    refDebugger.addEventListener('click', (event) => {
+      if (event.target === refDebugger) {
+        // close when clicking outside the dialog
+        refDebugger.close()
       }
+    })
+    refCloseDebugger.addEventListener('click', () => refDebugger.close())
+    document.getElementById('example1').addEventListener('click', () => load(input1, query1))
+    document.getElementById('example2').addEventListener('click', () => load(input2, query2))
+    document.getElementById('example3').addEventListener('click', () => load(input3, query3))
+    document.getElementById('example4').addEventListener('click', () => load(input4, query4))
+    document.getElementById('example5').addEventListener('click', () => load(input5, query5))
 
-      refInputText.addEventListener('input', go)
-      refQueryText.addEventListener('input', go)
-      refShowDebugger.addEventListener('click', showDebugger)
-      refErrorPrevious.addEventListener('click', previousDebugEntry)
-      refErrorNext.addEventListener('click', nextDebugEntry)
-      refDebugger.addEventListener('click', (event) => {
-        if (event.target === refDebugger) {
-          // close when clicking outside the dialog
-          refDebugger.close()
-        }
-      })
-      refCloseDebugger.addEventListener('click', () => refDebugger.close())
-      document.getElementById('example1').addEventListener('click', () => load(input1, query1))
-      document.getElementById('example2').addEventListener('click', () => load(input2, query2))
-      document.getElementById('example3').addEventListener('click', () => load(input3, query3))
-      document.getElementById('example4').addEventListener('click', () => load(input4, query4))
-      document.getElementById('example5').addEventListener('click', () => load(input5, query5))
+    updateQueryJson()
+    go('text')
+  </script>
+</body>
 
-      go()
-    </script>
-  </body>
 </html>

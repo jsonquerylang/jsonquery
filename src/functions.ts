@@ -1,9 +1,55 @@
-import { FunctionBuildersMap, Getter, JSONPath, JSONQuery, JSONQueryProperty } from './types'
 import { compile } from './compile'
 import { isArray } from './is'
-import { buildFunction } from './buildFunction'
+import type {
+  FunctionBuilder,
+  FunctionBuildersMap,
+  Getter,
+  JSONPath,
+  JSONQuery,
+  JSONQueryObject,
+  JSONQueryProperty
+} from './types'
+
+export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuilder {
+  return (...args: JSONQuery[]) => {
+    const compiledArgs = args.map((arg) => compile(arg))
+
+    const arg0 = compiledArgs[0]
+    const arg1 = compiledArgs[1]
+
+    return compiledArgs.length === 1
+      ? (data: unknown) => fn(arg0(data))
+      : compiledArgs.length === 2
+        ? (data: unknown) => fn(arg0(data), arg1(data))
+        : (data: unknown) => fn(...compiledArgs.map((arg) => arg(data)))
+  }
+}
 
 export const functions: FunctionBuildersMap = {
+  pipe: (...entries: JSONQuery[]) => {
+    const _entries = entries.map((entry) => compile(entry))
+
+    return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
+  },
+
+  object: (query: JSONQueryObject) => {
+    const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key])])
+
+    return (data: unknown) => {
+      const obj = {}
+      for (const [key, getter] of getters) {
+        obj[key] = getter(data)
+      }
+      return obj
+    }
+  },
+
+  array: (...items: JSONQuery[]) => {
+    const _items = items.map((entry: JSONQuery) => compile(entry))
+
+    return (data: unknown) => _items.map((item) => item(data))
+  },
+
   get: (...path: JSONPath) => {
     if (path.length === 0) {
       return (data: unknown) => data
@@ -27,11 +73,13 @@ export const functions: FunctionBuildersMap = {
 
   map: <T>(callback: JSONQuery) => {
     const _callback = compile(callback)
+
     return (data: T[]) => data.map(_callback)
   },
 
-  filter: <T>(...predicate: JSONQuery[]) => {
-    const _predicate = compile(predicate.length === 1 ? predicate[0] : predicate)
+  filter: <T>(predicate: JSONQuery[]) => {
+    const _predicate = compile(predicate)
+
     return (data: T[]) => data.filter(_predicate)
   },
 
@@ -55,7 +103,9 @@ export const functions: FunctionBuildersMap = {
 
     const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
       const out = {}
-      getters.forEach(([key, getter]) => (out[key] = getter(object)))
+      for (const [key, getter] of getters) {
+        out[key] = getter(object)
+      }
       return out
     }
 
@@ -93,10 +143,10 @@ export const functions: FunctionBuildersMap = {
     return (data: T[]) => {
       const res = {}
 
-      data.forEach((item) => {
+      for (const item of data) {
         const value = getter(item) as string
         res[value] = res[value] ?? item
-      })
+      }
 
       return res
     }
@@ -137,19 +187,23 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  in: (path: string, values: string[]) => {
+  in: (path: string, values: JSONQuery) => {
     const getter = compile(path)
-    return (data: unknown) => values.includes(getter(data) as string)
+    const _values = compile(values)
+
+    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
   },
 
-  'not in': (path: string, values: string[]) => {
-    const getter = compile(path)
-    return (data: unknown) => !values.includes(getter(data) as string)
+  'not in': (path: string, values: JSONQuery) => {
+    const _in = functions.in(path, values)
+
+    return (data: unknown) => !_in(data)
   },
 
   regex: (path: JSONQuery, expression: string, options?: string) => {
     const regex = new RegExp(expression, options)
     const getter = compile(path)
+
     return (data: unknown) => regex.test(getter(data) as string)
   },
 
@@ -173,7 +227,7 @@ export const functions: FunctionBuildersMap = {
   mod: buildFunction((a: number, b: number) => a % b),
   abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {
-    const num = Math.round(Number(value + 'e' + digits))
-    return Number(num + 'e' + -digits)
+    const num = Math.round(Number(`${value}e${digits}`))
+    return Number(`${num}e${-digits}`)
   })
 }

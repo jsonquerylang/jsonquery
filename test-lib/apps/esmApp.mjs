@@ -11,6 +11,7 @@ const data = [
 ]
 
 const result = jsonquery(data, [
+  'pipe',
   ['filter', ['eq', ['get', 'city'], 'New York']],
   ['map', ['get', 'name']]
 ])

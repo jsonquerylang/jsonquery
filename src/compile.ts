@@ -1,24 +1,24 @@
-import {
-  Function,
-  FunctionBuildersMap,
-  Getter,
-  JSONQuery,
-  JSONQueryFunction,
-  JSONQueryObject,
-  JSONQueryOptions,
-  JSONQueryPipe
-} from './types'
-import { isArray, isObject, isString } from './is'
 import { functions } from './functions'
+import { isArray } from './is'
+import type {
+  Fun,
+  FunctionBuildersMap,
+  JSONQuery,
+  JSONQueryCompileOptions,
+  JSONQueryFunction
+} from './types'
 
-const functionsStack: FunctionBuildersMap[] = [functions]
+const functionsStack: FunctionBuildersMap[] = []
 
-export function compile(query: JSONQuery, options?: JSONQueryOptions): Function {
-  functionsStack.unshift({ ...functionsStack[0], ...options?.functions })
+export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Fun {
+  functionsStack.unshift({ ...functions, ...functionsStack[0], ...options?.functions })
 
   try {
-    const exec = _compile(query, functionsStack[0])
+    const exec = isArray(query)
+      ? compileFunction(query as JSONQueryFunction, functionsStack[0]) // function
+      : () => query // primitive value (string, number, boolean, null)
 
+    // create a wrapper function which can attach a stack to the error
     return (data) => {
       try {
         return exec(data)
@@ -34,48 +34,13 @@ export function compile(query: JSONQuery, options?: JSONQueryOptions): Function 
   }
 }
 
-function _compile(query: JSONQuery, functions: FunctionBuildersMap): Function {
-  if (isArray(query)) {
-    // function
-    if (isString(query[0])) {
-      return fun(query as JSONQueryFunction, functions)
-    }
-
-    // pipe
-    return pipe(query as JSONQueryPipe)
-  }
-
-  // object
-  if (isObject(query)) {
-    return object(query as JSONQueryObject)
-  }
-
-  // value (string, number, boolean, null)
-  return () => query
-}
-
-function fun(query: JSONQueryFunction, functions: FunctionBuildersMap) {
+function compileFunction(query: JSONQueryFunction, functions: FunctionBuildersMap) {
   const [fnName, ...args] = query
 
   const fnBuilder = functions[fnName]
   if (!fnBuilder) {
-    throw new Error(`Unknown function "${fnName}"`)
+    throw new Error(`Unknown function '${fnName}'`)
   }
 
   return fnBuilder(...args)
-}
-
-function pipe(entries: JSONQuery[]) {
-  const _entries = entries.map((entry) => compile(entry))
-  return (data: unknown) => _entries.reduce((data, evaluator) => evaluator(data), data)
-}
-
-function object(query: JSONQueryObject) {
-  const getters: Getter[] = Object.keys(query).map((key) => [key, compile(query[key])])
-
-  return (data: unknown) => {
-    const obj = {}
-    getters.forEach(([key, getter]) => (obj[key] = getter(data)))
-    return obj
-  }
 }

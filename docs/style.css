@@ -1,10 +1,12 @@
 :root {
   --theme-color: #d5f3bb;
+  --theme-color-highlight: #e1f6ce;
   --background-color: #fafafa;
   --color: #222b00;
   --error-color: #f65252;
   --padding: 10px;
   --border-radius: 3px;
+  --tab-border-width: 5px;
 }
 
 html,
@@ -58,14 +60,8 @@ body {
     linear-gradient(to top right, transparent 50.5%, var(--theme-color) 50.5%),
     linear-gradient(to top left, transparent 50.5%, var(--theme-color) 50.5%);
   background-repeat: repeat, repeat-x, repeat-x;
-  background-position:
-    0 0,
-    10px 100%,
-    10px 100%;
-  background-size:
-    auto auto,
-    20px 20px,
-    20px 20px;
+  background-position: 0 0, 10px 100%, 10px 100%;
+  background-size: auto auto, 20px 20px, 20px 20px;
   background-clip: padding-box, border-box, border-box;
   background-origin: padding-box, border-box, border-box;
 }
@@ -145,6 +141,69 @@ button:hover {
   min-height: 220px;
 }
 
+.row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  .tabs {
+    display: flex;
+    align-items: end;
+    gap: var(--tab-border-width);
+    padding: 0 var(--tab-border-width);
+
+    label {
+      margin: 0;
+    }
+
+    .query-label {
+      flex: 1;
+      margin: 0 0 2px;
+    }
+
+    button {
+      margin: 0;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      background: white;
+      border: 1px solid var(--theme-color);
+      border-bottom: none;
+      color: var(--color);
+      font-family: inherit;
+      font-size: inherit;
+      padding: 2px 10px 5px;
+
+      &:hover {
+        background: var(--theme-color-highlight);
+      }
+
+      &.selected {
+        background: var(--theme-color);
+        padding: 5px 10px;
+      }
+    }
+  }
+
+  .tab-contents {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+    padding: var(--tab-border-width);
+    margin-bottom: -5px;
+    background: var(--theme-color);
+
+    textarea:not(.selected) {
+      display: none;
+    }
+  }
+}
+
 @media (max-width: 860px) {
   .playground {
     display: flex;
@@ -155,6 +214,10 @@ button:hover {
   .column {
     display: flex;
   }
+
+  .row {
+    min-height: 110px;
+  }
 }
 
 .separator {
@@ -163,7 +226,8 @@ button:hover {
 
 label {
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-top: var(--padding);
+  margin-bottom: 7px;
 }
 
 textarea {
@@ -231,8 +295,8 @@ pre code {
   background: none;
 }
 
-.method-reference a,
-.function-reference a {
+.function-reference a,
+.operator-reference a {
   text-decoration: none;
 }
 
@@ -269,9 +333,7 @@ summary .category {
   font-family: inherit;
   font-size: inherit;
 
-  transition:
-    width 0.1s ease-in-out,
-    height 0.1s ease-in-out;
+  transition: width 0.1s ease-in-out, height 0.1s ease-in-out;
 
   &[open] {
     display: flex;
