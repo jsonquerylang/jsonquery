@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { jsonquery } from './jsonquery'
+import { buildFunction, compile, jsonquery, parse, stringify } from './jsonquery'
 
 describe('jsonquery', () => {
   test('should execute a JSON query', () => {
@@ -40,5 +40,13 @@ describe('jsonquery', () => {
     }
 
     expect(jsonquery({ name: 'Joe' }, '.name', { operators })).toEqual('Joe')
+  })
+
+  test('have exported all documented functions', () => {
+    expect(jsonquery).toBeTypeOf('function')
+    expect(parse).toBeTypeOf('function')
+    expect(stringify).toBeTypeOf('function')
+    expect(compile).toBeTypeOf('function')
+    expect(buildFunction).toBeTypeOf('function')
   })
 })
