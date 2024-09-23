@@ -19,6 +19,8 @@ export interface JSONQueryCompileOptions {
 
 export interface JSONQueryStringifyOptions {
   operators?: Record<string, string>
+  maxLineLength?: number
+  indentation?: string
 }
 
 export interface JSONQueryParseOptions {

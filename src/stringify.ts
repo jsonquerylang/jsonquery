@@ -8,6 +8,9 @@ import type {
   JSONQueryStringifyOptions
 } from './types'
 
+const DEFAULT_MAX_LINE_LENGTH = 40
+const DEFAULT_INDENTATION = '  '
+
 /**
  * Stringify a JSON Query into a readable, human friendly text syntax.
  *
@@ -21,61 +24,102 @@ import type {
  *       ]
  *     const textQuery = stringify(jsonQuery)
  *     // textQuery = '.friends | filter(.city == "new York") | sort(.age) | pick(.name, .age)'
+ *
+ * @param query The JSON Query to be stringified
+ * @param {Object} [options] An object which can have the following options:
+ *                 `maxLineLength` Optional maximum line length. When the query exceeds this maximum,
+ *                                 It will be formatted over multiple lines. Default value: 40.
+ *                 `indentation`   Optional indentation. Defaults to a string with two spaces: '  '.
  */
-export function stringify(query: JSONQuery, options?: JSONQueryStringifyOptions): string {
-  return isArray(query)
-    ? stringifyFunction(query as JSONQueryFunction, options)
-    : JSON.stringify(query) // value (string, number, boolean, null)
-}
+export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
+  const space = options?.indentation ?? DEFAULT_INDENTATION
 
-function stringifyFunction(
-  query: JSONQueryFunction,
-  options: JSONQueryStringifyOptions | undefined
-) {
-  const [name, ...args] = query
+  const _stringify = (query: JSONQuery, indent: string) =>
+    isArray(query) ? stringifyFunction(query as JSONQueryFunction, indent) : JSON.stringify(query) // value (string, number, boolean, null)
 
-  if (name === 'get') {
-    return stringifyPath(args as JSONPath)
+  const stringifyFunction = (query: JSONQueryFunction, indent: string) => {
+    const [name, ...args] = query
+
+    if (name === 'get') {
+      return stringifyPath(args as JSONPath)
+    }
+
+    if (name === 'pipe') {
+      const argsStr = args.map((arg) => _stringify(arg, indent + space))
+
+      return join(argsStr, ['', ' | ', ''], ['', `\n${indent + space}| `, ''])
+    }
+
+    if (name === 'object') {
+      return stringifyObject(args[0] as JSONQueryObject, indent)
+    }
+
+    if (name === 'array') {
+      const argsStr = args.map((arg) => _stringify(arg, indent))
+      return join(
+        argsStr,
+        ['[', ', ', ']'],
+        [`[\n${indent + space}`, `,\n${indent + space}`, `\n${indent}]`]
+      )
+    }
+
+    // operator like ".age >= 18"
+    const op = options?.operators?.[name] ?? operators[name]
+    if (op && args.length === 2) {
+      const [left, right] = args
+      const leftStr = _stringify(left, indent)
+      const rightStr = _stringify(right, indent)
+      return `(${leftStr} ${op} ${rightStr})`
+    }
+
+    // regular function like sort(.age)
+    const childIndent = args.length === 1 ? indent : indent + space
+    const argsStr = args.map((arg) => _stringify(arg, childIndent))
+    return args.length === 1 && argsStr[0][0] === '('
+      ? `${name}${argsStr}`
+      : join(
+          argsStr,
+          [`${name}(`, ', ', ')'],
+          args.length === 1
+            ? [`${name}(`, `,\n${indent}`, ')']
+            : [`${name}(\n${childIndent}`, `,\n${childIndent}`, `\n${indent})`]
+        )
   }
 
-  if (name === 'pipe') {
-    return args.map((arg) => stringify(arg, options)).join(' | ')
+  const stringifyObject = (query: JSONQueryObject, indent: string) => {
+    const childIndent = indent + space
+    const entries = Object.entries(query).map(([key, value]) => {
+      return `${stringifyProperty(key)}: ${_stringify(value, childIndent)}`
+    })
+
+    return join(
+      entries,
+      ['{ ', ', ', ' }'],
+      [`{\n${childIndent}`, `,\n${childIndent}`, `\n${indent}}`]
+    )
   }
 
-  if (name === 'object') {
-    return stringifyObject(query[1] as JSONQueryObject, options)
+  const stringifyPath = (path: JSONPath): string =>
+    path.map((prop) => `.${stringifyProperty(prop)}`).join('')
+
+  const stringifyProperty = (prop: string): string =>
+    unquotedPropertyRegex.test(prop) ? prop : JSON.stringify(prop)
+
+  const join = (
+    items: string[],
+    [compactStart, compactSeparator, compactEnd]: [start: string, separator: string, end: string],
+    [formatStart, formatSeparator, formatEnd]: [start: string, separator: string, end: string]
+  ): string => {
+    const compactLength =
+      compactStart.length +
+      items.reduce((sum: number, item: string) => sum + item.length + compactSeparator.length, 0) -
+      compactSeparator.length +
+      compactEnd.length
+
+    return compactLength <= (options?.maxLineLength ?? DEFAULT_MAX_LINE_LENGTH)
+      ? compactStart + items.join(compactSeparator) + compactEnd
+      : formatStart + items.join(formatSeparator) + formatEnd
   }
 
-  if (name === 'array') {
-    const argsStr = args.map((arg) => stringify(arg, options)).join(', ')
-    return `[${argsStr}]`
-  }
-
-  // operator like ".age >= 18"
-  const op = options?.operators?.[name] ?? operators[name]
-  if (op && args.length === 2) {
-    const [left, right] = args
-    return `(${stringify(left)} ${op} ${stringify(right)})`
-  }
-
-  // regular function like sort(.age)
-  const argsStr = args.map((arg) => stringify(arg, options)).join(', ')
-  return args.length === 1 && argsStr[0] === '(' ? `${name}${argsStr}` : `${name}(${argsStr})`
-}
-
-function stringifyObject(query: JSONQueryObject, options: JSONQueryStringifyOptions | undefined) {
-  // TODO: pretty formatting of objects
-  const entries = Object.entries(query).map(([key, value]) => {
-    return `${stringifyProperty(key)}: ${stringify(value, options)}`
-  })
-
-  return `{ ${entries.join(', ')} }`
-}
-
-function stringifyPath(path: JSONPath): string {
-  return path.map((prop) => `.${stringifyProperty(prop)}`).join('')
-}
-
-function stringifyProperty(prop: string): string {
-  return unquotedPropertyRegex.test(prop) ? prop : JSON.stringify(prop)
+  return _stringify(query, '')
 }

@@ -515,6 +515,7 @@
       formatter.Options.MaxInlineComplexity = 3
       formatter.Options.SimpleBracketPadding = false
       formatter.Options.NestedBracketPadding = false
+      formatter.Options.OmitTrailingWhitespace = true
 
       return formatter.Reformat(JSON.stringify(json, null, 2))
     }
