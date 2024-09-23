@@ -110,7 +110,7 @@ Get a path from an object.
 get(prop1, prop2, ...)
 ```
 
-For example `.age` gets the property `age` from an object, and `.address.city` gets a nested property `city` inside an object `address`. To get the current value or object itself, just specify `.` or `get()` without properties.
+For example `.age` gets the property `age` from an object, and `.address.city` gets a nested property `city` inside an object `address`. To get the current value or object itself use function `get()` without properties.
 
 Examples:
 

@@ -28,7 +28,8 @@ describe('stringify', () => {
     ).toEqual('map({\n  name: .name,\n  city: .address.city\n})')
   })
 
-  test('should stringify a getter', () => {
+  test('should stringify a property', () => {
+    expect(stringify(['get'])).toEqual('get()')
     expect(stringify(['get', 'age'])).toEqual('.age')
     expect(stringify(['get', 'address', 'city'])).toEqual('.address.city')
     expect(stringify(['get', 'with space'])).toEqual('."with space"')

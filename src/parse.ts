@@ -87,10 +87,12 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       while (query[i] === '.') {
         i++
 
-        const property = parseString() ?? parseUnquotedString() ?? parseInteger()
-        if (property !== undefined) {
-          props.push(property)
-        }
+        props.push(
+          parseString() ??
+            parseUnquotedString() ??
+            parseInteger() ??
+            throwError('Property expected')
+        )
       }
 
       return ['get', ...props]

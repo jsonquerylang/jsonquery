@@ -40,7 +40,7 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const stringifyFunction = (query: JSONQueryFunction, indent: string) => {
     const [name, ...args] = query
 
-    if (name === 'get') {
+    if (name === 'get' && args.length > 0) {
       return stringifyPath(args as JSONPath)
     }
 

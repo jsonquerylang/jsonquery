@@ -12,13 +12,13 @@ describe('parse', () => {
       expect(parse('.123')).toEqual(['get', 123])
       expect(parse('.0')).toEqual(['get', 0])
       expect(parse(' .name ')).toEqual(['get', 'name'])
-      expect(parse('.')).toEqual(['get'])
+      expect(() => parse('.')).toThrow('Property expected (pos: 1)')
     })
 
     test('should throw an error in case of an invalid unquoted property', () => {
       expect(() => parse('.01')).toThrow("Unexpected part '1'")
       expect(() => parse('.1abc')).toThrow("Unexpected part 'abc'")
-      expect(() => parse('.[')).toThrow("Unexpected part '['")
+      expect(() => parse('.[')).toThrow('Property expected (pos: 1)')
     })
 
     test('should parse a property with quotes', () => {
@@ -28,11 +28,11 @@ describe('parse', () => {
     })
 
     test('should throw an error when a property misses an end quote', () => {
-      expect(() => parse('."name')).toThrow("Unexpected part '\"name' (pos: 1)")
+      expect(() => parse('."name')).toThrow('Property expected (pos: 1)')
     })
 
     test('should throw an error when there is whitespace between the dot and the property name', () => {
-      expect(() => parse('. "name"')).toThrow('Unexpected part \'"name"\' (pos: 2)')
+      expect(() => parse('. "name"')).toThrow('Property expected (pos: 1)')
       expect(() => parse('."address" ."city"')).toThrow('Unexpected part \'."city"\' (pos: 11)')
       expect(() => parse('.address .city')).toThrow("Unexpected part '.city' (pos: 9)")
     })
@@ -60,13 +60,13 @@ describe('parse', () => {
 
     test('should parse a function with one argument', () => {
       expect(parse('sort(.age)')).toEqual(['sort', ['get', 'age']])
-      expect(parse('sort(.)')).toEqual(['sort', ['get']])
+      expect(parse('sort(get())')).toEqual(['sort', ['get']])
       expect(parse('sort ( .age )')).toEqual(['sort', ['get', 'age']])
     })
 
     test('should parse a function with multiple arguments', () => {
       expect(parse('sort(.age, "desc")')).toEqual(['sort', ['get', 'age'], 'desc'])
-      expect(parse('sort(., "desc")')).toEqual(['sort', ['get'], 'desc'])
+      expect(parse('sort(get(), "desc")')).toEqual(['sort', ['get'], 'desc'])
     })
 
     test('should parse a custom function', () => {

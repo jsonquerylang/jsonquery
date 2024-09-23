@@ -303,7 +303,7 @@ A property can be unquoted when it only contains characters `a-z`, `A-Z`, `_` an
 ."first name"
 ```
 
-To get the current value itself, just specify a dot `.`, or alternatively, use the function `get()` without arguments.
+To get the current value itself, use the function `get()` without arguments.
 
 ### Values
 
