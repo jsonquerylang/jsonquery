@@ -105,10 +105,12 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const stringifyProperty = (prop: string): string =>
     unquotedPropertyRegex.test(prop) ? prop : JSON.stringify(prop)
 
+  type JoinDefinition = [start: string, separator: string, end: string]
+
   const join = (
     items: string[],
-    [compactStart, compactSeparator, compactEnd]: [start: string, separator: string, end: string],
-    [formatStart, formatSeparator, formatEnd]: [start: string, separator: string, end: string]
+    [compactStart, compactSeparator, compactEnd]: JoinDefinition,
+    [formatStart, formatSeparator, formatEnd]: JoinDefinition
   ): string => {
     const compactLength =
       compactStart.length +
