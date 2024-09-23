@@ -15,3 +15,5 @@ export { compile } from './compile'
 export { stringify } from './stringify'
 export { parse } from './parse'
 export { buildFunction } from './functions'
+
+export * from './types'
