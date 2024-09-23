@@ -21,11 +21,11 @@
     "url": "git+https://github.com/jsonquerylang/jsonquery.git"
   },
   "module": "./lib/jsonquery.js",
-  "types": "./lib/index.d.ts",
+  "types": "./lib/jsonquery.d.ts",
   "exports": {
     ".": {
       "import": "./lib/jsonquery.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/jsonquery.d.ts"
     }
   },
   "files": [

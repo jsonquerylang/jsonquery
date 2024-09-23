@@ -10,3 +10,8 @@ export function jsonquery(
 ): unknown {
   return compile(isString(query) ? parse(query, options) : query, options)(data)
 }
+
+export { compile } from './compile'
+export { stringify } from './stringify'
+export { parse } from './parse'
+export { buildFunction } from './functions'
