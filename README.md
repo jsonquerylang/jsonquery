@@ -134,7 +134,7 @@ The following table gives an overview of the JSON query text format:
 | [Pipe](#pipes)          | <code>query1 &#124; query2 &#124; ...</code> | <code>sort(.age) &#124; pick(.name, .age)</code> |
 | [Object](#objects)      | `{ prop1: query1, prop2: query2, ... }`      | `{ names: map(.name), total: sum() }`            |
 | [Array](#arrays)        | `[ item1, item2, ... ]`                      | `[ "New York", "Atlanta" ]`                      |
-| [Property](#properties) | `.prop1`</br>`.prop1.prop2`</br>`."prop1"`   | `.age`</br>`.address.city`</br>`."first name"`   |
+| [Property](#properties) | `.prop1`<br/>`.prop1.prop2`<br/>`."prop1"`   | `.age`<br/>`.address.city`<br/>`."first name"`   |
 | [String](#values)       | `"string"`                                   | `"Hello world"`                                  |
 | [Number](#values)       | A floating point number                      | `2.4`                                            |
 | [Boolean](#values)      | `true` or `false`                            | `true`                                           |
@@ -295,9 +295,9 @@ JSON Query supports the following primitive values, the same as in [JSON](https:
 
 | Type    | Example                                                           |
 |---------|-------------------------------------------------------------------|
-| string  | `"Hello world"`</br>`"Multi line text\nwith \"quoted\" contents"` |
-| number  | `42`</br>`2.74`</br>`-1.2e3`</br>                                 |
-| boolean | `true`</br>`false`                                                |
+| string  | `"Hello world"`<br/>`"Multi line text\nwith \"quoted\" contents"` |
+| number  | `42`<br/>`2.74`<br/>`-1.2e3`<br/>                                 |
+| boolean | `true`<br/>`false`                                                |
 | null    | `null`                                                            |
 
 ## JSON format
@@ -311,7 +311,7 @@ The text format describe above can be converted into an intermediate JSON format
 | Pipe     | <code>query1 &#124; query2 &#124; ...</code> | `["pipe", query1, query2, ...]`                                           |
 | Object   | `{ prop1: query1, prop2: query2, ... }`      | `["object", { "prop1": query1, "prop2": query2, ... }]`                   |
 | Array    | `[ item1, item2, ... ]`                      | `["array", item1, item2, ... ]`                                           |
-| Property | `.prop1`</br>`.prop1.prop2`</br>`."prop1"`   | `["get", "prop1"]`</br>`["get", "prop1", "prop2"]`</br>`["get", "prop1"]` |
+| Property | `.prop1`<br/>`.prop1.prop2`<br/>`."prop1"`   | `["get", "prop1"]`<br/>`["get", "prop1", "prop2"]`<br/>`["get", "prop1"]` |
 | String   | `"string"`                                   | `"string"`                                                                |
 | Number   | A floating point number                      | A floating point number                                                   |
 | Boolean  | `true` or `false`                            | `true` or `false`                                                         |
