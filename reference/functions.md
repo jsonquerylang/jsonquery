@@ -85,7 +85,7 @@ jsonquery(data, 'filter(.age in [16, 18])')
 //   { "name": "Joe", "age": 18 }
 // ]
 
-const locations: [
+const locations = [
   {"latitude": 52.33, "longitude": 4.01},
   {"latitude": 52.18, "longitude": 3.99},
   {"latitude": 51.97, "longitude": 4.05}
@@ -565,7 +565,7 @@ jsonquery([2, 4], 'average()') // 3
 jsonquery([2, 3, 2, 7, 1], 'average()') // 3
 ```
 
-## equal (`==`)
+## eq (`==`)
 
 Test whether two values are strictly equal. This will consider a string `"2"` and a number `2` to be _not_ equal for example since their data type differs.
 
@@ -595,7 +595,7 @@ jsonquery({ a: 2 }, '.a == "2"') // false (since not strictly equal)
 jsonquery({ a: 2 }, 'eq(.a, 2)') // true
 ```
 
-## greater than (`>`)
+## gt (`>`)
 
 Test whether `a` is greater than `b`.
 
@@ -619,7 +619,7 @@ jsonquery(data, 'filter(.age > 18)')
 // ]
 ```
 
-## greater than or equal to (`>=`)
+## gte (`>=`)
 
 Test whether `a` is greater than or equal to `b`.
 
@@ -644,7 +644,7 @@ jsonquery(data, 'filter(.age >= 18)')
 // ]
 ```
 
-## less than (`<`)
+## lt (`<`)
 
 Test whether `a` is less than `b`.
 
@@ -668,7 +668,7 @@ jsonquery(data, 'filter(.age < 18)')
 // ]
 ```
 
-## less than or equal to (`<=`)
+## lte (`<=`)
 
 Test whether `a` is less than or equal to `b`.
 
@@ -686,16 +686,16 @@ const data = [
   { "name": "Joe", "age": 18 }
 ]
 
-jsonquery(data, ["filter", 'filter(.age <= 18)')
+jsonquery(data, 'filter(.age <= 18)')
 // [
 //   { "name": "Chris", "age": 16 },
 //   { "name": "Joe", "age": 18 }
 // ]
 ```
 
-## not equal (`!=`)
+## ne (`!=`)
 
-Test whether two values are unequal. This is the opposite of the strict equal function `eq`. Two values are considered unequal when their data type differs (for example one is a string and another is a number), or when the value itself is different. For example a string `"2"` and a number `2` are considered unequal, even though their mathematical value is equal.
+Test whether two values are not equal. This is the opposite of the strict equal function `eq`. Two values are considered unequal when their data type differs (for example one is a string and another is a number), or when the value itself is different. For example a string `"2"` and a number `2` are considered unequal, even though their mathematical value is equal.
 
 ```text
 a != b
@@ -863,7 +863,7 @@ const data = [
   { "name": "Joe", "age": 18 }
 ]
 
-jsonquery(data, ["filter", 'filter(.age not in [16, 18])')
+jsonquery(data, 'filter(.age not in [16, 18])')
 // [
 //   { "name": "Emily", "age": 32 }
 // ]
@@ -972,7 +972,7 @@ const data = { "a": 6, "b": 2 }
 jsonquery(data, '.a / .b') // 3
 ```
 
-## power (`^`)
+## pow (`^`)
 
 Calculate the exponent. Returns the result of raising `a` to the power of `b`, like `a^b`
 
@@ -989,7 +989,7 @@ const data = { "a": 2, "b": 3 }
 jsonquery(data, '.a ^ .b') // 8
 ```
 
-## remainder (`%`)
+## mod (`%`)
 
 Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`.
 
