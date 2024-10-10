@@ -28,8 +28,11 @@ describe('command line interface', () => {
   })
 
   test('should output version', async () => {
-    expect(await run(`node "${cli}" --version`)).toBe('0.0.0')
-    expect(await run(`node "${cli}" -v`)).toBe('0.0.0')
+    // a version number like 0.0.0 or 3.1.0
+    const versionRegex = /^\d+\.\d+\.\d+$/
+
+    expect(await run(`node "${cli}" --version`)).toMatch(versionRegex)
+    expect(await run(`node "${cli}" -v`)).toMatch(versionRegex)
   })
 
   test('should output help', async () => {
