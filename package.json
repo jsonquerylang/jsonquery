@@ -33,6 +33,7 @@
   },
   "files": [
     "lib",
+    "bin",
     "LICENSE.md",
     "README.md"
   ],
