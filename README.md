@@ -25,6 +25,7 @@ On this page:
 - [Syntax](#syntax)
 - [JSON Format](#json-format)
 - [JavaScript API](#javascript-api)
+- [Command line interface (CLI)](#command-line-interface-cli)
 - [Gotchas](#gotchas)
 - [Development](#development)
 - [Motivation](#motivation)
@@ -564,6 +565,48 @@ try {
   //   }
   // ]
 }
+```
+
+## Command line interface (CLI)
+
+When `jsonquery` is installed globally using npm, it can be used on the command line. To install `jsonquery` globally:
+
+```bash
+$ npm install -g @jsonquerylang/jsonquery
+```
+
+Usage:
+
+```
+$ jsonquery [query] {OPTIONS}
+```
+
+Options:
+
+```
+--input         Input file name
+--query         Query file name
+--output        Output file name
+--format        Can be "text" (default) or "json"
+--indentation   A string containing the desired indentation, 
+                like "  " (default) or "    " or "\t". An empty
+                string will create output without indentation.
+--overwrite     If true, output can overwrite an existing file
+--version, -v   Show application version
+--help,    -h   Show this message
+```
+
+Example usage:
+
+```
+$ jsonquery --input users.json 'sort(.age)'
+$ jsonquery --input users.json 'filter(.city == "Rotterdam") | sort(.age)'
+$ jsonquery --input users.json 'sort(.age)' > output.json
+$ jsonquery --input users.json 'sort(.age)' --output output.json
+$ jsonquery --input users.json --query query.txt
+$ jsonquery --input users.json --query query.json --format json
+$ cat users.json | jsonquery 'sort(.age)'
+$ cat users.json | jsonquery 'sort(.age)' > output.json
 ```
 
 ## Gotchas

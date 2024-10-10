@@ -20,6 +20,9 @@
     "type": "git",
     "url": "git+https://github.com/jsonquerylang/jsonquery.git"
   },
+  "bin": {
+    "jsonquery": "./bin/cli.js"
+  },
   "module": "./lib/jsonquery.js",
   "types": "./lib/jsonquery.d.ts",
   "exports": {
