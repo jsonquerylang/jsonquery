@@ -53,7 +53,7 @@ describe('compile', () => {
     })
 
     test('should return undefined in case of a non existing path', () => {
-      expect(go({}, ['get', 'foo', 'bar'])).toEqual(undefined)
+      expect(go({}, ['get', 'foo', 'bar'])).toEqual(null)
     })
 
     test('should get a path using function get', () => {
@@ -179,7 +179,7 @@ describe('compile', () => {
         actualErr = err
       }
 
-      expect(actualErr?.message).toBe("Cannot read properties of undefined (reading 'reduce')")
+      expect(actualErr?.message).toBe("Cannot read properties of null (reading 'reduce')")
       expect(actualErr?.jsonquery).toEqual([
         { data: scoreData, query },
         {
@@ -187,7 +187,7 @@ describe('compile', () => {
           query: ['map', ['pipe', ['get', 'scores'], ['sum']]]
         },
         { data: { name: 'Emily', age: 19 }, query: ['pipe', ['get', 'scores'], ['sum']] },
-        { data: undefined, query: ['sum'] }
+        { data: null, query: ['sum'] }
       ])
     })
   })
@@ -704,7 +704,7 @@ describe('compile', () => {
     expect(go({ a: '' }, ['exists', ['get', 'a']])).toEqual(true)
     expect(go({ nested: { a: 2 } }, ['exists', ['get', 'nested', 'a']])).toEqual(true)
 
-    expect(go({ a: undefined }, ['exists', ['get', 'a']])).toEqual(false)
+    expect(go({ a: undefined }, ['exists', ['get', 'a']])).toEqual(true)
     expect(go({}, ['exists', ['get', 'a']])).toEqual(false)
     expect(go({}, ['exists', ['get', 'nested', 'a']])).toEqual(false)
     expect(go({}, ['exists', ['get', 'sort']])).toEqual(false)
