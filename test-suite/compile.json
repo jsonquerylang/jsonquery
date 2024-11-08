@@ -53,7 +53,7 @@
     },
     {
       "category": "prop",
-      "description": "should return undefined in case of a non existing path",
+      "description": "should return null in case of a non existing path",
       "data": {},
       "query": ["get", "foo", "bar"],
       "output": null
@@ -64,6 +64,27 @@
       "data": { "name": "Joe" },
       "query": ["get", "name"],
       "output": "Joe"
+    },
+    {
+      "category": "prop",
+      "description": "should get a value 0",
+      "data": { "value": 0 },
+      "query": ["get", "value"],
+      "output": 0
+    },
+    {
+      "category": "prop",
+      "description": "should get a nested value 0",
+      "data": { "nested": { "value": 0 } },
+      "query": ["get", "nested", "value"],
+      "output": 0
+    },
+    {
+      "category": "prop",
+      "description": "should get a value false",
+      "data": { "value": false },
+      "query": ["get", "value"],
+      "output": false
     },
     {
       "category": "prop",
