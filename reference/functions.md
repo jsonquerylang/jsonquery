@@ -797,7 +797,7 @@ jsonquery(data, 'filter(not(.age == 18))')
 
 ## exists
 
-Returns true if the value at the provided path exists, and returns false when it is `undefined`.
+Returns `true` if the property at the provided path exists. Returns `true` too when the properties value contains a value `null`, `false` or `0`.
 
 ```text
 exists(path)
@@ -807,18 +807,22 @@ Examples:
 
 ```js
 const data = [
-  { "name": "Chris", "details": { "age": 16 } },
-  { "name": "Emily" },
-  { "name": "Joe", "details": { "age": 18 } }
+  { "name": "Joe", "details": { "age": 16 } },
+  { "name": "Oliver" },
+  { "name": "Sarah", "details": { "age": 18 } },
+  { "name": "Dave", "details": null },
 ]
 
 jsonquery(data, 'filter(exists(.details))')
 // [
-//   { "name": "Chris", "details": { "age": 16 } },
-//   { "name": "Joe", "details": { "age": 18 } }
+//   { "name": "Joe", "details": { "age": 16 } },
+//   { "name": "Sarah", "details": { "age": 18 } },
+//   { "name": "Dave", "details": null }
 // ]
 
+jsonquery({ }, ["exists", "value"]) // false
 jsonquery({ "value": null }, ["exists", "value"]) // true
+jsonquery({ "value": undefined }, ["exists", "value"]) // false
 ```
 
 ## in

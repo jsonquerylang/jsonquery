@@ -6,6 +6,7 @@ import type {
   Getter,
   JSONPath,
   JSONQuery,
+  JSONQueryFunction,
   JSONQueryObject,
   JSONQueryProperty
 } from './types'
@@ -52,12 +53,12 @@ export const functions: FunctionBuildersMap = {
 
   get: (...path: JSONPath) => {
     if (path.length === 0) {
-      return (data: unknown) => data
+      return (data: unknown) => data ?? null
     }
 
     if (path.length === 1) {
       const prop = path[0]
-      return (data: unknown) => data?.[prop]
+      return (data: unknown) => data?.[prop] ?? null
     }
 
     return (data: unknown) => {
@@ -67,7 +68,7 @@ export const functions: FunctionBuildersMap = {
         value = value?.[prop]
       }
 
-      return value
+      return value ?? null
     }
   },
 
@@ -210,7 +211,16 @@ export const functions: FunctionBuildersMap = {
   and: buildFunction((a, b) => a && b),
   or: buildFunction((a, b) => a || b),
   not: buildFunction((a: unknown) => !a),
-  exists: buildFunction((a: unknown) => a !== undefined),
+  exists: (path: JSONQueryFunction) => {
+    const parentPath = path.slice(1)
+    const key = parentPath.pop()
+    const getter = functions.get(...parentPath)
+
+    return (data: unknown) => {
+      const parent = getter(data)
+      return !!parent && Object.hasOwnProperty.call(parent, key)
+    }
+  },
 
   eq: buildFunction((a, b) => a === b),
   gt: buildFunction((a, b) => a > b),
