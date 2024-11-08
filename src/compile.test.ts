@@ -52,7 +52,7 @@ describe('compile', () => {
       expect(go(2, ['get'])).toEqual(2)
     })
 
-    test('should return undefined in case of a non existing path', () => {
+    test('should return null in case of a non existing path', () => {
       expect(go({}, ['get', 'foo', 'bar'])).toEqual(null)
     })
 
