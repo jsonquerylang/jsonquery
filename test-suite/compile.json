@@ -1,0 +1,140 @@
+{
+  "updated": "2024-11-08T11:40:00Z",
+  "dataRefs": {
+    "friends": [
+      { "name": "Chris", "age": 23, "city": "New York" },
+      { "name": "Emily", "age": 19, "city": "Atlanta" },
+      { "name": "Joe", "age": 32, "city": "New York" },
+      { "name": "Kevin", "age": 19, "city": "Atlanta" },
+      { "name": "Michelle", "age": 27, "city": "Los Angeles" },
+      { "name": "Robert", "age": 45, "city": "Manhattan" },
+      { "name": "Sarah", "age": 31, "city": "New York" }
+    ],
+    "friendsData": {
+      "friends": [
+        { "name": "Chris", "age": 23, "city": "New York" },
+        { "name": "Emily", "age": 19, "city": "Atlanta" },
+        { "name": "Joe", "age": 32, "city": "New York" },
+        { "name": "Kevin", "age": 19, "city": "Atlanta" },
+        { "name": "Michelle", "age": 27, "city": "Los Angeles" },
+        { "name": "Robert", "age": 45, "city": "Manhattan" },
+        { "name": "Sarah", "age": 31, "city": "New York" }
+      ]
+    },
+    "nestedData": [
+      { "name": "Chris", "age": 23, "address": { "city": "New York" } },
+      { "name": "Emily", "age": 19, "address": { "city": "Atlanta" } },
+      { "name": "Joe", "age": 32, "address": { "city": "New York" } },
+      { "name": "Kevin", "age": 19, "address": { "city": "Atlanta" } },
+      { "name": "Michelle", "age": 27, "address": { "city": "Los Angeles" } },
+      { "name": "Robert", "age": 45, "address": { "city": "Manhattan" } },
+      { "name": "Sarah", "age": 31, "address": { "city": "New York" } }
+    ],
+    "scoresData": [
+      { "name": "Chris", "scores": [5, 7, 3] },
+      { "name": "Emily", "scores": [8, 5, 2, 5] },
+      { "name": "Joe", "scores": [1, 1, 5, 6] }
+    ]
+  },
+  "tests": [
+    {
+      "category": "prop",
+      "description": "should get a path with a single property as string",
+      "data": { "name": "Joe" },
+      "query": ["get", "name"],
+      "output": "Joe"
+    },
+    {
+      "category": "prop",
+      "description": "should get the full object itself",
+      "data": { "name": "Joe" },
+      "query": ["get"],
+      "output": { "name": "Joe" }
+    },
+    {
+      "category": "prop",
+      "description": "should return undefined in case of a non existing path",
+      "data": {},
+      "query": ["get", "foo", "bar"],
+      "output": null
+    },
+    {
+      "category": "prop",
+      "description": "should get a path using function get",
+      "data": { "name": "Joe" },
+      "query": ["get", "name"],
+      "output": "Joe"
+    },
+    {
+      "category": "prop",
+      "description": "should get a path that has the same name as a function",
+      "data": { "sort": "Joe" },
+      "query": ["get", "sort"],
+      "output": "Joe"
+    },
+    {
+      "category": "prop",
+      "description": "should get a nested value that has the same name as a function",
+      "data": { "sort": { "name": "Joe" } },
+      "query": ["get", "sort", "name"],
+      "output": "Joe"
+    },
+    {
+      "category": "prop",
+      "description": "should get in item from an array (1)",
+      "data": ["A", "B", "C"],
+      "query": ["get", 1],
+      "output": "B"
+    },
+    {
+      "category": "prop",
+      "description": "should get in item from an array (2)",
+      "data": { "arr": ["A", "B", "C"] },
+      "query": ["get", "arr", 1],
+      "output": "B"
+    },
+    {
+      "category": "prop",
+      "description": "should get in item from an array (3)",
+      "data": [{ "text": "A" }, { "text": "B" }, { "text": "C" }],
+      "query": ["get", 1, "text"],
+      "output": "B"
+    },
+    {
+      "category": "function",
+      "description": "should execute a function",
+      "data": [3, 1, 2],
+      "query": ["sort"],
+      "output": [1, 2, 3]
+    },
+    {
+      "category": "object",
+      "description": "should create an object",
+      "data": { "a": 2, "b": 3 },
+      "query": ["object", { "aa": ["get", "a"], "bb": 42 }],
+      "output": { "aa": 2, "bb": 42 }
+    },
+    {
+      "category": "object",
+      "description": "should create a nested object",
+      "dataRef": "friends",
+      "query": [
+        "object",
+        {
+          "names": ["map", ["get", "name"]],
+          "stats": [
+            "object",
+            {
+              "count": ["size"],
+              "averageAge": ["pipe", ["map", ["get", "age"]], ["average"]]
+            }
+          ]
+        }
+      ],
+      "output": {
+        "names": ["Chris", "Emily", "Joe", "Kevin", "Michelle", "Robert", "Sarah"],
+        "stats": { "count": 7, "averageAge": 28 }
+      }
+    }
+  ]
+}
