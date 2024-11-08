@@ -1,4 +1,4 @@
-import { bench, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { compile } from './compile'
 import { buildFunction } from './functions'
 import type { JSONQuery, JSONQueryCompileOptions } from './types'
