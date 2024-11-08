@@ -6,7 +6,7 @@ A small, flexible, and expandable JSON query language.
 
 Try it out on the online playground: <https://jsonquerylang.org>
 
-![JSON Query Overview](docs/jsonquery-overview.svg)
+![JSON Query Overview](https://jsonquerylang.org/jsonquery-overview.svg)
 
 ## Features
 
