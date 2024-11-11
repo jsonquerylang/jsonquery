@@ -1,8 +1,8 @@
 import Ajv from 'ajv'
 import { describe, expect, test } from 'vitest'
-import type { CompileTestSuite } from '../test-suite/compile'
-import schema from '../test-suite/compile.schema.json'
+import type { CompileTestSuite } from '../test-suite/compile.test'
 import suite from '../test-suite/compile.test.json'
+import schema from '../test-suite/compile.test.schema.json'
 import { compile } from './compile'
 import { buildFunction } from './functions'
 import type { JSONQuery, JSONQueryCompileOptions } from './types'
@@ -25,32 +25,22 @@ function go(data: unknown, query: JSONQuery, options?: JSONQueryCompileOptions) 
   return exec(data)
 }
 
-describe('test-suite', () => {
-  const groupByCategory = compile(['groupBy', ['get', 'category']])
-  const testsByCategory = groupByCategory(suite.tests) as Record<string, CompileTestSuite['tests']>
+const groupByCategory = compile(['groupBy', ['get', 'category']])
+const testsByCategory = groupByCategory(suite.tests) as Record<string, CompileTestSuite['tests']>
 
-  for (const [category, tests] of Object.entries(testsByCategory)) {
-    describe(category, () => {
-      for (const currentTest of tests) {
-        const { description, data, query, output } = currentTest
+for (const [category, tests] of Object.entries(testsByCategory)) {
+  describe(category, () => {
+    for (const currentTest of tests) {
+      const { description, data, query, output } = currentTest
 
-        test(description, () => {
-          const actualOutput = compile(query)(data)
+      test(description, () => {
+        const actualOutput = compile(query)(data)
 
-          expect({ data, query, output: actualOutput }).toEqual({ data, query, output })
-        })
-      }
-    })
-  }
-
-  test('should validate the test-suite itself against its JSON schema', () => {
-    const ajv = new Ajv({ allErrors: false })
-    const valid = ajv.validate(schema, suite)
-
-    expect(ajv.errors).toEqual(null)
-    expect(valid).toEqual(true)
+        expect({ data, query, output: actualOutput }).toEqual({ data, query, output })
+      })
+    }
   })
-})
+}
 
 describe('error handling', () => {
   test('should throw a helpful error when a pipe contains a compile time error', () => {
@@ -195,4 +185,12 @@ describe('customization', () => {
     expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], 2], options)).toEqual(true)
     expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], '2'], options)).toEqual(true)
   })
+})
+
+test('should validate the compile test-suite against its JSON schema', () => {
+  const ajv = new Ajv({ allErrors: false })
+  const valid = ajv.validate(schema, suite)
+
+  expect(ajv.errors).toEqual(null)
+  expect(valid).toEqual(true)
 })

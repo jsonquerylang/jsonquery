@@ -1,8 +1,8 @@
 import Ajv from 'ajv'
 import { describe, expect, test } from 'vitest'
-import type { ParseTestException, ParseTestSuite } from '../test-suite/parse'
-import schema from '../test-suite/parse.schema.json'
+import type { ParseTestException, ParseTestSuite } from '../test-suite/parse.test'
 import suite from '../test-suite/parse.test.json'
+import schema from '../test-suite/parse.test.schema.json'
 import { compile } from './compile'
 import { parse } from './parse'
 import type { JSONQueryParseOptions } from './types'
@@ -40,16 +40,6 @@ for (const [category, testGroups] of Object.entries(testsByCategory)) {
   })
 }
 
-describe('test-suite', () => {
-  test('should validate the test-suite itself against its JSON schema', () => {
-    const ajv = new Ajv({ allErrors: false })
-    const valid = ajv.validate(schema, suite)
-
-    expect(ajv.errors).toEqual(null)
-    expect(valid).toEqual(true)
-  })
-})
-
 describe('customization', () => {
   test('should parse a custom function', () => {
     const options: JSONQueryParseOptions = {
@@ -65,5 +55,15 @@ describe('customization', () => {
     }
 
     expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])
+  })
+})
+
+describe('test-suite', () => {
+  test('should validate the parse test-suite against its JSON schema', () => {
+    const ajv = new Ajv({ allErrors: false })
+    const valid = ajv.validate(schema, suite)
+
+    expect(ajv.errors).toEqual(null)
+    expect(valid).toEqual(true)
   })
 })

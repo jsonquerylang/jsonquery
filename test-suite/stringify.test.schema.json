@@ -1,0 +1,43 @@
+{
+  "type": "object",
+  "properties": {
+    "updated": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" },
+          "description": { "type": "string" },
+          "options": {
+            "type": "object",
+            "properties": {
+              "indentation": { "type": "string" },
+              "maxLineLength": { "type": "number" },
+              "operators": { "type": "object" }
+            }
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "input": {},
+                "output": { "type": "string" }
+              },
+              "required": ["input", "output"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["category", "description", "tests"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["updated", "groups"],
+  "additionalProperties": false
+}
