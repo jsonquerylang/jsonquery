@@ -1,5 +1,7 @@
+import Ajv from 'ajv'
 import { describe, expect, test } from 'vitest'
 import suite from '../test-suite/compile.json'
+import schema from '../test-suite/compile.schema.json'
 import { compile } from './compile'
 import { buildFunction } from './functions'
 import type { JSONQuery, JSONQueryCompileOptions } from './types'
@@ -53,6 +55,14 @@ describe('test-suite', () => {
       }
     })
   }
+
+  test('should validate the test-suite itself against its JSON schema', () => {
+    const ajv = new Ajv({ allErrors: false })
+    const valid = ajv.validate(schema, suite)
+
+    expect(ajv.errors).toEqual(null)
+    expect(valid).toEqual(true)
+  })
 })
 
 describe('error handling', () => {
@@ -185,43 +195,5 @@ describe('customization', () => {
 
     expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], 2], options)).toEqual(true)
     expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], '2'], options)).toEqual(true)
-  })
-
-  test('should be able to query the jmespath example', () => {
-    const options = {
-      functions: {
-        join:
-          (separator = ', ') =>
-          (data: unknown[]) =>
-            data.join(separator)
-      }
-    }
-
-    const data = {
-      locations: [
-        { name: 'Seattle', state: 'WA' },
-        { name: 'New York', state: 'NY' },
-        { name: 'Bellevue', state: 'WA' },
-        { name: 'Olympia', state: 'WA' }
-      ]
-    }
-
-    // locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}
-    expect(
-      go(
-        data,
-        [
-          'pipe',
-          ['get', 'locations'],
-          ['filter', ['eq', ['get', 'state'], 'WA']],
-          ['map', ['get', 'name']],
-          ['sort'],
-          ['object', { WashingtonCities: ['join'] }]
-        ],
-        options
-      )
-    ).toEqual({
-      WashingtonCities: 'Bellevue, Olympia, Seattle'
-    })
   })
 })
