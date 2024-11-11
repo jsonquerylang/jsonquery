@@ -1,95 +1,66 @@
+import Ajv from 'ajv'
 import { describe, expect, test } from 'vitest'
+import type { ParseTestException, ParseTestSuite } from '../test-suite/parse'
+import schema from '../test-suite/parse.schema.json'
+import suite from '../test-suite/parse.test.json'
+import { compile } from './compile'
 import { parse } from './parse'
 import type { JSONQueryParseOptions } from './types'
 
+function isTestException(test: unknown): test is ParseTestException {
+  return !!test && typeof (test as Record<string, unknown>).throws === 'string'
+}
+
+const groupByCategory = compile(['groupBy', ['get', 'category']])
+const testsByCategory = groupByCategory(suite.groups) as Record<string, ParseTestSuite['groups']>
+
+for (const [category, testGroups] of Object.entries(testsByCategory)) {
+  describe(category, () => {
+    for (const group of testGroups) {
+      describe(group.description, () => {
+        for (const currentTest of group.tests) {
+          const description = `input = '${currentTest.input}'`
+
+          if (isTestException(currentTest)) {
+            test(description, () => {
+              const { input, throws } = currentTest
+
+              expect(() => parse(input)).toThrow(throws)
+            })
+          } else {
+            test(description, () => {
+              const { input, output } = currentTest
+
+              expect(parse(input)).toEqual(output)
+            })
+          }
+        }
+      })
+    }
+  })
+}
+
+describe('test-suite', () => {
+  test('should validate the test-suite itself against its JSON schema', () => {
+    const ajv = new Ajv({ allErrors: false })
+    const valid = ajv.validate(schema, suite)
+
+    expect(ajv.errors).toEqual(null)
+    expect(valid).toEqual(true)
+  })
+})
+
+describe('customization', () => {
+  test('should parse a custom function', () => {
+    const options: JSONQueryParseOptions = {
+      functions: { customFn: true }
+    }
+
+    expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
+  })
+})
+
 describe('parse', () => {
-  describe('property', () => {
-    test('should parse a property without quotes', () => {
-      expect(parse('.name')).toEqual(['get', 'name'])
-      expect(parse('.AaZz_$')).toEqual(['get', 'AaZz_$'])
-      expect(parse('.AaZz09_$')).toEqual(['get', 'AaZz09_$'])
-      expect(parse('.9')).toEqual(['get', 9])
-      expect(parse('.123')).toEqual(['get', 123])
-      expect(parse('.0')).toEqual(['get', 0])
-      expect(parse(' .name ')).toEqual(['get', 'name'])
-      expect(() => parse('.')).toThrow('Property expected (pos: 1)')
-    })
-
-    test('should throw an error in case of an invalid unquoted property', () => {
-      expect(() => parse('.01')).toThrow("Unexpected part '1'")
-      expect(() => parse('.1abc')).toThrow("Unexpected part 'abc'")
-      expect(() => parse('.[')).toThrow('Property expected (pos: 1)')
-    })
-
-    test('should parse a property with quotes', () => {
-      expect(parse('."name"')).toEqual(['get', 'name'])
-      expect(parse(' ."name" ')).toEqual(['get', 'name'])
-      expect(parse('."escape \\n \\"chars"')).toEqual(['get', 'escape \n "chars'])
-    })
-
-    test('should throw an error when a property misses an end quote', () => {
-      expect(() => parse('."name')).toThrow('Property expected (pos: 1)')
-    })
-
-    test('should throw an error when there is whitespace between the dot and the property name', () => {
-      expect(() => parse('. "name"')).toThrow('Property expected (pos: 1)')
-      expect(() => parse('."address" ."city"')).toThrow('Unexpected part \'."city"\' (pos: 11)')
-      expect(() => parse('.address .city')).toThrow("Unexpected part '.city' (pos: 9)")
-    })
-
-    test('should parse a nested property', () => {
-      expect(parse('.address.city')).toEqual(['get', 'address', 'city'])
-      expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
-      expect(parse('."address"."city"')).toEqual(['get', 'address', 'city'])
-      expect(parse('.array.2')).toEqual(['get', 'array', 2])
-    })
-
-    test('should throw an error in case of an invalid property', () => {
-      expect(() => parse('.foo#')).toThrow("Unexpected part '#'")
-      expect(() => parse('.foo#bar')).toThrow("Unexpected part '#bar'")
-    })
-  })
-
-  describe('function', () => {
-    test('should parse a function without arguments', () => {
-      expect(parse('sort()')).toEqual(['sort'])
-      expect(parse('sort( )')).toEqual(['sort'])
-      expect(parse('sort ( )')).toEqual(['sort'])
-      expect(parse(' sort ( ) ')).toEqual(['sort'])
-    })
-
-    test('should parse a function with one argument', () => {
-      expect(parse('sort(.age)')).toEqual(['sort', ['get', 'age']])
-      expect(parse('sort(get())')).toEqual(['sort', ['get']])
-      expect(parse('sort ( .age )')).toEqual(['sort', ['get', 'age']])
-    })
-
-    test('should parse a function with multiple arguments', () => {
-      expect(parse('sort(.age, "desc")')).toEqual(['sort', ['get', 'age'], 'desc'])
-      expect(parse('sort(get(), "desc")')).toEqual(['sort', ['get'], 'desc'])
-    })
-
-    test('should parse a custom function', () => {
-      const options: JSONQueryParseOptions = {
-        functions: { customFn: true }
-      }
-
-      expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
-    })
-
-    test('should throw an error in case of an unknown function name', () => {
-      expect(() => parse('foo(42)')).toThrow("Unknown function 'foo' (pos: 4)")
-    })
-
-    test('should throw an error when the end bracket is missing', () => {
-      expect(() => parse('sort(.age, "desc"')).toThrow("Character ')' expected (pos: 17)")
-    })
-
-    test('should throw an error when a comma is missing', () => {
-      expect(() => parse('sort(.age "desc")')).toThrow("Character ',' expected (pos: 10)")
-    })
-  })
-
   describe('operator', () => {
     test('should parse an operator', () => {
       expect(parse('.score==8')).toEqual(['eq', ['get', 'score'], 8])

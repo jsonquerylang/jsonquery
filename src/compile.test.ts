@@ -1,7 +1,8 @@
 import Ajv from 'ajv'
 import { describe, expect, test } from 'vitest'
-import suite from '../test-suite/compile.json'
+import type { CompileTestSuite } from '../test-suite/compile'
 import schema from '../test-suite/compile.schema.json'
+import suite from '../test-suite/compile.test.json'
 import { compile } from './compile'
 import { buildFunction } from './functions'
 import type { JSONQuery, JSONQueryCompileOptions } from './types'
@@ -25,20 +26,6 @@ function go(data: unknown, query: JSONQuery, options?: JSONQueryCompileOptions) 
 }
 
 describe('test-suite', () => {
-  interface DataTest {
-    category: string
-    description: string
-    data: unknown
-    query: JSONQuery
-    output: unknown
-  }
-
-  interface CompileTestSuite {
-    updated: string
-    dataRefs: Record<string, unknown>
-    tests: DataTest[]
-  }
-
   const groupByCategory = compile(['groupBy', ['get', 'category']])
   const testsByCategory = groupByCategory(suite.tests) as Record<string, CompileTestSuite['tests']>
 

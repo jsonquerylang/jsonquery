@@ -1,0 +1,105 @@
+{
+  "updated": "2024-11-11T09:00:00Z",
+  "groups": [
+    {
+      "category": "property",
+      "description": "should parse a property without quotes",
+      "tests": [
+        { "input": ".name", "output": ["get", "name"] },
+        { "input": ".AaZz_$", "output": ["get", "AaZz_$"] },
+        { "input": ".AaZz09_$", "output": ["get", "AaZz09_$"] },
+        { "input": ".9", "output": ["get", 9] },
+        { "input": ".123", "output": ["get", 123] },
+        { "input": ".0", "output": ["get", 0] },
+        { "input": " .name ", "output": ["get", "name"] }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should throw an error in case of an invalid unquoted property",
+      "tests": [
+        { "input": ".", "throws": "Property expected (pos: 1)" },
+        { "input": ".01", "throws": "Unexpected part '1'" },
+        { "input": ".1abc", "throws": "Unexpected part 'abc'" },
+        { "input": ".[", "throws": "Property expected (pos: 1)" },
+        { "input": ".foo#", "throws": "Unexpected part '#'" },
+        { "input": ".foo#bar", "throws": "Unexpected part '#bar'" }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should parse a property with quotes",
+      "tests": [
+        { "input": ".\"name\"", "output": ["get", "name"] },
+        { "input": " .\"name\" ", "output": ["get", "name"] },
+        { "input": ".\"escape \\n \\\"chars\"", "output": ["get", "escape \n \"chars"] }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should parse a nested property",
+      "tests": [
+        { "input": ".address.city", "output": ["get", "address", "city"] },
+        { "input": ".\"address\".\"city\"", "output": ["get", "address", "city"] },
+        { "input": ".\"address\".\"city\"", "output": ["get", "address", "city"] },
+        { "input": ".array.2", "output": ["get", "array", 2] }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should throw an error when a property misses an end quote",
+      "tests": [{ "input": ".\"name", "throws": "Property expected (pos: 1)" }]
+    },
+    {
+      "category": "property",
+      "description": "should throw an error when there is whitespace between the dot and the property name",
+      "tests": [
+        { "input": ". \"name\"", "throws": "Property expected (pos: 1)" },
+        { "input": ".\"address\" .\"city\"", "throws": "Unexpected part '.\"city\"' (pos: 11)" },
+        { "input": ".address .city", "throws": "Unexpected part '.city' (pos: 9)" }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should parse a function without arguments",
+      "tests": [
+        { "input": "sort()", "output": ["sort"] },
+        { "input": "sort( )", "output": ["sort"] },
+        { "input": "sort ( )", "output": ["sort"] },
+        { "input": " sort ( ) ", "output": ["sort"] }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should parse a function with one argument",
+      "tests": [
+        { "input": "sort(.age)", "output": ["sort", ["get", "age"]] },
+        { "input": "sort(get())", "output": ["sort", ["get"]] },
+        { "input": "sort ( .age ) ", "output": ["sort", ["get", "age"]] }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should parse a function with multiple arguments",
+      "tests": [
+        { "input": "sort(.age, \"desc\")", "output": ["sort", ["get", "age"], "desc"] },
+        { "input": "sort(get(), \"desc\")", "output": ["sort", ["get"], "desc"] }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should throw an error in case of an unknown function name",
+      "tests": [{ "input": "foo(42)", "throws": "Unknown function 'foo' (pos: 4)" }]
+    },
+    {
+      "category": "function",
+      "description": "should throw an error when the end bracket is missing",
+      "tests": [{ "input": "sort(.age, \"desc\"", "throws": "Character ')' expected (pos: 17)" }]
+    },
+    {
+      "category": "function",
+      "description": "should throw an error when a comma is missing",
+      "tests": [{ "input": "sort(.age \"desc\")", "throws": "Character ',' expected (pos: 10)" }]
+    }
+  ]
+}

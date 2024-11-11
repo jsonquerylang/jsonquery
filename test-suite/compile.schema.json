@@ -1,6 +1,5 @@
 {
   "type": "object",
-  "required": ["updated", "tests"],
   "properties": {
     "updated": {
       "type": "string",
@@ -10,12 +9,18 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["category", "description", "data", "query", "output"],
         "properties": {
           "category": { "type": "string" },
-          "description": { "type": "string" }
-        }
+          "description": { "type": "string" },
+          "data": {},
+          "query": {},
+          "output": {}
+        },
+        "required": ["category", "description", "data", "query", "output"],
+        "additionalProperties": false
       }
     }
-  }
+  },
+  "required": ["updated", "tests"],
+  "additionalProperties": false
 }
