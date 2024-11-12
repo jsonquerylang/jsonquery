@@ -112,6 +112,8 @@ get(prop1, prop2, ...)
 
 For example `.age` gets the property `age` from an object, and `.address.city` gets a nested property `city` inside an object `address`. To get the current value or object itself use function `get()` without properties.
 
+The function returns `null` when a property does not exist.
+
 Examples:
 
 ```js
