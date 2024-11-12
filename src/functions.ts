@@ -146,7 +146,9 @@ export const functions: FunctionBuildersMap = {
 
       for (const item of data) {
         const value = getter(item) as string
-        res[value] = res[value] ?? item
+        if (!(value in res)) {
+          res[value] = item
+        }
       }
 
       return res
@@ -162,7 +164,7 @@ export const functions: FunctionBuildersMap = {
   uniqBy:
     <T>(path: JSONQueryProperty) =>
     (data: T[]): T[] =>
-      Object.values(functions.groupBy(path)(data)).map((groups) => groups[0]),
+      Object.values(functions.keyBy(path)(data)),
 
   limit:
     (count: number) =>
@@ -188,31 +190,12 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  in: (path: string, values: JSONQuery) => {
-    const getter = compile(path)
-    const _values = compile(values)
-
-    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
-  },
-
-  'not in': (path: string, values: JSONQuery) => {
-    const _in = functions.in(path, values)
-
-    return (data: unknown) => !_in(data)
-  },
-
-  regex: (path: JSONQuery, expression: string, options?: string) => {
-    const regex = new RegExp(expression, options)
-    const getter = compile(path)
-
-    return (data: unknown) => regex.test(getter(data) as string)
-  },
-
   and: buildFunction((a, b) => !!(a && b)),
   or: buildFunction((a, b) => !!(a || b)),
   not: buildFunction((a: unknown) => !a),
-  exists: (path: JSONQueryFunction) => {
-    const parentPath = path.slice(1)
+
+  exists: (queryGet: JSONQueryFunction) => {
+    const parentPath = queryGet.slice(1)
     const key = parentPath.pop()
     const getter = functions.get(...parentPath)
 
@@ -227,6 +210,23 @@ export const functions: FunctionBuildersMap = {
     const _valueIfFalse = compile(valueIfFalse)
 
     return (data: unknown) => (_condition(data) ? _valueIfTrue(data) : _valueIfFalse(data))
+  },
+  in: (path: string, values: JSONQuery) => {
+    const getter = compile(path)
+    const _values = compile(values)
+
+    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
+  },
+  'not in': (path: string, values: JSONQuery) => {
+    const _in = functions.in(path, values)
+
+    return (data: unknown) => !_in(data)
+  },
+  regex: (path: JSONQuery, expression: string, options?: string) => {
+    const regex = new RegExp(expression, options)
+    const getter = compile(path)
+
+    return (data: unknown) => regex.test(getter(data) as string)
   },
 
   eq: buildFunction((a, b) => a === b),

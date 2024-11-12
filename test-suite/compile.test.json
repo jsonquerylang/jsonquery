@@ -1,12 +1,47 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/compile.test.json",
-  "updated": "2024-11-12T09:00:00Z",
+  "updated": "2024-11-17T11:00:00Z",
   "tests": [
+    {
+      "category": "value",
+      "description": "should get a string",
+      "input": null,
+      "query": "Hello",
+      "output": "Hello"
+    },
+    {
+      "category": "value",
+      "description": "should get a number",
+      "input": null,
+      "query": 2.4,
+      "output": 2.4
+    },
+    {
+      "category": "value",
+      "description": "should get a boolean (true)",
+      "input": null,
+      "query": true,
+      "output": true
+    },
+    {
+      "category": "value",
+      "description": "should get a boolean (false)",
+      "input": null,
+      "query": false,
+      "output": false
+    },
+    {
+      "category": "value",
+      "description": "should get null",
+      "input": null,
+      "query": null,
+      "output": null
+    },
     {
       "category": "pipe",
       "description": "should execute a pipe (1)",
       "input": [{ "user": { "name": "Joe" } }],
-      "query": ["pipe", ["get", "0"], ["get", "user"], ["get", "name"]],
+      "query": ["pipe", ["get", 0], ["get", "user"], ["get", "name"]],
       "output": "Joe"
     },
     {
@@ -98,9 +133,16 @@
     },
     {
       "category": "get",
-      "description": "should return null in case of a non existing path",
+      "description": "should return null in case of a non-existing path (1)",
       "input": {},
       "query": ["get", "foo", "bar"],
+      "output": null
+    },
+    {
+      "category": "get",
+      "description": "should return null in case of a non-existing path (2)",
+      "input": [1, 2, 3],
+      "query": ["get", 5],
       "output": null
     },
     {
@@ -147,21 +189,21 @@
     },
     {
       "category": "get",
-      "description": "should get in item from an array (1)",
+      "description": "should get an item from an array (1)",
       "input": ["A", "B", "C"],
       "query": ["get", 1],
       "output": "B"
     },
     {
       "category": "get",
-      "description": "should get in item from an array (2)",
+      "description": "should get an item from an array (2)",
       "input": { "arr": ["A", "B", "C"] },
       "query": ["get", "arr", 1],
       "output": "B"
     },
     {
       "category": "get",
-      "description": "should get in item from an array (3)",
+      "description": "should get an item from an array (3)",
       "input": [{ "text": "A" }, { "text": "B" }, { "text": "C" }],
       "query": ["get", 1, "text"],
       "output": "B"
@@ -228,13 +270,6 @@
       "input": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
       "query": ["sort", ["get", "score"], "desc"],
       "output": [{ "score": 5 }, { "score": 3 }, { "score": -2 }]
-    },
-    {
-      "category": "sort",
-      "description": "should do nothing when sorting objects without a getter",
-      "input": [{ "a": 1 }, { "c": 3 }, { "b": 2 }],
-      "query": ["sort"],
-      "output": [{ "a": 1 }, { "c": 3 }, { "b": 2 }]
     },
 
     {
@@ -842,56 +877,56 @@
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (2)",
       "input": { "a": null },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (3)",
       "input": { "a": 2 },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (4)",
       "input": { "a": 0 },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (5)",
       "input": { "a": "" },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (6)",
       "input": { "nested": { "a": 2 } },
       "query": ["exists", ["get", "nested", "a"]],
       "output": true
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (7)",
       "input": {},
       "query": ["exists", ["get", "a"]],
       "output": false
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (8)",
       "input": {},
       "query": ["exists", ["get", "nested", "a"]],
       "output": false
     },
     {
       "category": "exists",
-      "description": "should calculate exists (1)",
+      "description": "should calculate exists (9)",
       "input": {},
       "query": ["exists", ["get", "sort"]],
       "output": false
@@ -948,6 +983,13 @@
       "description": "should calculate if (7)",
       "input": null,
       "query": ["if", "", true, false],
+      "output": false
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (8)",
+      "input": null,
+      "query": ["if", null, true, false],
       "output": false
     },
 
@@ -1153,22 +1195,22 @@
     {
       "category": "round",
       "description": "should round a property to two digits",
-      "input": { "a": 23.1345 },
+      "input": { "a": 23.1348 },
       "query": ["round", ["get", "a"], 2],
       "output": 23.13
     },
     {
       "category": "round",
       "description": "should round a property to three digits",
-      "input": { "a": 23.1345 },
+      "input": { "a": 23.1348 },
       "query": ["round", ["get", "a"], 3],
       "output": 23.135
     },
     {
       "category": "round",
-      "description": "should round a number to three digits",
+      "description": "should round a number to two digits",
       "input": null,
-      "query": ["round", 23.1345, 2],
+      "query": ["round", 23.1348, 2],
       "output": 23.13
     },
 

@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/stringify.test.json",
-  "updated": "2024-11-11T09:00:00Z",
+  "updated": "2024-11-12T09:00:00Z",
   "groups": [
     {
       "category": "property",
@@ -10,7 +10,10 @@
         { "input": ["get", "age"], "output": ".age" },
         { "input": ["get", "address", "city"], "output": ".address.city" },
         { "input": ["get", "with space"], "output": ".\"with space\"" },
-        { "input": ["get", "with special !"], "output": ".\"with special !\"" }
+        { "input": ["get", "with special !"], "output": ".\"with special !\"" },
+        { "input": ["get", 2, "name"], "output": ".2.name" },
+        { "input": ["get", 0, "name"], "output": ".0.name" },
+        { "input": ["get", "AaZz09_$"], "output": ".AaZz09_$" }
       ]
     },
     {
