@@ -31,12 +31,12 @@ const testsByCategory = groupByCategory(suite.tests) as Record<string, CompileTe
 for (const [category, tests] of Object.entries(testsByCategory)) {
   describe(category, () => {
     for (const currentTest of tests) {
-      const { description, data, query, output } = currentTest
+      const { description, input, query, output } = currentTest
 
       test(description, () => {
-        const actualOutput = compile(query)(data)
+        const actualOutput = compile(query)(input)
 
-        expect({ data, query, output: actualOutput }).toEqual({ data, query, output })
+        expect({ input, query, output: actualOutput }).toEqual({ input, query, output })
       })
     }
   })

@@ -3,7 +3,7 @@ import type { JSONQuery } from '../src/types'
 export interface CompileTest {
   category: string
   description: string
-  data: unknown
+  input: unknown
   query: JSONQuery
   output: unknown
 }

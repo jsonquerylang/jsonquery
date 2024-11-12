@@ -13,11 +13,11 @@
         "properties": {
           "category": { "type": "string" },
           "description": { "type": "string" },
-          "data": {},
+          "input": {},
           "query": {},
           "output": {}
         },
-        "required": ["category", "description", "data", "query", "output"],
+        "required": ["category", "description", "input", "query", "output"],
         "additionalProperties": false
       }
     }

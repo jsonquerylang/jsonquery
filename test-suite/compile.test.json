@@ -5,21 +5,21 @@
     {
       "category": "pipe",
       "description": "should execute a pipe (1)",
-      "data": [{ "user": { "name": "Joe" } }],
+      "input": [{ "user": { "name": "Joe" } }],
       "query": ["pipe", ["get", "0"], ["get", "user"], ["get", "name"]],
       "output": "Joe"
     },
     {
       "category": "pipe",
       "description": "should execute a pipe (2)",
-      "data": [1, -2, 3],
+      "input": [1, -2, 3],
       "query": ["pipe", ["filter", ["gte", ["get"], 0]], ["sum"]],
       "output": 4
     },
     {
       "category": "pipe",
       "description": "should execute an empty pipe",
-      "data": [1, 2, 3],
+      "input": [1, 2, 3],
       "query": ["pipe"],
       "output": [1, 2, 3]
     },
@@ -27,21 +27,21 @@
     {
       "category": "object",
       "description": "should create a static object",
-      "data": null,
+      "input": null,
       "query": ["object", { "a": 2, "b": 3 }],
       "output": { "a": 2, "b": 3 }
     },
     {
       "category": "object",
       "description": "should create a dynamic object with getters",
-      "data": { "name": "Joe", "age": 23, "city": "New York" },
+      "input": { "name": "Joe", "age": 23, "city": "New York" },
       "query": ["object", { "firstName": ["get", "name"], "age": ["get", "age"] }],
       "output": { "firstName": "Joe", "age": 23 }
     },
     {
       "category": "object",
       "description": "should create an object containing pipelines",
-      "data": [1, -2, 3],
+      "input": [1, -2, 3],
       "query": [
         "object",
         {
@@ -56,21 +56,21 @@
     {
       "category": "array",
       "description": "should create a static array",
-      "data": null,
+      "input": null,
       "query": ["array", 1, 2, 3],
       "output": [1, 2, 3]
     },
     {
       "category": "array",
       "description": "should create a dynamic array (1)",
-      "data": { "name": "Joe", "age": 23, "city": "New York" },
+      "input": { "name": "Joe", "age": 23, "city": "New York" },
       "query": ["array", ["get", "name"], ["get", "age"]],
       "output": ["Joe", 23]
     },
     {
       "category": "array",
       "description": "should create a dynamic array (2)",
-      "data": null,
+      "input": null,
       "query": ["array", ["add", 10, 9], 23],
       "output": [19, 23]
     },
@@ -78,84 +78,84 @@
     {
       "category": "get",
       "description": "should get a path with a single property as string",
-      "data": { "name": "Joe" },
+      "input": { "name": "Joe" },
       "query": ["get", "name"],
       "output": "Joe"
     },
     {
       "category": "get",
       "description": "should get the full object itself",
-      "data": { "name": "Joe" },
+      "input": { "name": "Joe" },
       "query": ["get"],
       "output": { "name": "Joe" }
     },
     {
       "category": "get",
       "description": "should return null in case of a non existing path",
-      "data": {},
+      "input": {},
       "query": ["get", "foo", "bar"],
       "output": null
     },
     {
       "category": "get",
       "description": "should get a path using function get",
-      "data": { "name": "Joe" },
+      "input": { "name": "Joe" },
       "query": ["get", "name"],
       "output": "Joe"
     },
     {
       "category": "get",
       "description": "should get a value 0",
-      "data": { "value": 0 },
+      "input": { "value": 0 },
       "query": ["get", "value"],
       "output": 0
     },
     {
       "category": "get",
       "description": "should get a nested value 0",
-      "data": { "nested": { "value": 0 } },
+      "input": { "nested": { "value": 0 } },
       "query": ["get", "nested", "value"],
       "output": 0
     },
     {
       "category": "get",
       "description": "should get a value false",
-      "data": { "value": false },
+      "input": { "value": false },
       "query": ["get", "value"],
       "output": false
     },
     {
       "category": "get",
       "description": "should get a path that has the same name as a function",
-      "data": { "sort": "Joe" },
+      "input": { "sort": "Joe" },
       "query": ["get", "sort"],
       "output": "Joe"
     },
     {
       "category": "get",
       "description": "should get a nested value that has the same name as a function",
-      "data": { "sort": { "name": "Joe" } },
+      "input": { "sort": { "name": "Joe" } },
       "query": ["get", "sort", "name"],
       "output": "Joe"
     },
     {
       "category": "get",
       "description": "should get in item from an array (1)",
-      "data": ["A", "B", "C"],
+      "input": ["A", "B", "C"],
       "query": ["get", 1],
       "output": "B"
     },
     {
       "category": "get",
       "description": "should get in item from an array (2)",
-      "data": { "arr": ["A", "B", "C"] },
+      "input": { "arr": ["A", "B", "C"] },
       "query": ["get", "arr", 1],
       "output": "B"
     },
     {
       "category": "get",
       "description": "should get in item from an array (3)",
-      "data": [{ "text": "A" }, { "text": "B" }, { "text": "C" }],
+      "input": [{ "text": "A" }, { "text": "B" }, { "text": "C" }],
       "query": ["get", 1, "text"],
       "output": "B"
     },
@@ -163,7 +163,7 @@
     {
       "category": "filter",
       "description": "should filter an array with booleans and null",
-      "data": [
+      "input": [
         { "id": 1, "admin": true },
         { "id": 2 },
         { "id": 3, "admin": true },
@@ -175,7 +175,7 @@
     {
       "category": "filter",
       "description": "should filter an array with numbers",
-      "data": [-1, 0, 1, 2, 3],
+      "input": [-1, 0, 1, 2, 3],
       "query": ["filter", ["get"]],
       "output": [-1, 1, 2, 3]
     },
@@ -183,49 +183,49 @@
     {
       "category": "sort",
       "description": "should sort an array with numbers",
-      "data": [5, 2, 3],
+      "input": [5, 2, 3],
       "query": ["sort"],
       "output": [2, 3, 5]
     },
     {
       "category": "sort",
       "description": "should sort an array with numbers (asc)",
-      "data": [5, 2, 3],
+      "input": [5, 2, 3],
       "query": ["sort", ["get"], "asc"],
       "output": [2, 3, 5]
     },
     {
       "category": "sort",
       "description": "should sort an array with numbers (desc)",
-      "data": [5, 2, 3],
+      "input": [5, 2, 3],
       "query": ["sort", ["get"], "desc"],
       "output": [5, 3, 2]
     },
     {
       "category": "sort",
       "description": "should sort an array with strings",
-      "data": ["C", "c", "b", "a", "B", "A"],
+      "input": ["C", "c", "b", "a", "B", "A"],
       "query": ["sort"],
       "output": ["A", "B", "C", "a", "b", "c"]
     },
     {
       "category": "sort",
       "description": "should sort an array objects",
-      "data": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
+      "input": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
       "query": ["sort", ["get", "score"]],
       "output": [{ "score": -2 }, { "score": 3 }, { "score": 5 }]
     },
     {
       "category": "sort",
       "description": "should sort an array objects (desc)",
-      "data": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
+      "input": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
       "query": ["sort", ["get", "score"], "desc"],
       "output": [{ "score": 5 }, { "score": 3 }, { "score": -2 }]
     },
     {
       "category": "sort",
       "description": "should do nothing when sorting objects without a getter",
-      "data": [{ "a": 1 }, { "c": 3 }, { "b": 2 }],
+      "input": [{ "a": 1 }, { "c": 3 }, { "b": 2 }],
       "query": ["sort"],
       "output": [{ "a": 1 }, { "c": 3 }, { "b": 2 }]
     },
@@ -233,28 +233,28 @@
     {
       "category": "pick",
       "description": "should pick one property from an object",
-      "data": { "name": "Joe", "age": 23, "city": "New York" },
+      "input": { "name": "Joe", "age": 23, "city": "New York" },
       "query": ["pick", ["get", "name"]],
       "output": { "name": "Joe" }
     },
     {
       "category": "pick",
       "description": "should pick multiple properties from an object",
-      "data": { "name": "Joe", "age": 23, "city": "New York" },
+      "input": { "name": "Joe", "age": 23, "city": "New York" },
       "query": ["pick", ["get", "name"], ["get", "city"]],
       "output": { "name": "Joe", "city": "New York" }
     },
     {
       "category": "pick",
       "description": "should pick nested properties from an object",
-      "data": { "name": "Joe", "age": 23, "address": { "city": "New York" } },
+      "input": { "name": "Joe", "age": 23, "address": { "city": "New York" } },
       "query": ["pick", ["get", "name"], ["get", "address", "city"]],
       "output": { "name": "Joe", "city": "New York" }
     },
     {
       "category": "pick",
       "description": "should pick one property from an array",
-      "data": [
+      "input": [
         { "name": "Joe", "age": 23, "city": "New York" },
         { "name": "Sarah", "age": 21, "city": "Amsterdam" }
       ],
@@ -264,7 +264,7 @@
     {
       "category": "pick",
       "description": "should pick multiple properties from an array",
-      "data": [
+      "input": [
         { "name": "Joe", "age": 23, "city": "New York" },
         { "name": "Sarah", "age": 21, "city": "Amsterdam" }
       ],
@@ -274,7 +274,7 @@
     {
       "category": "pick",
       "description": "should pick nested properties from an array",
-      "data": [
+      "input": [
         { "name": "Joe", "age": 23, "address": { "city": "New York" } },
         { "name": "Sarah", "age": 21, "address": { "city": "Amsterdam" } }
       ],
@@ -285,7 +285,7 @@
     {
       "category": "map",
       "description": "should map an array with objects",
-      "data": [
+      "input": [
         { "name": "Joe", "age": 23 },
         { "name": "Oliver", "age": 27 },
         { "name": "Sarah", "age": 21 }
@@ -296,7 +296,7 @@
     {
       "category": "map",
       "description": "should map an array with numbers",
-      "data": [3, -4, 1, -7],
+      "input": [3, -4, 1, -7],
       "query": ["map", ["abs", ["get"]]],
       "output": [3, 4, 1, 7]
     },
@@ -304,7 +304,7 @@
     {
       "category": "groupBy",
       "description": "should group items by a key",
-      "data": [
+      "input": [
         { "name": "Joe", "city": "New York" },
         { "name": "Oliver", "city": "Amsterdam" },
         { "name": "Sarah", "city": "Amsterdam" }
@@ -322,7 +322,7 @@
     {
       "category": "keyBy",
       "description": "should turn an array in an object by key",
-      "data": [
+      "input": [
         { "id": 1, "name": "Joe" },
         { "id": 2, "name": "Oliver" },
         { "id": 3, "name": "Sarah" }
@@ -337,7 +337,7 @@
     {
       "category": "keyBy",
       "description": "should handle duplicate keys in keyBy, keeping the first",
-      "data": [
+      "input": [
         { "id": 1, "name": "Joe" },
         { "id": 2, "name": "Oliver" },
         { "id": 1, "name": "Sarah" }
@@ -352,7 +352,7 @@
     {
       "category": "keys",
       "description": "should extract the keys of an object",
-      "data": { "a": 2, "b": 3 },
+      "input": { "a": 2, "b": 3 },
       "query": ["keys"],
       "output": ["a", "b"]
     },
@@ -360,7 +360,7 @@
     {
       "category": "values",
       "description": "should extract the values of an object",
-      "data": { "a": 2, "b": 3 },
+      "input": { "a": 2, "b": 3 },
       "query": ["values"],
       "output": [2, 3]
     },
@@ -368,14 +368,14 @@
     {
       "category": "flatten",
       "description": "should flatten an array",
-      "data": [[1, 2], [3, 4, 5]],
+      "input": [[1, 2], [3, 4, 5]],
       "query": ["flatten"],
       "output": [1, 2, 3, 4, 5]
     },
     {
       "category": "flatten",
       "description": "should not flatten arrays inside arrays",
-      "data": [[1, [2, 3]]],
+      "input": [[1, [2, 3]]],
       "query": ["flatten"],
       "output": [1, [2, 3]]
     },
@@ -383,14 +383,14 @@
     {
       "category": "uniq",
       "description": "should get unique values from a list with numbers",
-      "data": [2, 3, 2, 7, 1, 1],
+      "input": [2, 3, 2, 7, 1, 1],
       "query": ["uniq"],
       "output": [2, 3, 7, 1]
     },
     {
       "category": "uniq",
       "description": "should get unique values from a list with strings",
-      "data": ["hi", "hello", "hi", "HI", "bye", "bye"],
+      "input": ["hi", "hello", "hi", "HI", "bye", "bye"],
       "query": ["uniq"],
       "output": ["hi", "hello", "HI", "bye"]
     },
@@ -398,7 +398,7 @@
     {
       "category": "uniqBy",
       "description": "should get unique objects by key (keeping the first)",
-      "data": [
+      "input": [
         { "name": "Joe", "city": "New York" },
         { "name": "Oliver", "city": "Amsterdam" },
         { "name": "Sarah", "city": "Amsterdam" }
@@ -410,21 +410,21 @@
     {
       "category": "limit",
       "description": "should limit an array with numbers",
-      "data": [1, 2, 3, 4, 5],
+      "input": [1, 2, 3, 4, 5],
       "query": ["limit", 3],
       "output": [1, 2, 3]
     },
     {
       "category": "limit",
       "description": "should limit an array with an index larger than the length of the array",
-      "data": [1, 2, 3],
+      "input": [1, 2, 3],
       "query": ["limit", 10],
       "output": [1, 2, 3]
     },
     {
       "category": "limit",
       "description": "should limit an array with objects",
-      "data": [
+      "input": [
         { "id": 1, "name": "Joe" },
         { "id": 2, "name": "Oliver" },
         { "id": 3, "name": "Sarah" }
@@ -435,7 +435,7 @@
     {
       "category": "limit",
       "description": "should return an empty array when limit has a negative value",
-      "data": [1, 2, 3],
+      "input": [1, 2, 3],
       "query": ["limit", -2],
       "output": []
     },
@@ -443,21 +443,21 @@
     {
       "category": "size",
       "description": "should return the size of an array (1)",
-      "data": [],
+      "input": [],
       "query": ["size"],
       "output": 0
     },
     {
       "category": "size",
       "description": "should return the size of an array (2)",
-      "data": [1, 2, 3],
+      "input": [1, 2, 3],
       "query": ["size"],
       "output": 3
     },
     {
       "category": "size",
       "description": "should return the size of an array (3)",
-      "data": [{}, {}, {}, {}],
+      "input": [{}, {}, {}, {}],
       "query": ["size"],
       "output": 4
     },
@@ -465,14 +465,14 @@
     {
       "category": "sum",
       "description": "should calculate the sum of an array with integers",
-      "data": [1, 2, 3],
+      "input": [1, 2, 3],
       "query": ["sum"],
       "output": 6
     },
     {
       "category": "sum",
       "description": "should calculate the sum of an array with floats",
-      "data": [2.4, 5.7],
+      "input": [2.4, 5.7],
       "query": ["sum"],
       "output": 8.1
     },
@@ -480,7 +480,7 @@
     {
       "category": "min",
       "description": "should calculate the minimum value",
-      "data": [3, -4, 1, -7],
+      "input": [3, -4, 1, -7],
       "query": ["min"],
       "output": -7
     },
@@ -488,7 +488,7 @@
     {
       "category": "max",
       "description": "should calculate the maximum value",
-      "data": [3, -4, 1, -7],
+      "input": [3, -4, 1, -7],
       "query": ["max"],
       "output": 3
     },
@@ -496,7 +496,7 @@
     {
       "category": "prod",
       "description": "should calculate the product",
-      "data": [2, 3, 5],
+      "input": [2, 3, 5],
       "query": ["prod"],
       "output": 30
     },
@@ -504,14 +504,14 @@
     {
       "category": "average",
       "description": "should calculate the average (1)",
-      "data": [2, 4],
+      "input": [2, 4],
       "query": ["average"],
       "output": 3
     },
     {
       "category": "average",
       "description": "should calculate the average (2)",
-      "data": [2, 3, 2, 7, 1],
+      "input": [2, 3, 2, 7, 1],
       "query": ["average"],
       "output": 3
     },
@@ -519,28 +519,28 @@
     {
       "category": "eq",
       "description": "should calculate equal (1)",
-      "data": { "a": 1, "b": 2 },
+      "input": { "a": 1, "b": 2 },
       "query": ["eq", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "eq",
       "description": "should calculate equal (2)",
-      "data": { "a": 2, "b": 2 },
+      "input": { "a": 2, "b": 2 },
       "query": ["eq", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "eq",
       "description": "should calculate equal (3)",
-      "data": { "a": 3, "b": 2 },
+      "input": { "a": 3, "b": 2 },
       "query": ["eq", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "eq",
       "description": "should calculate equal (4)",
-      "data": null,
+      "input": null,
       "query": ["eq", 2, 2],
       "output": true
     },
@@ -548,28 +548,28 @@
     {
       "category": "gt",
       "description": "should calculate greater than (1)",
-      "data": { "a": 1, "b": 2 },
+      "input": { "a": 1, "b": 2 },
       "query": ["gt", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "gt",
       "description": "should calculate greater than (2)",
-      "data": { "a": 2, "b": 2 },
+      "input": { "a": 2, "b": 2 },
       "query": ["gt", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "gt",
       "description": "should calculate greater than (3)",
-      "data": { "a": 3, "b": 2 },
+      "input": { "a": 3, "b": 2 },
       "query": ["gt", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "gt",
       "description": "should calculate greater than (4)",
-      "data": null,
+      "input": null,
       "query": ["gt", 3, 2],
       "output": true
     },
@@ -577,28 +577,28 @@
     {
       "category": "gte",
       "description": "should calculate greater than or equal to (1)",
-      "data": { "a": 1, "b": 2 },
+      "input": { "a": 1, "b": 2 },
       "query": ["gte", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "gte",
       "description": "should calculate greater than or equal to (2)",
-      "data": { "a": 2, "b": 2 },
+      "input": { "a": 2, "b": 2 },
       "query": ["gte", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "gte",
       "description": "should calculate greater than or equal to (3)",
-      "data": { "a": 3, "b": 2 },
+      "input": { "a": 3, "b": 2 },
       "query": ["gte", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "gte",
       "description": "should calculate greater than or equal to (4)",
-      "data": null,
+      "input": null,
       "query": ["gte", 3, 2],
       "output": true
     },
@@ -606,28 +606,28 @@
     {
       "category": "lt",
       "description": "should calculate less than (1)",
-      "data": { "a": 1, "b": 2 },
+      "input": { "a": 1, "b": 2 },
       "query": ["lt", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "lt",
       "description": "should calculate less than (2)",
-      "data": { "a": 2, "b": 2 },
+      "input": { "a": 2, "b": 2 },
       "query": ["lt", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "lt",
       "description": "should calculate less than (3)",
-      "data": { "a": 3, "b": 2 },
+      "input": { "a": 3, "b": 2 },
       "query": ["lt", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "lt",
       "description": "should calculate less than (4)",
-      "data": null,
+      "input": null,
       "query": ["lt", 1, 2],
       "output": true
     },
@@ -635,28 +635,28 @@
     {
       "category": "lte",
       "description": "should calculate less than or equal to (1)",
-      "data": { "a": 1, "b": 2 },
+      "input": { "a": 1, "b": 2 },
       "query": ["lte", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "lte",
       "description": "should calculate less than or equal to (2)",
-      "data": { "a": 2, "b": 2 },
+      "input": { "a": 2, "b": 2 },
       "query": ["lte", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "lte",
       "description": "should calculate less than or equal to (3)",
-      "data": { "a": 3, "b": 2 },
+      "input": { "a": 3, "b": 2 },
       "query": ["lte", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "lte",
       "description": "should calculate less than or equal to (4)",
-      "data": null,
+      "input": null,
       "query": ["lte", 2, 2],
       "output": true
     },
@@ -664,28 +664,28 @@
     {
       "category": "ne",
       "description": "should calculate not equal (1)",
-      "data": { "a": 1, "b": 2 },
+      "input": { "a": 1, "b": 2 },
       "query": ["ne", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "ne",
       "description": "should calculate not equal (2)",
-      "data": { "a": 2, "b": 2 },
+      "input": { "a": 2, "b": 2 },
       "query": ["ne", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "ne",
       "description": "should calculate not equal (3)",
-      "data": { "a": 3, "b": 2 },
+      "input": { "a": 3, "b": 2 },
       "query": ["ne", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "ne",
       "description": "should calculate not equal (4)",
-      "data": null,
+      "input": null,
       "query": ["ne", 3, 2],
       "output": true
     },
@@ -693,49 +693,49 @@
     {
       "category": "and",
       "description": "should calculate and (1)",
-      "data": { "a": false, "b": false },
+      "input": { "a": false, "b": false },
       "query": ["and", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "and",
       "description": "should calculate and (2)",
-      "data": { "a": false, "b": true },
+      "input": { "a": false, "b": true },
       "query": ["and", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "and",
       "description": "should calculate and (3)",
-      "data": { "a": true, "b": false },
+      "input": { "a": true, "b": false },
       "query": ["and", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "and",
       "description": "should calculate and (4)",
-      "data": { "a": true, "b": true },
+      "input": { "a": true, "b": true },
       "query": ["and", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "and",
       "description": "should calculate and (5)",
-      "data": { "a": 0, "b": 1 },
+      "input": { "a": 0, "b": 1 },
       "query": ["and", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "and",
       "description": "should calculate and (6)",
-      "data": { "a": 1, "b": 1 },
+      "input": { "a": 1, "b": 1 },
       "query": ["and", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "and",
       "description": "should calculate and (7)",
-      "data": null,
+      "input": null,
       "query": ["and", true, true],
       "output": true
     },
@@ -743,49 +743,49 @@
     {
       "category": "or",
       "description": "should calculate or (1)",
-      "data": { "a": false, "b": false },
+      "input": { "a": false, "b": false },
       "query": ["or", ["get", "a"], ["get", "b"]],
       "output": false
     },
     {
       "category": "or",
       "description": "should calculate or (2)",
-      "data": { "a": false, "b": true },
+      "input": { "a": false, "b": true },
       "query": ["or", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "or",
       "description": "should calculate or (3)",
-      "data": { "a": true, "b": false },
+      "input": { "a": true, "b": false },
       "query": ["or", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "or",
       "description": "should calculate or (4)",
-      "data": { "a": true, "b": true },
+      "input": { "a": true, "b": true },
       "query": ["or", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "or",
       "description": "should calculate or (5)",
-      "data": { "a": 0, "b": 1 },
+      "input": { "a": 0, "b": 1 },
       "query": ["or", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "or",
       "description": "should calculate or (6)",
-      "data": { "a": 1, "b": 1 },
+      "input": { "a": 1, "b": 1 },
       "query": ["or", ["get", "a"], ["get", "b"]],
       "output": true
     },
     {
       "category": "or",
       "description": "should calculate or (7)",
-      "data": null,
+      "input": null,
       "query": ["or", false, true],
       "output": true
     },
@@ -793,35 +793,35 @@
     {
       "category": "not",
       "description": "should calculate not (1)",
-      "data": { "a": false },
+      "input": { "a": false },
       "query": ["not", ["get", "a"]],
       "output": true
     },
     {
       "category": "not",
       "description": "should calculate not (2)",
-      "data": { "a": true },
+      "input": { "a": true },
       "query": ["not", ["get", "a"]],
       "output": false
     },
     {
       "category": "not",
       "description": "should calculate not (3)",
-      "data": null,
+      "input": null,
       "query": ["not", true],
       "output": false
     },
     {
       "category": "not",
       "description": "should calculate not (4)",
-      "data": { "a": 1 },
+      "input": { "a": 1 },
       "query": ["not", ["get", "a"]],
       "output": false
     },
     {
       "category": "not",
       "description": "should calculate not (5)",
-      "data": { "a": 0 },
+      "input": { "a": 0 },
       "query": ["not", ["get", "a"]],
       "output": true
     },
@@ -829,63 +829,63 @@
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": { "a": false },
+      "input": { "a": false },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": { "a": null },
+      "input": { "a": null },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": { "a": 2 },
+      "input": { "a": 2 },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": { "a": 0 },
+      "input": { "a": 0 },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": { "a": "" },
+      "input": { "a": "" },
       "query": ["exists", ["get", "a"]],
       "output": true
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": { "nested": { "a": 2 } },
+      "input": { "nested": { "a": 2 } },
       "query": ["exists", ["get", "nested", "a"]],
       "output": true
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": {},
+      "input": {},
       "query": ["exists", ["get", "a"]],
       "output": false
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": {},
+      "input": {},
       "query": ["exists", ["get", "nested", "a"]],
       "output": false
     },
     {
       "category": "exists",
       "description": "should calculate exists (1)",
-      "data": {},
+      "input": {},
       "query": ["exists", ["get", "sort"]],
       "output": false
     },
@@ -893,21 +893,21 @@
     {
       "category": "in",
       "description": "should calculate in (1)",
-      "data": { "score": 5 },
+      "input": { "score": 5 },
       "query": ["in", ["get", "score"], ["array", 1, 2, 5, 8]],
       "output": true
     },
     {
       "category": "in",
       "description": "should calculate in (2)",
-      "data": { "score": 7 },
+      "input": { "score": 7 },
       "query": ["in", ["get", "score"], ["array", 1, 2, 5, 8]],
       "output": false
     },
     {
       "category": "in",
       "description": "should calculate in (3)",
-      "data": null,
+      "input": null,
       "query": ["in", 5, ["array", 1, 2, 5, 8]],
       "output": true
     },
@@ -915,21 +915,21 @@
     {
       "category": "not in",
       "description": "should calculate not in (1)",
-      "data": { "score": 5 },
+      "input": { "score": 5 },
       "query": ["not in", ["get", "score"], ["array", 1, 2, 5, 8]],
       "output": false
     },
     {
       "category": "not in",
       "description": "should calculate not in (2)",
-      "data": { "score": 7 },
+      "input": { "score": 7 },
       "query": ["not in", ["get", "score"], ["array", 1, 2, 5, 8]],
       "output": true
     },
     {
       "category": "not in",
       "description": "should calculate not in (3)",
-      "data": null,
+      "input": null,
       "query": ["not in", 7, ["array", 1, 2, 5, 8]],
       "output": true
     },
@@ -937,21 +937,21 @@
     {
       "category": "regex",
       "description": "should calculate a regex without flags",
-      "data": [{ "name": "Joe" }, { "name": "Oliver42" }, { "name": "Sarah" }],
+      "input": [{ "name": "Joe" }, { "name": "Oliver42" }, { "name": "Sarah" }],
       "query": ["filter", ["regex", ["get", "name"], "^[A-z]{2,4}$"]],
       "output": [{ "name": "Joe" }]
     },
     {
       "category": "regex",
       "description": "should calculate a regex with flags",
-      "data": [{ "name": "Joe" }, { "name": "Oliver42" }, { "name": "Sarah" }],
+      "input": [{ "name": "Joe" }, { "name": "Oliver42" }, { "name": "Sarah" }],
       "query": ["filter", ["regex", ["get", "name"], "^[a-z]+$", "i"]],
       "output": [{ "name": "Joe" }, { "name": "Sarah" }]
     },
     {
       "category": "regex",
       "description": "should calculate a regex with a static text",
-      "data": null,
+      "input": null,
       "query": ["regex", "Joe", "^[A-z]+$"],
       "output": true
     },
@@ -959,14 +959,14 @@
     {
       "category": "add",
       "description": "should add two properties",
-      "data": { "a": 6, "b": 2 },
+      "input": { "a": 6, "b": 2 },
       "query": ["add", ["get", "a"], ["get", "b"]],
       "output": 8
     },
     {
       "category": "add",
       "description": "should add two numbers",
-      "data": null,
+      "input": null,
       "query": ["add", 6, 2],
       "output": 8
     },
@@ -974,14 +974,14 @@
     {
       "category": "subtract",
       "description": "should subtract two properties",
-      "data": { "a": 6, "b": 2 },
+      "input": { "a": 6, "b": 2 },
       "query": ["subtract", ["get", "a"], ["get", "b"]],
       "output": 4
     },
     {
       "category": "add",
       "description": "should subtract two numbers",
-      "data": null,
+      "input": null,
       "query": ["subtract", 6, 2],
       "output": 4
     },
@@ -989,14 +989,14 @@
     {
       "category": "multiply",
       "description": "should multiply two properties",
-      "data": { "a": 6, "b": 2 },
+      "input": { "a": 6, "b": 2 },
       "query": ["multiply", ["get", "a"], ["get", "b"]],
       "output": 12
     },
     {
       "category": "multiply",
       "description": "should multiply two numbers",
-      "data": null,
+      "input": null,
       "query": ["multiply", 6, 2],
       "output": 12
     },
@@ -1004,14 +1004,14 @@
     {
       "category": "divide",
       "description": "should divide two properties",
-      "data": { "a": 6, "b": 2 },
+      "input": { "a": 6, "b": 2 },
       "query": ["divide", ["get", "a"], ["get", "b"]],
       "output": 3
     },
     {
       "category": "divide",
       "description": "should divide two numbers",
-      "data": null,
+      "input": null,
       "query": ["divide", 6, 2],
       "output": 3
     },
@@ -1019,21 +1019,21 @@
     {
       "category": "pow",
       "description": "should calculate the exponent of two properties",
-      "data": { "a": 6, "b": 2 },
+      "input": { "a": 6, "b": 2 },
       "query": ["pow", ["get", "a"], ["get", "b"]],
       "output": 36
     },
     {
       "category": "pow",
       "description": "should calculate the exponent of two numbers",
-      "data": null,
+      "input": null,
       "query": ["pow", 6, 2],
       "output": 36
     },
     {
       "category": "pow",
       "description": "should calculate the square root using pow",
-      "data": 25,
+      "input": 25,
       "query": ["pow", ["get"], 0.5],
       "output": 5
     },
@@ -1041,14 +1041,14 @@
     {
       "category": "mod",
       "description": "should calculate the remainder (the modulus) of two properties",
-      "data": { "a": 8, "b": 3 },
+      "input": { "a": 8, "b": 3 },
       "query": ["mod", ["get", "a"], ["get", "b"]],
       "output": 2
     },
     {
       "category": "mod",
       "description": "should calculate the remainder (the modulus) of two numbers",
-      "data": null,
+      "input": null,
       "query": ["mod", 8, 3],
       "output": 2
     },
@@ -1056,21 +1056,21 @@
     {
       "category": "abs",
       "description": "should calculate the absolute value (1)",
-      "data": { "a": -3 },
+      "input": { "a": -3 },
       "query": ["abs", ["get", "a"]],
       "output": 3
     },
     {
       "category": "abs",
       "description": "should calculate the absolute value (2)",
-      "data": { "a": 3 },
+      "input": { "a": 3 },
       "query": ["abs", ["get", "a"]],
       "output": 3
     },
     {
       "category": "abs",
       "description": "should calculate the absolute value (3)",
-      "data": null,
+      "input": null,
       "query": ["abs", -5],
       "output": 5
     },
@@ -1078,35 +1078,35 @@
     {
       "category": "round",
       "description": "should round a property (1)",
-      "data": { "a": 23.1345 },
+      "input": { "a": 23.1345 },
       "query": ["round", ["get", "a"]],
       "output": 23
     },
     {
       "category": "round",
       "description": "should round a property (2)",
-      "data": { "a": 23.761 },
+      "input": { "a": 23.761 },
       "query": ["round", ["get", "a"]],
       "output": 24
     },
     {
       "category": "round",
       "description": "should round a property to two digits",
-      "data": { "a": 23.1345 },
+      "input": { "a": 23.1345 },
       "query": ["round", ["get", "a"], 2],
       "output": 23.13
     },
     {
       "category": "round",
       "description": "should round a property to three digits",
-      "data": { "a": 23.1345 },
+      "input": { "a": 23.1345 },
       "query": ["round", ["get", "a"], 3],
       "output": 23.135
     },
     {
       "category": "round",
       "description": "should round a number to three digits",
-      "data": null,
+      "input": null,
       "query": ["round", 23.1345, 2],
       "output": 23.13
     },
@@ -1114,7 +1114,7 @@
     {
       "category": "composed query",
       "description": "should filter using and, gte, and lte",
-      "data": [
+      "input": [
         { "age": 23 },
         { "age": 19 },
         { "age": 32 },
@@ -1130,7 +1130,7 @@
     {
       "category": "composed query",
       "description": "should create an object containing pipelines and various functions",
-      "data": [
+      "input": [
         { "name": "Chris", "age": 23, "city": "New York" },
         { "name": "Emily", "age": 19, "city": "Atlanta" },
         { "name": "Joe", "age": 32, "city": "New York" },
@@ -1156,7 +1156,7 @@
     {
       "category": "composed query",
       "description": "should process multiple operations",
-      "data": {
+      "input": {
         "friends": [
           { "name": "Chris", "age": 23, "city": "New York" },
           { "name": "Emily", "age": 19, "city": "Atlanta" },
@@ -1180,7 +1180,7 @@
     {
       "category": "composed query",
       "description": "should use functions to calculate a shopping cart",
-      "data": [
+      "input": [
         { "name": "bread", "price": 2.5, "quantity": 2 },
         { "name": "milk", "price": 1.2, "quantity": 3 }
       ],
