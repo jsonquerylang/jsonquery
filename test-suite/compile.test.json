@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/compile.test.json",
-  "updated": "2024-11-11T09:00:00Z",
+  "updated": "2024-11-12T09:00:00Z",
   "tests": [
     {
       "category": "pipe",
@@ -37,6 +37,13 @@
       "input": { "name": "Joe", "age": 23, "city": "New York" },
       "query": ["object", { "firstName": ["get", "name"], "age": ["get", "age"] }],
       "output": { "firstName": "Joe", "age": 23 }
+    },
+    {
+      "category": "object",
+      "description": "should create an object containing null and false",
+      "input": null,
+      "query": ["object", { "nothing": null, "false": false }],
+      "output": { "nothing": null, "false": false }
     },
     {
       "category": "object",
