@@ -53,13 +53,13 @@
     "release": "semantic-release"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.3",
-    "@vitest/coverage-v8": "2.1.2",
+    "@biomejs/biome": "1.9.4",
+    "@vitest/coverage-v8": "2.1.4",
     "ajv": "8.17.1",
     "npm-run-all": "4.1.5",
-    "semantic-release": "24.1.2",
+    "semantic-release": "24.2.0",
     "typescript": "5.6.3",
-    "vite": "5.4.8",
-    "vitest": "2.1.2"
+    "vite": "5.4.11",
+    "vitest": "2.1.4"
   }
 }
