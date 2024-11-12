@@ -34,6 +34,7 @@ On this page:
 External pages:
 
 - [Function reference](reference/functions.md)
+- [Test Suite](test-suite/README.md)
 
 ## Installation
 
@@ -623,7 +624,9 @@ Another gotcha is that unlike some other query languages, you need to use the `m
 
 ## Development
 
-To develop, check out the repo, install dependencies once, and then use the following scripts:
+### JavaScript 
+
+To develop, check out the JavaScript repo, install dependencies once, and then use the following scripts:
 
 ```text
 npm run test
@@ -636,6 +639,12 @@ npm run build-and-test
 ```
 
 Note that a new package is published on [npm](https://www.npmjs.com/package/@jsonquerylang/jsonquery) and [GitHub](https://github.com/jsonquerylang/jsonquery/releases) on changes pushed to the `main` branch. This is done using [`semantic-release`](https://github.com/semantic-release/semantic-release), and we do not use the `version` number in the `package.json` file. A changelog can be found by looking at the [releases on GitHub](https://github.com/jsonquerylang/jsonquery/releases).
+
+### Implement in a new language
+
+Support for JSON Query language can be implemented in new programming languages. Implementing the query engine is most straight forward: this boils down to implementing each of the functions (`sort`, `filter`, `groupBy`, etc.), and creating a compiler which can go through a JSON Query like `["sort", ["get", "name"], "desc"]` look up the function `sort`, and pass the arguments to it. Implementing a parser and stringifier is a bit more work, but the parser and stringifier of the JavaScript implementation can be used as a reference.
+
+There is a JSON based Test Suite available that can be used to ensure that your implementation matches the behavior of the reference implementation, see: [Test Suite](test-suite/README.md). 
 
 ## Motivation
 
