@@ -81,7 +81,7 @@ export const functions: FunctionBuildersMap = {
   filter: <T>(predicate: JSONQuery[]) => {
     const _predicate = compile(predicate)
 
-    return (data: T[]) => data.filter(_predicate)
+    return (data: T[]) => data.filter((item) => truthy(_predicate(item)))
   },
 
   sort: <T>(path: JSONQueryProperty = ['get'], direction?: 'asc' | 'desc') => {
@@ -209,7 +209,7 @@ export const functions: FunctionBuildersMap = {
     const _valueIfTrue = compile(valueIfTrue)
     const _valueIfFalse = compile(valueIfFalse)
 
-    return (data: unknown) => (_condition(data) ? _valueIfTrue(data) : _valueIfFalse(data))
+    return (data: unknown) => (truthy(_condition(data)) ? _valueIfTrue(data) : _valueIfFalse(data))
   },
   in: (path: string, values: JSONQuery) => {
     const getter = compile(path)
@@ -248,3 +248,5 @@ export const functions: FunctionBuildersMap = {
     return Number(`${num}e${-digits}`)
   })
 }
+
+const truthy = (x: unknown) => x !== null && x !== 0 && x !== false

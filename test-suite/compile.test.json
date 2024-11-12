@@ -228,6 +228,13 @@
       "query": ["filter", ["get"]],
       "output": [-1, 1, 2, 3]
     },
+    {
+      "category": "filter",
+      "description": "should filter an array with strings",
+      "input": ["hello", "", "world", " "],
+      "query": ["filter", ["get"]],
+      "output": ["hello", "", "world", " "]
+    },
 
     {
       "category": "sort",
@@ -983,7 +990,7 @@
       "description": "should calculate if (7)",
       "input": null,
       "query": ["if", "", true, false],
-      "output": false
+      "output": true
     },
     {
       "category": "if",
