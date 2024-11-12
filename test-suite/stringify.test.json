@@ -1,0 +1,266 @@
+{
+  "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/stringify.test.json",
+  "updated": "2024-11-11T09:00:00Z",
+  "groups": [
+    {
+      "category": "property",
+      "description": "should stringify a property",
+      "tests": [
+        { "input": ["get"], "output": "get()" },
+        { "input": ["get", "age"], "output": ".age" },
+        { "input": ["get", "address", "city"], "output": ".address.city" },
+        { "input": ["get", "with space"], "output": ".\"with space\"" },
+        { "input": ["get", "with special !"], "output": ".\"with special !\"" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should stringify all  operators",
+      "tests": [
+        { "input": ["eq", ["get", "score"], 8], "output": "(.score == 8)" },
+        { "input": ["lt", ["get", "score"], 8], "output": "(.score < 8)" },
+        { "input": ["lte", ["get", "score"], 8], "output": "(.score <= 8)" },
+        { "input": ["gt", ["get", "score"], 8], "output": "(.score > 8)" },
+        { "input": ["gte", ["get", "score"], 8], "output": "(.score >= 8)" },
+        { "input": ["ne", ["get", "score"], 8], "output": "(.score != 8)" },
+        { "input": ["add", ["get", "score"], 8], "output": "(.score + 8)" },
+        { "input": ["subtract", ["get", "score"], 8], "output": "(.score - 8)" },
+        { "input": ["multiply", ["get", "score"], 8], "output": "(.score * 8)" },
+        { "input": ["divide", ["get", "score"], 8], "output": "(.score / 8)" },
+        { "input": ["pow", ["get", "score"], 8], "output": "(.score ^ 8)" },
+        { "input": ["mod", ["get", "score"], 8], "output": "(.score % 8)" },
+        { "input": ["and", ["get", "score"], 8], "output": "(.score and 8)" },
+        { "input": ["or", ["get", "score"], 8], "output": "(.score or 8)" },
+        {
+          "input": ["in", ["get", "score"], ["array", 8, 9, 10]],
+          "output": "(.score in [8, 9, 10])"
+        },
+        {
+          "input": ["not in", ["get", "score"], ["array", 8, 9, 10]],
+          "output": "(.score not in [8, 9, 10])"
+        }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should stringify a custom operator",
+      "options": {
+        "operators": { "aboutEq": "~=" }
+      },
+      "tests": [
+        { "input": ["aboutEq", 2, 3], "output": "(2 ~= 3)" },
+        { "input": ["filter", ["aboutEq", 2, 3]], "output": "filter(2 ~= 3)" },
+        { "input": ["object", { "result": ["aboutEq", 2, 3] }], "output": "{ result: (2 ~= 3) }" },
+        { "input": ["eq", 2, 3], "output": "(2 == 3)" }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should stringify a function",
+      "tests": [
+        { "input": ["sort", ["get", "age"], "desc"], "output": "sort(.age, \"desc\")" },
+        { "input": ["filter", ["gt", ["get", "age"], 18]], "output": "filter(.age > 18)" }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should stringify a function with indentation",
+      "options": {
+        "indentation": "  ",
+        "maxLineLength": 4
+      },
+      "tests": [
+        {
+          "input": ["sort", ["get", "age"], "desc"],
+          "output": "sort(\n  .age,\n  \"desc\"\n)"
+        }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should stringify a function inside an object with indentation",
+      "options": {
+        "indentation": "  ",
+        "maxLineLength": 4
+      },
+      "tests": [
+        {
+          "input": ["object", { "sorted": ["sort", ["get", "age"], "desc"] }],
+          "output": "{\n  sorted: sort(\n    .age,\n    \"desc\"\n  )\n}"
+        }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should stringify a nested function having one argument with indentation",
+      "options": {
+        "indentation": "  ",
+        "maxLineLength": 4
+      },
+      "tests": [
+        {
+          "input": [
+            "map",
+            ["object", { "name": ["get", "name"], "city": ["get", "address", "city"] }]
+          ],
+          "output": "map({\n  name: .name,\n  city: .address.city\n})"
+        }
+      ]
+    },
+    {
+      "category": "pipe",
+      "description": "should stringify a pipe",
+      "tests": [{ "input": ["pipe", ["get", "age"], ["average"]], "output": ".age | average()" }]
+    },
+    {
+      "category": "pipe",
+      "description": "should stringify a pipe with indentation",
+      "options": { "maxLineLength": 10 },
+      "tests": [{ "input": ["pipe", ["get", "age"], ["average"]], "output": ".age\n  | average()" }]
+    },
+    {
+      "category": "pipe",
+      "description": "should stringify a nested pipe with indentation",
+      "options": { "maxLineLength": 10 },
+      "tests": [
+        {
+          "input": ["object", { "nested": ["pipe", ["get", "age"], ["average"]] }],
+          "output": "{\n  nested: .age\n    | average()\n}"
+        }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should stringify an object",
+      "tests": [
+        {
+          "input": ["object", { "name": ["get", "name"], "city": ["get", "address", "city"] }],
+          "output": "{ name: .name, city: .address.city }"
+        }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should stringify an object with indentation",
+      "options": { "maxLineLength": 20 },
+      "tests": [
+        {
+          "input": ["object", { "name": ["get", "name"], "city": ["get", "address", "city"] }],
+          "output": "{\n  name: .name,\n  city: .address.city\n}"
+        }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should stringify a nested object with indentation",
+      "options": { "maxLineLength": 4 },
+      "tests": [
+        {
+          "input": [
+            "object",
+            {
+              "name": ["get", "name"],
+              "address": ["object", { "city": ["get", "city"], "street": ["get", "street"] }]
+            }
+          ],
+          "output": "{\n  name: .name,\n  address: {\n    city: .city,\n    street: .street\n  }\n}"
+        }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should stringify a nested object with custom indentation (1)",
+      "options": {
+        "maxLineLength": 20,
+        "indentation": "    "
+      },
+      "tests": [
+        {
+          "input": ["object", { "name": ["get", "name"], "city": ["get", "address", "city"] }],
+          "output": "{\n    name: .name,\n    city: .address.city\n}"
+        }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should stringify a nested object with custom indentation (2)",
+      "options": {
+        "maxLineLength": 20,
+        "indentation": "\t"
+      },
+      "tests": [
+        {
+          "input": ["object", { "name": ["get", "name"], "city": ["get", "address", "city"] }],
+          "output": "{\n\tname: .name,\n\tcity: .address.city\n}"
+        }
+      ]
+    },
+    {
+      "category": "array",
+      "description": "should stringify an array with indentation",
+      "options": { "maxLineLength": 4 },
+      "tests": [{ "input": ["array", 1, 2, 3], "output": "[\n  1,\n  2,\n  3\n]" }]
+    },
+    {
+      "category": "array",
+      "description": "should stringify a nested array with indentation",
+      "options": { "maxLineLength": 4 },
+      "tests": [
+        {
+          "input": ["object", { "array": ["array", 1, 2, 3] }],
+          "output": "{\n  array: [\n    1,\n    2,\n    3\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "category": "composed query",
+      "description": "should stringify a composed query",
+      "tests": [
+        {
+          "input": ["pipe", ["map", ["multiply", ["get", "price"], ["get", "quantity"]]], ["sum"]],
+          "output": "map(.price * .quantity) | sum()"
+        },
+        {
+          "input": [
+            "pipe",
+            ["get", "friends"],
+            ["filter", ["eq", ["get", "city"], "New York"]],
+            ["sort", ["get", "age"]],
+            ["pick", ["get", "name"], ["get", "age"]]
+          ],
+          "output": ".friends\n  | filter(.city == \"New York\")\n  | sort(.age)\n  | pick(.name, .age)"
+        },
+        {
+          "input": ["filter", ["and", ["gte", ["get", "age"], 23], ["lte", ["get", "age"], 27]]],
+          "output": "filter((.age >= 23) and (.age <= 27))"
+        },
+        {
+          "input": [
+            "pipe",
+            ["get", "friends"],
+            [
+              "object",
+              {
+                "names": ["map", ["get", "name"]],
+                "count": ["size"],
+                "averageAge": ["pipe", ["map", ["get", "age"]], ["average"]]
+              }
+            ]
+          ],
+          "output": ".friends\n  | {\n    names: map(.name),\n    count: size(),\n    averageAge: map(.age) | average()\n  }"
+        },
+        {
+          "input": [
+            "object",
+            {
+              "name": ["get", "name"],
+              "city": ["get", "address", "city"],
+              "averageAge": ["pipe", ["map", ["get", "age"]], ["average"]]
+            }
+          ],
+          "output": "{\n  name: .name,\n  city: .address.city,\n  averageAge: map(.age) | average()\n}"
+        }
+      ]
+    }
+  ]
+}

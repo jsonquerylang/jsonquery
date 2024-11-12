@@ -1,0 +1,418 @@
+{
+  "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/parse.test.json",
+  "updated": "2024-11-11T09:00:00Z",
+  "groups": [
+    {
+      "category": "property",
+      "description": "should parse a property without quotes",
+      "tests": [
+        { "input": ".name", "output": ["get", "name"] },
+        { "input": ".AaZz_$", "output": ["get", "AaZz_$"] },
+        { "input": ".AaZz09_$", "output": ["get", "AaZz09_$"] },
+        { "input": ".9", "output": ["get", 9] },
+        { "input": ".123", "output": ["get", 123] },
+        { "input": ".0", "output": ["get", 0] },
+        { "input": " .name ", "output": ["get", "name"] }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should throw an error in case of an invalid unquoted property",
+      "tests": [
+        { "input": ".", "throws": "Property expected (pos: 1)" },
+        { "input": ".01", "throws": "Unexpected part '1'" },
+        { "input": ".1abc", "throws": "Unexpected part 'abc'" },
+        { "input": ".[", "throws": "Property expected (pos: 1)" },
+        { "input": ".foo#", "throws": "Unexpected part '#'" },
+        { "input": ".foo#bar", "throws": "Unexpected part '#bar'" }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should parse a property with quotes",
+      "tests": [
+        { "input": ".\"name\"", "output": ["get", "name"] },
+        { "input": " .\"name\" ", "output": ["get", "name"] },
+        { "input": ".\"escape \\n \\\"chars\"", "output": ["get", "escape \n \"chars"] }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should parse a nested property",
+      "tests": [
+        { "input": ".address.city", "output": ["get", "address", "city"] },
+        { "input": ".\"address\".\"city\"", "output": ["get", "address", "city"] },
+        { "input": ".\"address\".\"city\"", "output": ["get", "address", "city"] },
+        { "input": ".array.2", "output": ["get", "array", 2] }
+      ]
+    },
+    {
+      "category": "property",
+      "description": "should throw an error when a property misses an end quote",
+      "tests": [{ "input": ".\"name", "throws": "Property expected (pos: 1)" }]
+    },
+    {
+      "category": "property",
+      "description": "should throw an error when there is whitespace between the dot and the property name",
+      "tests": [
+        { "input": ". \"name\"", "throws": "Property expected (pos: 1)" },
+        { "input": ".\"address\" .\"city\"", "throws": "Unexpected part '.\"city\"' (pos: 11)" },
+        { "input": ".address .city", "throws": "Unexpected part '.city' (pos: 9)" }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should parse a function without arguments",
+      "tests": [
+        { "input": "sort()", "output": ["sort"] },
+        { "input": "sort( )", "output": ["sort"] },
+        { "input": "sort ( )", "output": ["sort"] },
+        { "input": " sort ( ) ", "output": ["sort"] }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should parse a function with one argument",
+      "tests": [
+        { "input": "sort(.age)", "output": ["sort", ["get", "age"]] },
+        { "input": "sort(get())", "output": ["sort", ["get"]] },
+        { "input": "sort ( .age ) ", "output": ["sort", ["get", "age"]] }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should parse a function with multiple arguments",
+      "tests": [
+        { "input": "sort(.age, \"desc\")", "output": ["sort", ["get", "age"], "desc"] },
+        { "input": "sort(get(), \"desc\")", "output": ["sort", ["get"], "desc"] }
+      ]
+    },
+    {
+      "category": "function",
+      "description": "should throw an error in case of an unknown function name",
+      "tests": [{ "input": "foo(42)", "throws": "Unknown function 'foo' (pos: 4)" }]
+    },
+    {
+      "category": "function",
+      "description": "should throw an error when the end bracket is missing",
+      "tests": [{ "input": "sort(.age, \"desc\"", "throws": "Character ')' expected (pos: 17)" }]
+    },
+    {
+      "category": "function",
+      "description": "should throw an error when a comma is missing",
+      "tests": [{ "input": "sort(.age \"desc\")", "throws": "Character ',' expected (pos: 10)" }]
+    },
+    {
+      "category": "operator",
+      "description": "should parse all operators",
+      "tests": [
+        { "input": ".score==8", "output": ["eq", ["get", "score"], 8] },
+        { "input": ".score == 8", "output": ["eq", ["get", "score"], 8] },
+        { "input": ".score < 8", "output": ["lt", ["get", "score"], 8] },
+        { "input": ".score <= 8", "output": ["lte", ["get", "score"], 8] },
+        { "input": ".score > 8", "output": ["gt", ["get", "score"], 8] },
+        { "input": ".score >= 8", "output": ["gte", ["get", "score"], 8] },
+        { "input": ".score != 8", "output": ["ne", ["get", "score"], 8] },
+        { "input": ".score + 8", "output": ["add", ["get", "score"], 8] },
+        { "input": ".score - 8", "output": ["subtract", ["get", "score"], 8] },
+        { "input": ".score * 8", "output": ["multiply", ["get", "score"], 8] },
+        { "input": ".score / 8", "output": ["divide", ["get", "score"], 8] },
+        { "input": ".score ^ 8", "output": ["pow", ["get", "score"], 8] },
+        { "input": ".score % 8", "output": ["mod", ["get", "score"], 8] },
+        { "input": ".a and .b", "output": ["and", ["get", "a"], ["get", "b"]] },
+        { "input": ".a or .b", "output": ["or", ["get", "a"], ["get", "b"]] },
+        {
+          "input": ".name in [\"Joe\", \"Sarah\"]",
+          "output": ["in", ["get", "name"], ["array", "Joe", "Sarah"]]
+        },
+        {
+          "input": ".name not in [\"Joe\", \"Sarah\"]",
+          "output": ["not in", ["get", "name"], ["array", "Joe", "Sarah"]]
+        }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should parse an operator having the same name as a function",
+      "tests": [
+        { "input": "0 and 1", "output": ["and", 0, 1] },
+        { "input": ".a and .b", "output": ["and", ["get", "a"], ["get", "b"]] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should parse nested operators",
+      "tests": [
+        {
+          "input": "(.a == \"A\") and (.b == \"B\")",
+          "output": ["and", ["eq", ["get", "a"], "A"], ["eq", ["get", "b"], "B"]]
+        },
+        {
+          "input": "(.a == \"A\") or (.b == \"B\")",
+          "output": ["or", ["eq", ["get", "a"], "A"], ["eq", ["get", "b"], "B"]]
+        },
+        {
+          "input": "(.a * 2) + 3",
+          "output": ["add", ["multiply", ["get", "a"], 2], 3]
+        },
+        {
+          "input": "3 + (.a * 2)",
+          "output": ["add", 3, ["multiply", ["get", "a"], 2]]
+        }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should throw an error when using multiple operators without parenthesis",
+      "tests": [
+        { "input": ".a == \"A\" and .b == \"B\"", "throws": "Unexpected part 'and .b == \"B\"'" },
+        {
+          "input": "2 and 3 and 4",
+          "throws": "Unexpected part 'and 4' (pos: 8)"
+        },
+        { "input": ".a + 2 * 3", "throws": "Unexpected part '* 3' (pos: 7)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should throw an error in case of an unknown operator",
+      "tests": [
+        { "input": ".a === \"A\"", "throws": "Value expected (pos: 5)" },
+        { "input": ".a <> \"A\"", "throws": "Value expected (pos: 4)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should throw an error in case a missing right hand side",
+      "tests": [{ "input": ".a ==", "throws": "Value expected (pos: 5)" }]
+    },
+    {
+      "category": "operator",
+      "description": "should throw an error in case a missing left and right hand side",
+      "tests": [
+        { "input": "+", "throws": "Value expected (pos: 0)" },
+        { "input": " +", "throws": "Value expected (pos: 1)" }
+      ]
+    },
+    {
+      "category": "pipe",
+      "description": "should parse a pipe",
+      "tests": [
+        {
+          "input": ".friends | sort(.age)",
+          "output": ["pipe", ["get", "friends"], ["sort", ["get", "age"]]]
+        },
+        {
+          "input": ".friends | sort(.age) | filter(.age >= 18)",
+          "output": [
+            "pipe",
+            ["get", "friends"],
+            ["sort", ["get", "age"]],
+            ["filter", ["gte", ["get", "age"], 18]]
+          ]
+        }
+      ]
+    },
+    {
+      "category": "pipe",
+      "description": "should throw an error when a value is missing after a pipe",
+      "tests": [{ "input": ".friends |", "throws": "Value expected (pos: 10)" }]
+    },
+    {
+      "category": "pipe",
+      "description": "should throw an error when a value is missing before a pipe",
+      "tests": [{ "input": "| .friends ", "throws": "Value expected (pos: 0)" }]
+    },
+    {
+      "category": "parenthesis",
+      "description": "should parse parenthesis",
+      "tests": [
+        { "input": "(.friends)", "output": ["get", "friends"] },
+        { "input": "( .friends)", "output": ["get", "friends"] },
+        { "input": "(.friends )", "output": ["get", "friends"] },
+        { "input": "(.age == 18)", "output": ["eq", ["get", "age"], 18] },
+        { "input": "(42)", "output": 42 },
+        { "input": " ( 42 ) ", "output": 42 },
+        { "input": "((42))", "output": 42 }
+      ]
+    },
+    {
+      "category": "parenthesis",
+      "description": "should throw an error when missing closing parenthesis",
+      "tests": [{ "input": "(.friends", "throws": "Character ')' expected (pos: 9)" }]
+    },
+    {
+      "category": "object",
+      "description": "should parse an object",
+      "tests": [
+        { "input": "{}", "output": ["object", {}] },
+        { "input": "{ }", "output": ["object", {}] },
+        { "input": "{a:1}", "output": ["object", { "a": 1 }] },
+        { "input": "{a1:1}", "output": ["object", { "a1": 1 }] },
+        { "input": "{AaZz_$019:1}", "output": ["object", { "AaZz_$019": 1 }] },
+        { "input": " { a : 1 } ", "output": ["object", { "a": 1 }] },
+        { "input": "{a:1,b:2}", "output": ["object", { "a": 1, "b": 2 }] },
+        { "input": "{ a : 1 , b : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
+        { "input": "{ \"a\" : 1 , \"b\" : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
+        { "input": "{ 2: \"two\" }", "output": ["object", { "2": "two" }] },
+        { "input": "{null:null}", "output": ["object", { "null": null }] },
+        {
+          "input": "{\n  name: .name,\n  city: .address.city,\n  averageAge: map(.age) | average()\n  }",
+          "output": [
+            "object",
+            {
+              "name": ["get", "name"],
+              "city": ["get", "address", "city"],
+              "averageAge": ["pipe", ["map", ["get", "age"]], ["average"]]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should throw an error when missing closing parenthesis",
+      "tests": [{ "input": "{a:1", "throws": "Character '}' expected (pos: 4)" }]
+    },
+    {
+      "category": "object",
+      "description": "should throw an error when missing a comma",
+      "tests": [{ "input": "{a:1 b:2}", "throws": "Character ',' expected (pos: 5)" }]
+    },
+    {
+      "category": "object",
+      "description": "should throw an error when missing a comma",
+      "tests": [{ "input": "{a", "throws": "Character ':' expected (pos: 2)" }]
+    },
+    {
+      "category": "object",
+      "description": "should throw an error when missing a key",
+      "tests": [
+        { "input": "{{", "throws": "Key expected (pos: 1)" },
+        { "input": "{a:2,{", "throws": "Key expected (pos: 5)" }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should throw an error when missing a value",
+      "tests": [
+        { "input": "{a:", "throws": "Value expected (pos: 3)" },
+        { "input": "{a:2,b:}", "throws": "Value expected (pos: 7)" }
+      ]
+    },
+    {
+      "category": "object",
+      "description": "should throw an error in case of a trailing comma",
+      "tests": [{ "input": "{a:2,}", "throws": "Key expected (pos: 5)" }]
+    },
+    {
+      "category": "array",
+      "description": "should parse an array",
+      "tests": [
+        { "input": "[]", "output": ["array"] },
+        { "input": " [ ] ", "output": ["array"] },
+        { "input": "[1, 2, 3]", "output": ["array", 1, 2, 3] },
+        { "input": " [ 1 , 2 , 3 ] ", "output": ["array", 1, 2, 3] },
+        { "input": "[(1 + 3), 2, 4]", "output": ["array", ["add", 1, 3], 2, 4] },
+        { "input": "[2, (1 + 2), 4]", "output": ["array", 2, ["add", 1, 2], 4] }
+      ]
+    },
+    {
+      "category": "array",
+      "description": "should throw an error when missing closing bracket",
+      "tests": [{ "input": "[1,2", "throws": "Character ']' expected (pos: 4)" }]
+    },
+    {
+      "category": "array",
+      "description": "should throw an error when missing a comma",
+      "tests": [{ "input": "[1 2]", "throws": "Character ',' expected (pos: 3)" }]
+    },
+    {
+      "category": "array",
+      "description": "should throw an error when missing a value",
+      "tests": [{ "input": "[1,", "throws": "Value expected (pos: 3)" }]
+    },
+    {
+      "category": "array",
+      "description": "should throw an error in case of a trailing comma",
+      "tests": [{ "input": "[1,2,]", "throws": "Value expected (pos: 5)" }]
+    },
+    {
+      "category": "string",
+      "description": "should parse a string",
+      "tests": [
+        { "input": "\"hello\"", "output": "hello" },
+        { "input": " \"hello\"", "output": "hello" },
+        { "input": "\"hello\" ", "output": "hello" },
+        { "input": "\"hello \\\"world\\\"\"", "output": "hello \"world\"" }
+      ]
+    },
+    {
+      "category": "string",
+      "description": "should throw an error when missing closing quote",
+      "tests": [{ "input": "\"hello", "throws": "Value expected (pos: 0)" }]
+    },
+    {
+      "category": "number",
+      "description": "should parse a number",
+      "tests": [
+        { "input": "42", "output": 42 },
+        { "input": "-42", "output": -42 },
+        { "input": "2.3", "output": 2.3 },
+        { "input": "-2.3", "output": -2.3 },
+        { "input": "2.3e2", "output": 230 },
+        { "input": "2.3e+2", "output": 230 },
+        { "input": "2.3e-2", "output": 0.023 },
+        { "input": "2.3E+2", "output": 230 },
+        { "input": "2.3E-2", "output": 0.023 }
+      ]
+    },
+    {
+      "category": "number",
+      "description": "should throw an error in case of an invalid number",
+      "tests": [
+        { "input": "-", "throws": "Value expected (pos: 0)" },
+        { "input": "2.", "throws": "Unexpected part '.' (pos: 1)" },
+        { "input": "2.3e", "throws": "Unexpected part 'e' (pos: 3)" },
+        { "input": "2.3e+", "throws": "Unexpected part 'e+' (pos: 3)" },
+        { "input": "2.3e-", "throws": "Unexpected part 'e-' (pos: 3)" },
+        { "input": "2.", "throws": "Unexpected part '.' (pos: 1)" }
+      ]
+    },
+    {
+      "category": "boolean",
+      "description": "should parse a boolean",
+      "tests": [
+        { "input": "true", "output": true },
+        { "input": " true ", "output": true },
+        { "input": "false", "output": false }
+      ]
+    },
+    {
+      "category": "null",
+      "description": "should parse null",
+      "tests": [{ "input": "null", "output": null }, { "input": " null ", "output": null }]
+    },
+    {
+      "category": "garbage",
+      "description": "should throw an error in case of garbage at the end",
+      "tests": [
+        { "input": "null 2", "throws": "Unexpected part '2' (pos: 5)" },
+        { "input": "sort() 2", "throws": "Unexpected part '2' (pos: 7)" }
+      ]
+    },
+    {
+      "category": "whitespace",
+      "description": "should skip whitespace characters",
+      "tests": [{ "input": " \n\r\t\"hello\" \n\r\t", "output": "hello" }]
+    },
+    {
+      "category": "empty",
+      "description": "should throw when the query is empty",
+      "tests": [
+        { "input": "", "throws": "Value expected (pos: 0)" },
+        { "input": " ", "throws": "Value expected (pos: 1)" }
+      ]
+    }
+  ]
+}

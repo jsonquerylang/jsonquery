@@ -167,7 +167,7 @@ export const functions: FunctionBuildersMap = {
   limit:
     (count: number) =>
     <T>(data: T[]) =>
-      data.slice(0, count),
+      data.slice(0, Math.max(count, 0)),
 
   size:
     () =>
@@ -208,8 +208,8 @@ export const functions: FunctionBuildersMap = {
     return (data: unknown) => regex.test(getter(data) as string)
   },
 
-  and: buildFunction((a, b) => a && b),
-  or: buildFunction((a, b) => a || b),
+  and: buildFunction((a, b) => !!(a && b)),
+  or: buildFunction((a, b) => !!(a || b)),
   not: buildFunction((a: unknown) => !a),
   exists: (path: JSONQueryFunction) => {
     const parentPath = path.slice(1)
