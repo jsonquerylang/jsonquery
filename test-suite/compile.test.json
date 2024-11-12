@@ -898,6 +898,60 @@
     },
 
     {
+      "category": "if",
+      "description": "should calculate if (1)",
+      "input": {
+        "status": true,
+        "messageOk": "Welcome!",
+        "messageFail": "Sorry, you're too young"
+      },
+      "query": ["if", ["get", "status"], ["get", "messageOk"], ["get", "messageFail"]],
+      "output": "Welcome!"
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (2)",
+      "input": null,
+      "query": ["if", true, true, false],
+      "output": true
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (3)",
+      "input": null,
+      "query": ["if", false, true, false],
+      "output": false
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (4)",
+      "input": null,
+      "query": ["if", 1, true, false],
+      "output": true
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (5)",
+      "input": null,
+      "query": ["if", 0, true, false],
+      "output": false
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (6)",
+      "input": null,
+      "query": ["if", "message", true, false],
+      "output": true
+    },
+    {
+      "category": "if",
+      "description": "should calculate if (7)",
+      "input": null,
+      "query": ["if", "", true, false],
+      "output": false
+    },
+
+    {
       "category": "in",
       "description": "should calculate in (1)",
       "input": { "score": 5 },

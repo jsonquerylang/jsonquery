@@ -827,6 +827,32 @@ jsonquery({ "value": null }, ["exists", "value"]) // true
 jsonquery({ "value": undefined }, ["exists", "value"]) // false
 ```
 
+## if
+
+A conditional allowing to make a choice depending on a condition. Both `then` and `else` parts are required.
+
+```text
+if(condition, valueIfTrue, valueIfFalse)
+```
+
+Example:
+
+```js
+const data = {
+  "kid": {
+    "name": "Emma", 
+    "age": 11
+  },
+  "minAge": 12,
+  "messageOk": "Welcome!",
+  "messageFail": "Sorry, you're too young."
+}
+
+jsonquery(data, 'if(.kid.age >= .minAge, .messageOk, .messageFail)')
+// "Sorry, you're too young."
+```
+
+
 ## in
 
 Test whether the search value is one of the values of the provided list.

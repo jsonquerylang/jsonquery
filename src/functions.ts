@@ -221,6 +221,13 @@ export const functions: FunctionBuildersMap = {
       return !!parent && Object.hasOwnProperty.call(parent, key)
     }
   },
+  if: (condition: JSONQuery, valueIfTrue: JSONQuery, valueIfFalse: JSONQuery) => {
+    const _condition = compile(condition)
+    const _valueIfTrue = compile(valueIfTrue)
+    const _valueIfFalse = compile(valueIfFalse)
+
+    return (data: unknown) => (_condition(data) ? _valueIfTrue(data) : _valueIfFalse(data))
+  },
 
   eq: buildFunction((a, b) => a === b),
   gt: buildFunction((a, b) => a > b),
