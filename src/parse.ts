@@ -51,7 +51,6 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   const parseOperator = () => {
-
     const left = parseParenthesis()
 
     skipWhitespace()
