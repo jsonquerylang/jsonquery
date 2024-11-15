@@ -76,7 +76,7 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
     const childIndent = args.length === 1 ? indent : indent + space
     const argsStr = args.map((arg) => _stringify(arg, childIndent))
     return args.length === 1 && argsStr[0][0] === '('
-      ? `${name}${argsStr}`
+      ? `${name}${argsStr[0]}`
       : join(
           argsStr,
           [`${name}(`, ', ', ')'],

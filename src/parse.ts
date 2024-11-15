@@ -26,6 +26,9 @@ import type { JSONQuery, JSONQueryParseOptions } from './types'
  *     //  ]
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
+  const allOperators = { ...operators, ...options?.operators }
+  const sortedOperatorNames = Object.keys(allOperators).sort((a, b) => b.length - a.length)
+
   const parsePipe = () => {
     skipWhitespace()
     const first = parseOperator()
@@ -48,19 +51,18 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   const parseOperator = () => {
-    const allOperators = { ...operators, ...options?.operators }
 
-    const left = parseParentheses()
+    const left = parseParenthesis()
 
     skipWhitespace()
 
     // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
-    for (const name of Object.keys(allOperators).sort((a, b) => b.length - a.length)) {
+    for (const name of sortedOperatorNames) {
       const op = allOperators[name]
       if (query.substring(i, i + op.length) === op) {
         i += op.length
         skipWhitespace()
-        const right = parseParentheses()
+        const right = parseParenthesis()
 
         return [name, left, right]
       }
@@ -69,7 +71,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     return left
   }
 
-  const parseParentheses = () => {
+  const parseParenthesis = () => {
     if (query[i] === '(') {
       i++
       const inner = parsePipe()
@@ -81,9 +83,9 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   const parseProperty = () => {
-    const props = []
-
     if (query[i] === '.') {
+      const props = []
+
       while (query[i] === '.') {
         i++
 
