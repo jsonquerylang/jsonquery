@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/parse.test.json",
-  "updated": "2024-11-11T09:00:00Z",
+  "updated": "2024-11-15T09:00:00Z",
   "groups": [
     {
       "category": "property",
@@ -255,6 +255,9 @@
         { "input": "{ a : 1 , b : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
         { "input": "{ \"a\" : 1 , \"b\" : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
         { "input": "{ 2: \"two\" }", "output": ["object", { "2": "two" }] },
+        { "input": "{ 0: \"zero\" }", "output": ["object", { "0": "zero" }] },
+        { "input": "{ \"\": \"empty\" }", "output": ["object", { "": "empty" }] },
+        { "input": "{ \" \": \"space\" }", "output": ["object", { " ": "space" }] },
         { "input": "{null:null}", "output": ["object", { "null": null }] },
         {
           "input": "{\n  name: .name,\n  city: .address.city,\n  averageAge: map(.age) | average()\n  }",
