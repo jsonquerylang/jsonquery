@@ -61,20 +61,20 @@ const data = {
 
 // Get the array containing the friends from the object, filter the friends that live in New York,
 // sort them by age, and pick just the name and age out of the objects.
-const names = jsonquery(data, `
+const output = jsonquery(data, `
   .friends 
     | filter(.city == "New York") 
     | sort(.age) 
     | pick(.name, .age)
 `)
-// names = [
+// output = [
 //   { "name": "Chris", "age": 23 },
 //   { "name": "Sarah", "age": 31 },
 //   { "name": "Joe", "age": 32 }
 // ]
 
-// The same query can be written in JSON format.
-// The functions `parse` and `stringify` can be used 
+// The same query can be written in JSON format instead of the text format.
+// Note that the functions `parse` and `stringify` can be used
 // to convert from text format to JSON format and vice versa.
 jsonquery(data, [
   "pipe",
