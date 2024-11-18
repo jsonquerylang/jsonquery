@@ -76,7 +76,7 @@ const names = jsonquery(data, `
 // The same query can be written in JSON format.
 // The functions `parse` and `stringify` can be used 
 // to convert from text format to JSON format and vice versa.
-jsonquery(shoppingCart, [
+jsonquery(data, [
   "pipe",
   ["get", "friends"],
   ["filter", ["eq", ["get", "city"], "New York"]],
