@@ -38,9 +38,13 @@ External pages:
 
 ## Installation
 
+Install the JavaScript library via [npm](https://www.npmjs.com/):
+
 ```text
 npm install @jsonquerylang/jsonquery
 ```
+
+A Python implementation can be found here: https://github.com/jsonquerylang/jsonquery-python
 
 ## Usage
 
