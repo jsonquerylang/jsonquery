@@ -1,5 +1,5 @@
 import { functions } from './functions'
-import { isArray } from './is'
+import { isArray, isObject } from './is'
 import type {
   Fun,
   FunctionBuildersMap,
@@ -16,7 +16,11 @@ export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Fu
   try {
     const exec = isArray(query)
       ? compileFunction(query as JSONQueryFunction, functionsStack[0]) // function
-      : () => query // primitive value (string, number, boolean, null)
+      : isObject(query)
+        ? throwTypeError(
+            `Function notation ["object", {...}] expected but got ${JSON.stringify(query)}`
+          )
+        : () => query // primitive value (string, number, boolean, null)
 
     // create a wrapper function which can attach a stack to the error
     return (data) => {
@@ -39,8 +43,12 @@ function compileFunction(query: JSONQueryFunction, functions: FunctionBuildersMa
 
   const fnBuilder = functions[fnName]
   if (!fnBuilder) {
-    throw new Error(`Unknown function '${fnName}'`)
+    throwTypeError(`Unknown function '${fnName}'`)
   }
 
   return fnBuilder(...args)
+}
+
+function throwTypeError(message: string): () => void {
+  throw new Error(message)
 }

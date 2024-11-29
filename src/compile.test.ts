@@ -54,6 +54,21 @@ describe('error handling', () => {
     expect(actualErr?.message).toBe("Unknown function 'foo'")
   })
 
+  test('should throw a helpful error when passing an object {...} instead of function ["object", {...}]', () => {
+    let actualErr = undefined
+    const user = { name: 'Joe' }
+    const query = { name: ['get', 'name'] }
+    try {
+      go(user, query)
+    } catch (err) {
+      actualErr = err
+    }
+
+    expect(actualErr?.message).toBe(
+      'Function notation ["object", {...}] expected but got {"name":["get","name"]}'
+    )
+  })
+
   test('should throw a helpful error when a pipe contains a runtime error', () => {
     const scoreData = {
       participants: [
