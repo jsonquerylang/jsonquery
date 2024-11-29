@@ -1,6 +1,7 @@
 import { compile } from './compile'
 import { isArray } from './is'
 import type {
+  Entry,
   FunctionBuilder,
   FunctionBuildersMap,
   Getter,
@@ -78,6 +79,44 @@ export const functions: FunctionBuildersMap = {
     return (data: T[]) => data.map(_callback)
   },
 
+  mapObject: <T, U>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+
+    return (data: Record<string, T>) => {
+      const output = {}
+      for (const key of Object.keys(data)) {
+        const updated = _callback({ key, value: data[key] }) as Entry<U>
+        output[updated.key] = updated.value
+      }
+      return output
+    }
+  },
+
+  mapKeys: <T>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+
+    return (data: Record<string, T>) => {
+      const output = {}
+      for (const key of Object.keys(data)) {
+        const updatedKey = _callback(key) as string
+        output[updatedKey] = data[key]
+      }
+      return output
+    }
+  },
+
+  mapValues: <T>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+
+    return (data: Record<string, T>) => {
+      const output = {}
+      for (const key of Object.keys(data)) {
+        output[key] = _callback(data[key])
+      }
+      return output
+    }
+  },
+
   filter: <T>(predicate: JSONQuery[]) => {
     const _predicate = compile(predicate)
 
@@ -96,6 +135,11 @@ export const functions: FunctionBuildersMap = {
 
     return (data: T[]) => data.slice().sort(compare)
   },
+
+  reverse:
+    <T>() =>
+    (data: T[]) =>
+      data.toReversed(),
 
   pick: (...properties: JSONQueryProperty[]) => {
     const getters = properties.map(
@@ -156,6 +200,18 @@ export const functions: FunctionBuildersMap = {
   },
 
   flatten: () => (data: unknown[]) => data.flat(),
+
+  join:
+    <T>(separator = '') =>
+    (data: T[]) =>
+      data.join(separator),
+
+  split:
+    (separator = '') =>
+    (data: string) =>
+      data.split(separator as string),
+
+  substring: (start: number, end: number) => (data: string) => data.slice(Math.max(start, 0), end),
 
   uniq:
     () =>
@@ -246,7 +302,13 @@ export const functions: FunctionBuildersMap = {
   round: buildFunction((value: number, digits = 0) => {
     const num = Math.round(Number(`${value}e${digits}`))
     return Number(`${num}e${-digits}`)
-  })
+  }),
+
+  number: buildFunction((text: string) => {
+    const num = Number(text)
+    return Number.isNaN(Number(text)) ? null : num
+  }),
+  string: buildFunction(String)
 }
 
 const truthy = (x: unknown) => x !== null && x !== 0 && x !== false

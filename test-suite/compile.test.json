@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/compile.test.json",
-  "updated": "2024-11-17T11:00:00Z",
+  "updated": "2024-11-29T11:00:00Z",
   "tests": [
     {
       "category": "value",
@@ -280,6 +280,31 @@
     },
 
     {
+      "category": "reverse",
+      "description": "should reverse an array",
+      "input": [4, 2, 3],
+      "query": ["reverse"],
+      "output": [3, 2, 4]
+    },
+
+    {
+      "category": "reverse",
+      "description": "should reverse an array without altering the original array",
+      "input": [4, 2, 3],
+      "query": [
+        "object",
+        {
+          "a": ["reverse"],
+          "b": ["reverse"]
+        }
+      ],
+      "output": {
+        "a": [3, 2, 4],
+        "b": [3, 2, 4]
+      }
+    },
+
+    {
       "category": "pick",
       "description": "should pick one property from an object",
       "input": { "name": "Joe", "age": 23, "city": "New York" },
@@ -348,6 +373,39 @@
       "input": [3, -4, 1, -7],
       "query": ["map", ["abs", ["get"]]],
       "output": [3, 4, 1, 7]
+    },
+
+    {
+      "category": "mapObject",
+      "description": "should map the entries of an object",
+      "input": { "a": 2, "b": 3 },
+      "query": [
+        "mapObject",
+        [
+          "object",
+          {
+            "key": ["add", "#", ["get", "key"]],
+            "value": ["add", ["get", "key"], ["get", "value"]]
+          }
+        ]
+      ],
+      "output": { "#a": "a2", "#b": "b3" }
+    },
+
+    {
+      "category": "mapKeys",
+      "description": "should map the keys of an object",
+      "input": { "a": 2, "b": 3 },
+      "query": ["mapKeys", ["add", "#", ["get"]]],
+      "output": { "#a": 2, "#b": 3 }
+    },
+
+    {
+      "category": "mapValues",
+      "description": "should map the values of an object",
+      "input": { "a": 2, "b": 3 },
+      "query": ["mapValues", ["multiply", ["get"], 2]],
+      "output": { "a": 4, "b": 6 }
     },
 
     {
@@ -430,6 +488,80 @@
     },
 
     {
+      "category": "join",
+      "description": "should join an array",
+      "input": ["a", "b", "c"],
+      "query": ["join"],
+      "output": "abc"
+    },
+
+    {
+      "category": "join",
+      "description": "should join an array with a custom separator",
+      "input": ["a", "b", "c"],
+      "query": ["join", ", "],
+      "output": "a, b, c"
+    },
+
+    {
+      "category": "split",
+      "description": "should split a string",
+      "input": "abc",
+      "query": ["split"],
+      "output": ["a", "b", "c"]
+    },
+    {
+      "category": "split",
+      "description": "should split a string with a separator",
+      "input": "hi there how are you doing?",
+      "query": ["split", " "],
+      "output": ["hi", "there", "how", "are", "you", "doing?"]
+    },
+
+    {
+      "category": "substring",
+      "description": "should get a substring of a string with a start index",
+      "input": "123456",
+      "query": ["substring", 3],
+      "output": "456"
+    },
+    {
+      "category": "substring",
+      "description": "should get a substring of a string with a start and end index",
+      "input": "123456",
+      "query": ["substring", 2, 4],
+      "output": "34"
+    },
+    {
+      "category": "substring",
+      "description": "should get a substring of a string with a start exceeding the string length",
+      "input": "123456",
+      "query": ["substring", 10],
+      "output": ""
+    },
+    {
+      "category": "substring",
+      "description": "should get a substring of a string with an end exceeding the string length",
+      "input": "123456",
+      "query": ["substring", 0, 10],
+      "output": "123456"
+    },
+    {
+      "category": "substring",
+      "description": "should get a substring of a string with an end index smaller than the start index",
+      "input": "123456",
+      "query": ["substring", 3, 0],
+      "output": ""
+    },
+    {
+      "category": "substring",
+      "description": "should get a substring of a string with a negative start index",
+      "input": "123456",
+      "query": ["substring", -2],
+      "output": "123456"
+    },
+
+    {
       "category": "uniq",
       "description": "should get unique values from a list with numbers",
       "input": [2, 3, 2, 7, 1, 1],
@@ -509,6 +641,13 @@
       "input": [{}, {}, {}, {}],
       "query": ["size"],
       "output": 4
+    },
+    {
+      "category": "size",
+      "description": "should return the size of a string",
+      "input": "12345",
+      "query": ["size"],
+      "output": 5
     },
 
     {
@@ -1080,6 +1219,34 @@
       "query": ["add", 6, 2],
       "output": 8
     },
+    {
+      "category": "add",
+      "description": "should concatenate two strings",
+      "input": null,
+      "query": ["add", "a", "b"],
+      "output": "ab"
+    },
+    {
+      "category": "add",
+      "description": "should concatenate a string and a number",
+      "input": null,
+      "query": ["add", "a", 2],
+      "output": "a2"
+    },
+    {
+      "category": "add",
+      "description": "should concatenate a number and a string",
+      "input": null,
+      "query": ["add", 2, "a"],
+      "output": "2a"
+    },
+    {
+      "category": "add",
+      "description": "should concatenate a string and a boolean",
+      "input": null,
+      "query": ["add", "is:", true],
+      "output": "is:true"
+    },
 
     {
       "category": "subtract",
@@ -1089,7 +1256,7 @@
       "output": 4
     },
     {
-      "category": "add",
+      "category": "subtract",
       "description": "should subtract two numbers",
       "input": null,
       "query": ["subtract", 6, 2],
@@ -1219,6 +1386,99 @@
       "input": null,
       "query": ["round", 23.1348, 2],
       "output": 23.13
+    },
+
+    {
+      "category": "number",
+      "description": "should convert a string into a number (1)",
+      "input": "2.3",
+      "query": ["number", ["get"]],
+      "output": 2.3
+    },
+    {
+      "category": "number",
+      "description": "should convert a string into a number (2)",
+      "input": "-2.3e-4",
+      "query": ["number", ["get"]],
+      "output": -2.3e-4
+    },
+    {
+      "category": "number",
+      "description": "should convert a string into a number (3)",
+      "input": "-2.3E+4",
+      "query": ["number", ["get"]],
+      "output": -2.3e4
+    },
+    {
+      "category": "number",
+      "description": "should convert a string into a number (4)",
+      "input": "1e4",
+      "query": ["number", ["get"]],
+      "output": 1e4
+    },
+    {
+      "category": "number",
+      "description": "should convert a string containing padding into a number",
+      "input": "  123  ",
+      "query": ["number", ["get"]],
+      "output": 123
+    },
+    {
+      "category": "number",
+      "description": "should convert a string null when it doesn't contain a valid numeric value (1)",
+      "input": "  foo  ",
+      "query": ["number", ["get"]],
+      "output": null
+    },
+    {
+      "category": "number",
+      "description": "should convert a string null when it doesn't contain a valid numeric value (2)",
+      "input": "2.4 foo",
+      "query": ["number", ["get"]],
+      "output": null
+    },
+
+    {
+      "category": "string",
+      "description": "should convert a number into a string (1)",
+      "input": 2.4,
+      "query": ["string", ["get"]],
+      "output": "2.4"
+    },
+    {
+      "category": "string",
+      "description": "should convert a number into a string (2)",
+      "input": -24000,
+      "query": ["string", ["get"]],
+      "output": "-24000"
+    },
+    {
+      "category": "string",
+      "description": "should convert a boolean into a string (1)",
+      "input": false,
+      "query": ["string", ["get"]],
+      "output": "false"
+    },
+    {
+      "category": "string",
+      "description": "should convert a boolean into a string (2)",
+      "input": true,
+      "query": ["string", ["get"]],
+      "output": "true"
+    },
+    {
+      "category": "string",
+      "description": "should convert null into a string",
+      "input": null,
+      "query": ["string", ["get"]],
+      "output": "null"
+    },
+    {
+      "category": "string",
+      "description": "should convert a string into a string",
+      "input": "Hi",
+      "query": ["string", ["get"]],
+      "output": "Hi"
     },
 
     {

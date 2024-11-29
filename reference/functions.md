@@ -217,6 +217,22 @@ jsonquery(values, 'sort()') // [2, 7, 9]
 jsonquery(values, 'sort(get(), "desc")') // [9, 7, 2]
 ```
 
+## reverse
+
+Create a new array with the items in reverse order.
+
+```text
+reverse()
+```
+
+Example: 
+
+```js
+const data = [1, 2, 3]
+jsonquery(data, 'reverse()')
+// [3, 2, 1]
+```
+
 ## pick
 
 Pick one or multiple properties or paths, and create a new, flat object for each of them. Can be used on both an object or an array.
@@ -255,10 +271,10 @@ jsonquery(item, 'pick(.price)') // 25
 
 ## map
 
-Map over an array and apply the provided query to each of the items in the array.
+Map over an array and apply the provided callback query to each of the items in the array.
 
 ```text
-map(query)
+map(callback)
 ```
 
 Examples:
@@ -286,6 +302,60 @@ const cart = [
 ]
 jsonquery(data, 'map(.price * .quantity)')
 // 8.6
+```
+
+## mapObject
+
+Map over an object, and create a new object with the entry `{ key, value }` returned by the callback for every input entry.
+
+```text
+mapObject(callback)
+```
+
+Example:
+
+```js
+const data = { "a": 2, "b": 3 }
+jsonquery(data, `mapObject({
+  key: (.key + " times two"),
+  value: (.value * 2)
+})`)
+// {
+//   "a times two": 4,
+//   "b times two": 6
+// }
+```
+
+## mapKeys
+
+Map over an object, and create a new object with the keys returned by the callback having the value of the original key.
+
+```text
+mapKeys(callback)
+```
+
+Example:
+
+```js
+const data = { "a": 2, "b": 3 }
+jsonquery(data, 'mapKeys("#" + get())')
+// { "#a": 2, "#b": 3 }
+```
+
+## mapValues
+
+Map over an object, and create a new object with the values updated by the return value of callback.
+
+```text
+mapValues(callback)
+```
+
+Example:
+
+```js
+const data = { "a": 2, "b": 3 }
+jsonquery(data, 'mapValues(get() * 2)')
+// { "a": 4, "b": 6 }
 ```
 
 ## groupBy
@@ -416,6 +486,45 @@ const data2 = [[1, 2, [3, 4]]]
 jsonquery(data2, 'flatten()') // [1, 2, [3, 4]]
 ```
 
+## join
+
+Concatenate array items into a string with an optional separator.
+
+```text
+join()
+join(separator)
+```
+
+Example:
+
+```js
+const data = [
+  { "name": "Chris", "age": 16 },
+  { "name": "Emily", "age": 32 },
+  { "name": "Joe", "age": 18 }
+]
+
+jsonquery(data, 'map(.name) | join(", ")')
+// "Chris, Emily, Joe"
+```
+
+## split
+
+Divide a string into an array substrings, separated by a separator.
+
+```text
+split()
+split(separator)
+```
+
+Example:
+
+```js
+const data = "hi there how are you doing?"
+jsonquery(data, 'split(" ")')
+// ["hi", "there", "how", "are", "you", "doing?"]
+```
+
 ## uniq
 
 Create a copy of an array where all duplicates are removed.
@@ -479,7 +588,7 @@ jsonquery(data, 'limit(4)') // [1, 2, 3, 4]
 
 ## size
 
-Return the size of an array.
+Return the size of an array or the length of a string.
 
 ```text
 size()
@@ -490,6 +599,7 @@ Examples:
 ```js
 jsonquery([1, 2], 'size()') // 2
 jsonquery([1, 2, 3, 4], 'size()') // 4
+jsonquery("hello", 'size()') // 5
 ```
 
 ## sum
@@ -951,6 +1061,13 @@ Examples:
 const data = { "a": 6, "b": 2 }
 
 jsonquery(data, '.a + .b') // 8
+
+const user = {
+  "firstName": "José",
+  "lastName": "Carioca"
+}
+jsonquery(user, '(.firstName + " ") + .lastName')
+// "José Carioca"
 ```
 
 ## subtract (`-`)
@@ -1068,4 +1185,35 @@ jsonquery({"a": 23.7612 }, 'round(.a)') // 24
 jsonquery({"a": 23.1345 }, 'round(.a)') // 23
 jsonquery({"a": 23.1345 }, 'round(.a, 2)') // 23.13
 jsonquery({"a": 23.1345 }, 'round(.a, 3)') // 23.135
+```
+
+## number
+
+Parse the numeric value in a string into a number.
+
+```text
+number(text)
+```
+
+Examples:
+
+```js
+jsonquery({"value": "2.4" }, 'number(.value)') // 2.4
+jsonquery("-4e3", 'number(get())') // -4000
+jsonquery("2,7,1", 'split(",") | map(number(get()))') // [2, 7, 1]
+```
+
+## string
+
+Format a number as a string.
+
+```text
+string(number)
+```
+
+Examples:
+
+```js
+jsonquery({"value": 2.4 }, 'string(.value)') // "2.4"
+jsonquery(42, 'string(get())') // "42"
 ```
