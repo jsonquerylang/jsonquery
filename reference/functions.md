@@ -510,19 +510,25 @@ jsonquery(data, 'map(.name) | join(", ")')
 
 ## split
 
-Divide a string into an array substrings, separated by a separator.
+Divide a string into an array substrings, separated by a separator. When no separator is provided, the string is split in words separated by one or multiple whitespaces, and the words are trimmed so they do not contain whitespace at the start or the end. When the separator is an empty string, the text will be split into a list with its individual characters.
 
 ```text
-split()
-split(separator)
+split(text)
+split(text, separator)
 ```
 
-Example:
+Examples:
 
 ```js
-const data = "hi there how are you doing?"
-jsonquery(data, 'split(" ")')
+const data = {
+  "message": "hi there how are you doing?"
+}
+jsonquery(data, 'split(.message)')
 // ["hi", "there", "how", "are", "you", "doing?"]
+
+
+jsonquery(data, 'split("a,b,c", ",")') 
+// ["a", "b", "c"]
 ```
 
 ## uniq

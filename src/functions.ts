@@ -206,10 +206,9 @@ export const functions: FunctionBuildersMap = {
     (data: T[]) =>
       data.join(separator),
 
-  split: (separator?: string) =>
-    separator !== undefined
-      ? (data: string) => data.split(separator)
-      : (data: string) => data.trim().split(/\s+/),
+  split: buildFunction((text: string, separator?: string) =>
+    separator !== undefined ? text.split(separator) : text.trim().split(/\s+/)
+  ),
 
   substring: (start: number, end: number) => (data: string) => data.slice(Math.max(start, 0), end),
 

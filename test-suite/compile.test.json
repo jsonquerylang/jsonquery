@@ -505,30 +505,37 @@
 
     {
       "category": "split",
-      "description": "should split a string",
-      "input": "start with a b c",
-      "query": ["split"],
+      "description": "should split a string (1)",
+      "input": null,
+      "query": ["split", "start with a b c"],
+      "output": ["start", "with", "a", "b", "c"]
+    },
+    {
+      "category": "split",
+      "description": "should split a string (2)",
+      "input": { "message": "start with a b c" },
+      "query": ["split", ["get", "message"]],
       "output": ["start", "with", "a", "b", "c"]
     },
     {
       "category": "split",
       "description": "should split a string with multiple whitespaces between the words",
-      "input": " \n\n\t start   with  a   b \n\r\t  c \n\n\t ",
-      "query": ["split"],
+      "input": null,
+      "query": ["split", " \n\n\t start   with  a   b \n\r\t  c \n\n\t "],
       "output": ["start", "with", "a", "b", "c"]
     },
     {
       "category": "split",
       "description": "should split a string by individual characters",
-      "input": "abc",
-      "query": ["split", ""],
+      "input": null,
+      "query": ["split", "abc", ""],
       "output": ["a", "b", "c"]
     },
     {
       "category": "split",
       "description": "should split a string with a separator",
-      "input": "a,b,c",
-      "query": ["split", ","],
+      "input": null,
+      "query": ["split", "a,b,c", ","],
       "output": ["a", "b", "c"]
     },
 
