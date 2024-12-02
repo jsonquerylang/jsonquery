@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/compile.test.json",
-  "updated": "2024-11-29T11:00:00Z",
+  "updated": "2024-12-02T11:00:00Z",
   "tests": [
     {
       "category": "value",
@@ -506,16 +506,30 @@
     {
       "category": "split",
       "description": "should split a string",
-      "input": "abc",
+      "input": "start with a b c",
       "query": ["split"],
+      "output": ["start", "with", "a", "b", "c"]
+    },
+    {
+      "category": "split",
+      "description": "should split a string with multiple whitespaces between the words",
+      "input": " \n\n\t start   with  a   b \n\r\t  c \n\n\t ",
+      "query": ["split"],
+      "output": ["start", "with", "a", "b", "c"]
+    },
+    {
+      "category": "split",
+      "description": "should split a string by individual characters",
+      "input": "abc",
+      "query": ["split", ""],
       "output": ["a", "b", "c"]
     },
     {
       "category": "split",
       "description": "should split a string with a separator",
-      "input": "hi there how are you doing?",
-      "query": ["split", " "],
-      "output": ["hi", "there", "how", "are", "you", "doing?"]
+      "input": "a,b,c",
+      "query": ["split", ","],
+      "output": ["a", "b", "c"]
     },
 
     {
