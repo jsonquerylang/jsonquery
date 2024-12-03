@@ -10,8 +10,8 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small: just `3.0 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.4 kB`.
-- Feature rich (40+ powerful functions)
+- Small: just `3.3 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
+- Feature rich (50+ powerful functions and operators)
 - Easy to interoperate with thanks to the intermediate JSON format.
 - Expressive
 - Expandable
@@ -38,9 +38,13 @@ External pages:
 
 ## Installation
 
+Install the JavaScript library via [npm](https://www.npmjs.com/):
+
 ```text
 npm install @jsonquerylang/jsonquery
 ```
+
+A Python implementation can be found here: https://github.com/jsonquerylang/jsonquery-python
 
 ## Usage
 
@@ -61,22 +65,22 @@ const data = {
 
 // Get the array containing the friends from the object, filter the friends that live in New York,
 // sort them by age, and pick just the name and age out of the objects.
-const names = jsonquery(data, `
+const output = jsonquery(data, `
   .friends 
     | filter(.city == "New York") 
     | sort(.age) 
     | pick(.name, .age)
 `)
-// names = [
+// output = [
 //   { "name": "Chris", "age": 23 },
 //   { "name": "Sarah", "age": 31 },
 //   { "name": "Joe", "age": 32 }
 // ]
 
-// The same query can be written in JSON format.
-// The functions `parse` and `stringify` can be used 
+// The same query can be written in JSON format instead of the text format.
+// Note that the functions `parse` and `stringify` can be used
 // to convert from text format to JSON format and vice versa.
-jsonquery(shoppingCart, [
+jsonquery(data, [
   "pipe",
   ["get", "friends"],
   ["filter", ["eq", ["get", "city"], "New York"]],

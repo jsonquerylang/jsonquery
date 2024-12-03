@@ -1,6 +1,7 @@
 import { compile } from './compile'
 import { isArray } from './is'
 import type {
+  Entry,
   FunctionBuilder,
   FunctionBuildersMap,
   Getter,
@@ -78,10 +79,48 @@ export const functions: FunctionBuildersMap = {
     return (data: T[]) => data.map(_callback)
   },
 
+  mapObject: <T, U>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+
+    return (data: Record<string, T>) => {
+      const output = {}
+      for (const key of Object.keys(data)) {
+        const updated = _callback({ key, value: data[key] }) as Entry<U>
+        output[updated.key] = updated.value
+      }
+      return output
+    }
+  },
+
+  mapKeys: <T>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+
+    return (data: Record<string, T>) => {
+      const output = {}
+      for (const key of Object.keys(data)) {
+        const updatedKey = _callback(key) as string
+        output[updatedKey] = data[key]
+      }
+      return output
+    }
+  },
+
+  mapValues: <T>(callback: JSONQuery) => {
+    const _callback = compile(callback)
+
+    return (data: Record<string, T>) => {
+      const output = {}
+      for (const key of Object.keys(data)) {
+        output[key] = _callback(data[key])
+      }
+      return output
+    }
+  },
+
   filter: <T>(predicate: JSONQuery[]) => {
     const _predicate = compile(predicate)
 
-    return (data: T[]) => data.filter(_predicate)
+    return (data: T[]) => data.filter((item) => truthy(_predicate(item)))
   },
 
   sort: <T>(path: JSONQueryProperty = ['get'], direction?: 'asc' | 'desc') => {
@@ -96,6 +135,11 @@ export const functions: FunctionBuildersMap = {
 
     return (data: T[]) => data.slice().sort(compare)
   },
+
+  reverse:
+    <T>() =>
+    (data: T[]) =>
+      data.toReversed(),
 
   pick: (...properties: JSONQueryProperty[]) => {
     const getters = properties.map(
@@ -146,7 +190,9 @@ export const functions: FunctionBuildersMap = {
 
       for (const item of data) {
         const value = getter(item) as string
-        res[value] = res[value] ?? item
+        if (!(value in res)) {
+          res[value] = item
+        }
       }
 
       return res
@@ -155,6 +201,17 @@ export const functions: FunctionBuildersMap = {
 
   flatten: () => (data: unknown[]) => data.flat(),
 
+  join:
+    <T>(separator = '') =>
+    (data: T[]) =>
+      data.join(separator),
+
+  split: buildFunction((text: string, separator?: string) =>
+    separator !== undefined ? text.split(separator) : text.trim().split(/\s+/)
+  ),
+
+  substring: (start: number, end: number) => (data: string) => data.slice(Math.max(start, 0), end),
+
   uniq:
     () =>
     <T>(data: T[]) => [...new Set(data)],
@@ -162,7 +219,7 @@ export const functions: FunctionBuildersMap = {
   uniqBy:
     <T>(path: JSONQueryProperty) =>
     (data: T[]): T[] =>
-      Object.values(functions.groupBy(path)(data)).map((groups) => groups[0]),
+      Object.values(functions.keyBy(path)(data)),
 
   limit:
     (count: number) =>
@@ -188,31 +245,12 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  in: (path: string, values: JSONQuery) => {
-    const getter = compile(path)
-    const _values = compile(values)
-
-    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
-  },
-
-  'not in': (path: string, values: JSONQuery) => {
-    const _in = functions.in(path, values)
-
-    return (data: unknown) => !_in(data)
-  },
-
-  regex: (path: JSONQuery, expression: string, options?: string) => {
-    const regex = new RegExp(expression, options)
-    const getter = compile(path)
-
-    return (data: unknown) => regex.test(getter(data) as string)
-  },
-
   and: buildFunction((a, b) => !!(a && b)),
   or: buildFunction((a, b) => !!(a || b)),
   not: buildFunction((a: unknown) => !a),
-  exists: (path: JSONQueryFunction) => {
-    const parentPath = path.slice(1)
+
+  exists: (queryGet: JSONQueryFunction) => {
+    const parentPath = queryGet.slice(1)
     const key = parentPath.pop()
     const getter = functions.get(...parentPath)
 
@@ -226,7 +264,24 @@ export const functions: FunctionBuildersMap = {
     const _valueIfTrue = compile(valueIfTrue)
     const _valueIfFalse = compile(valueIfFalse)
 
-    return (data: unknown) => (_condition(data) ? _valueIfTrue(data) : _valueIfFalse(data))
+    return (data: unknown) => (truthy(_condition(data)) ? _valueIfTrue(data) : _valueIfFalse(data))
+  },
+  in: (path: string, values: JSONQuery) => {
+    const getter = compile(path)
+    const _values = compile(values)
+
+    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
+  },
+  'not in': (path: string, values: JSONQuery) => {
+    const _in = functions.in(path, values)
+
+    return (data: unknown) => !_in(data)
+  },
+  regex: (path: JSONQuery, expression: string, options?: string) => {
+    const regex = new RegExp(expression, options)
+    const getter = compile(path)
+
+    return (data: unknown) => regex.test(getter(data) as string)
   },
 
   eq: buildFunction((a, b) => a === b),
@@ -246,5 +301,13 @@ export const functions: FunctionBuildersMap = {
   round: buildFunction((value: number, digits = 0) => {
     const num = Math.round(Number(`${value}e${digits}`))
     return Number(`${num}e${-digits}`)
-  })
+  }),
+
+  number: buildFunction((text: string) => {
+    const num = Number(text)
+    return Number.isNaN(Number(text)) ? null : num
+  }),
+  string: buildFunction(String)
 }
+
+const truthy = (x: unknown) => x !== null && x !== 0 && x !== false

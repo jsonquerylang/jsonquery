@@ -54,6 +54,21 @@ describe('error handling', () => {
     expect(actualErr?.message).toBe("Unknown function 'foo'")
   })
 
+  test('should throw a helpful error when passing an object {...} instead of function ["object", {...}]', () => {
+    let actualErr = undefined
+    const user = { name: 'Joe' }
+    const query = { name: ['get', 'name'] }
+    try {
+      go(user, query)
+    } catch (err) {
+      actualErr = err
+    }
+
+    expect(actualErr?.message).toBe(
+      'Function notation ["object", {...}] expected but got {"name":["get","name"]}'
+    )
+  })
+
   test('should throw a helpful error when a pipe contains a runtime error', () => {
     const scoreData = {
       participants: [
@@ -81,6 +96,11 @@ describe('error handling', () => {
       { data: { name: 'Emily', age: 19 }, query: ['pipe', ['get', 'scores'], ['sum']] },
       { data: null, query: ['sum'] }
     ])
+  })
+
+  test('should do nothing when sorting objects without a getter', () => {
+    const data = [{ a: 1 }, { c: 3 }, { b: 2 }]
+    expect(go(data, ['sort'])).toEqual(data)
   })
 
   test('should not crash when sorting a list with nested arrays', () => {

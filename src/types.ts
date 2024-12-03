@@ -32,3 +32,8 @@ export type Fun = (data: unknown) => unknown
 export type FunctionBuilder = (...args: JSONQuery[]) => Fun
 export type FunctionBuildersMap = Record<string, FunctionBuilder>
 export type Getter = [key: string, Fun]
+
+export interface Entry<T> {
+  key: string
+  value: T
+}
