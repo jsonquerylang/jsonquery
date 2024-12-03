@@ -210,7 +210,9 @@ export const functions: FunctionBuildersMap = {
     separator !== undefined ? text.split(separator) : text.trim().split(/\s+/)
   ),
 
-  substring: (start: number, end: number) => (data: string) => data.slice(Math.max(start, 0), end),
+  substring: buildFunction((text: string, start: number, end?: number) =>
+    text.slice(Math.max(start, 0), end)
+  ),
 
   uniq:
     () =>

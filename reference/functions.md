@@ -531,6 +531,32 @@ jsonquery(data, 'split("a,b,c", ",")')
 // ["a", "b", "c"]
 ```
 
+## substring
+
+Extract a substring from a string. When `end` is not provided, the length of the string will be used as `end`.
+
+```text
+substring(text, start)
+substring(text, start, end)
+```
+
+Examples:
+
+```js
+const events = [
+  {"type": "start", "time": "2024-11-06 23:14:00" },
+  {"type": "initialize", "time": "2025-11-08 09:00:00" },
+  {"type": "end", "time": "2025-11-24 10:27:00" }
+]
+
+jsonquery(events, 'map(substring(.time, 0, 10))')
+// [
+//   "2024-11-06",
+//   "2025-11-08",
+//   "2025-11-24"
+// ]
+```
+
 ## uniq
 
 Create a copy of an array where all duplicates are removed.

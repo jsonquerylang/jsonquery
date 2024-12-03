@@ -180,6 +180,10 @@
                     target="_blank"><code>split(text, separator)</code></a>
                 </li>
                 <li>
+                  <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#substring"
+                    target="_blank"><code>substring(text, start, end)</code></a>
+                </li>
+                <li>
                   <a href="https://github.com/jsonquerylang/jsonquery/blob/main/reference/functions.md#uniq"
                     target="_blank"><code>uniq()</code></a>
                 </li>
@@ -480,7 +484,7 @@
   </div>
 
   <script type="module">
-    import { jsonquery, stringify, parse, compile } from 'https://cdn.jsdelivr.net/npm/@jsonquerylang/jsonquery@4/lib/jsonquery.js'
+    import { jsonquery, stringify, parse, compile } from '../lib/jsonquery.js'
     import { Formatter, FracturedJsonOptions } from 'https://cdn.jsdelivr.net/npm/fracturedjsonjs/+esm'
 
     window.jsonquery = { jsonquery, stringify, parse, compile }

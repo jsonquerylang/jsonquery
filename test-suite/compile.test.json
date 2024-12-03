@@ -543,42 +543,42 @@
       "category": "substring",
       "description": "should get a substring of a string with a start index",
       "input": "123456",
-      "query": ["substring", 3],
+      "query": ["substring", ["get"], 3],
       "output": "456"
     },
     {
       "category": "substring",
       "description": "should get a substring of a string with a start and end index",
-      "input": "123456",
-      "query": ["substring", 2, 4],
+      "input": { "value": "123456" },
+      "query": ["substring", ["get", "value"], 2, 4],
       "output": "34"
     },
     {
       "category": "substring",
       "description": "should get a substring of a string with a start exceeding the string length",
-      "input": "123456",
-      "query": ["substring", 10],
+      "input": null,
+      "query": ["substring", "123456", 10],
       "output": ""
     },
     {
       "category": "substring",
       "description": "should get a substring of a string with an end exceeding the string length",
-      "input": "123456",
-      "query": ["substring", 0, 10],
+      "input": null,
+      "query": ["substring", "123456", 0, 10],
       "output": "123456"
     },
     {
       "category": "substring",
       "description": "should get a substring of a string with an end index smaller than the start index",
-      "input": "123456",
-      "query": ["substring", 3, 0],
+      "input": null,
+      "query": ["substring", "123456", 3, 0],
       "output": ""
     },
     {
       "category": "substring",
       "description": "should get a substring of a string with a negative start index",
-      "input": "123456",
-      "query": ["substring", -2],
+      "input": null,
+      "query": ["substring", "123456", -2],
       "output": "123456"
     },
 
