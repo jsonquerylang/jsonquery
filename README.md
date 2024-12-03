@@ -146,7 +146,7 @@ The following table gives an overview of the JSON query text format:
 | [Boolean](#values)      | `true` or `false`                                                                  | `true`                                                                                  |
 | [null](#values)         | `null`                                                                             | `null`                                                                                  |
 
-The syntax is explained in details in the following sections. The examples are based on querying the following data:
+The syntax is explained in detail in the following sections. The examples are based on querying the following data:
 
 ```json
 [
