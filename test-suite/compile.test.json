@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/compile.test.json",
-  "updated": "2024-12-02T11:00:00Z",
+  "updated": "2024-12-03T09:00:00Z",
   "tests": [
     {
       "category": "value",
