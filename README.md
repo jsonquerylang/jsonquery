@@ -133,18 +133,18 @@ The JSON format is mostly used under the hood. It allows for easy integrations l
 
 The following table gives an overview of the JSON query text format:
 
-| Type                    | Syntax                                       | Example                                          |
-|-------------------------|----------------------------------------------|--------------------------------------------------|
-| [Function](#functions)  | `name(argument1, argument2, ...)`            | `sort(.age, "asc")`                              |
-| [Operator](#operators)  | `(left operator right)`                      | `filter(.age >= 18)`                             |
-| [Pipe](#pipes)          | <code>query1 &#124; query2 &#124; ...</code> | <code>sort(.age) &#124; pick(.name, .age)</code> |
-| [Object](#objects)      | `{ prop1: query1, prop2: query2, ... }`      | `{ names: map(.name), total: sum() }`            |
-| [Array](#arrays)        | `[ item1, item2, ... ]`                      | `[ "New York", "Atlanta" ]`                      |
-| [Property](#properties) | `.prop1`<br/>`.prop1.prop2`<br/>`."prop1"`   | `.age`<br/>`.address.city`<br/>`."first name"`   |
-| [String](#values)       | `"string"`                                   | `"Hello world"`                                  |
-| [Number](#values)       | A floating point number                      | `2.4`                                            |
-| [Boolean](#values)      | `true` or `false`                            | `true`                                           |
-| [null](#values)         | `null`                                       | `null`                                           |
+| Type                    | Syntax                                                                             | Example                                                                                 |
+|-------------------------|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| [Function](#functions)  | `name(argument1, argument2, ...)`                                                  | `sort(.age, "asc")`                                                                     |
+| [Operator](#operators)  | `(left operator right)`                                                            | `filter(.age >= 18)`                                                                    |
+| [Pipe](#pipes)          | <code>query1 &#124; query2 &#124; ...</code>                                       | <code>sort(.age) &#124; pick(.name, .age)</code>                                        |
+| [Object](#objects)      | `{ prop1: query1, prop2: query2, ... }`                                            | `{ names: map(.name), total: sum() }`                                                   |
+| [Array](#arrays)        | `[ item1, item2, ... ]`                                                            | `[ "New York", "Atlanta" ]`                                                             |
+| [Property](#properties) | `.prop1`<br/>`.prop1.prop2`<br/>`."prop1"`<br/>`get("prop1", "prop2")`<br/>`get()` | `.age`<br/>`.address.city`<br/>`."first name"`<br/>`get("address", "city")`<br/>`get()` |
+| [String](#values)       | `"string"`                                                                         | `"Hello world"`                                                                         |
+| [Number](#values)       | A floating point number                                                            | `2.4`                                                                                   |
+| [Boolean](#values)      | `true` or `false`                                                                  | `true`                                                                                  |
+| [null](#values)         | `null`                                                                             | `null`                                                                                  |
 
 The syntax is explained in details in the following sections. The examples are based on querying the following data:
 
