@@ -293,7 +293,19 @@ A property can be unquoted when it only contains characters `a-z`, `A-Z`, `_` an
 ."first name"
 ```
 
-To get the current value itself, use the function `get()` without arguments.
+To get the current value itself, use the function `get` without arguments:
+
+```text
+get()
+```
+
+And, alternatively to the dot notation, the function `get` can be used for properties and nested properties too:
+
+```text
+get("age")
+get("address", "city")
+```
+
 
 ### Values
 
