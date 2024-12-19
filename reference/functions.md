@@ -267,6 +267,7 @@ jsonquery(data, 'pick(.name, .address.city)')
 const item = { "product": "milk", "price": 2 }
 
 jsonquery(item, 'pick(.price)') // { "price": 2 }
+jsonquery(item, 'get(.price)') // 2
 ```
 
 ## map
