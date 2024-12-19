@@ -264,9 +264,9 @@ jsonquery(data, 'pick(.name, .address.city)')
 //   { "name": "Michelle", "city": "Los Angeles" }
 // ]
 
-const item = { "price": 25 }
+const item = { "product": "milk", "price": 2 }
 
-jsonquery(item, 'pick(.price)') // 25
+jsonquery(item, 'pick(.price)') // { "price": 2 }
 ```
 
 ## map
