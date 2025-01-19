@@ -710,6 +710,44 @@ jsonquery([2, 4], 'average()') // 3
 jsonquery([2, 3, 2, 7, 1], 'average()') // 3
 ```
 
+## copy
+
+Copy the values into the target fields.
+
+```text
+copy(from, to, key?: string)
+```
+
+Examples:
+
+```js
+const data = [
+  {
+    date: '2025/1/19',
+    location: [
+      {
+        x: 2.7391487568478716,
+        y: 4.424778761061947
+      }
+    ]
+  }
+]
+
+jsonquery(data, `copy(.date,.location,"key")`)
+// [
+//     {
+//         "date": "2025/1/19",
+//         "location": [
+//             {
+//                 "x": 2.7391487568478716,
+//                 "y": 4.424778761061947,
+//                 "key": "2025/1/19"
+//             }
+//         ]
+//     }
+// ]
+```
+
 ## eq (`==`)
 
 Test whether two values are strictly equal. This will consider a string `"2"` and a number `2` to be _not_ equal for example since their data type differs.
