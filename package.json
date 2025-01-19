@@ -1,7 +1,7 @@
 {
-  "name": "@jsonquerylang/jsonquery",
-  "version": "0.0.0",
-  "description": "A small, flexible, and expandable JSON query language",
+  "name": "tlsproxy/jsonquery",
+  "version": "0.0.1",
+  "description": "A small, flexible, and expandable JSON query language fork from https://github.com/jsonquerylang/jsonquery.git",
   "keywords": [
     "json",
     "query",
@@ -12,13 +12,13 @@
     "expandable",
     "simple"
   ],
-  "author": "Jos de Jong",
+  "author": "zeuszhao",
   "type": "module",
   "sideeffects": false,
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jsonquerylang/jsonquery.git"
+    "url": "git+https://github.com/tlsproxy/jsonquery.git"
   },
   "bin": {
     "jsonquery": "./bin/cli.js"
