@@ -1,5 +1,5 @@
 {
-  "name": "tlsproxy/jsonquery",
+  "name": "@tlsproxy/jsonquery",
   "version": "0.0.1",
   "description": "A small, flexible, and expandable JSON query language fork from https://github.com/jsonquerylang/jsonquery.git",
   "keywords": [
