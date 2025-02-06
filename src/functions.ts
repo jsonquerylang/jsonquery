@@ -1,5 +1,5 @@
 import { compile } from './compile'
-import { isArray } from './is'
+import { isArray, isObject } from './is'
 import type {
   Entry,
   FunctionBuilder,
@@ -246,6 +246,41 @@ export const functions: FunctionBuildersMap = {
   min: () => (data: number[]) => Math.min(...data),
 
   max: () => (data: number[]) => Math.max(...data),
+
+  copy: (fromExp: JSONQueryProperty, toExp: JSONQueryProperty, keyName: string) => {
+    if (!fromExp || !toExp) {
+      throw new Error('The from and to parameters must be given')
+    }
+
+    const _copy = (data: unknown) => {
+      const keyNameNew = keyName || (fromExp[fromExp.length - 1] as string)
+      const fromValue = compile(fromExp)(data)
+      const toValue = compile(toExp)(data)
+      if (isArray(toValue)) {
+        for (const item of toValue as [string: unknown]) {
+          item[keyNameNew] = fromValue
+        }
+      } else if (isObject(toValue)) {
+        ;(toValue as unknown)[keyNameNew] = fromValue
+      } else {
+        throw new Error('The to type must be either an object or an array')
+      }
+      return data
+    }
+
+    return (data: unknown) => {
+      if (isArray(data)) {
+        for (const item of data as []) {
+          _copy(item)
+        }
+      } else if (isObject(data)) {
+        _copy(data)
+      } else {
+        throw new Error('Type of input must be either an object or an array')
+      }
+      return data
+    }
+  },
 
   and: buildFunction((a, b) => !!(a && b)),
   or: buildFunction((a, b) => !!(a || b)),
