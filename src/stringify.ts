@@ -33,10 +33,7 @@ const DEFAULT_INDENTATION = '  '
  */
 export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
   const space = options?.indentation ?? DEFAULT_INDENTATION
-  const allOperators =
-    // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
-    [...operators, ...(options?.operators ?? [])].reduce((all, ops) => ({ ...all, ...ops }), {}) ??
-    {}
+  const allOperators = Object.assign({}, ...operators, ...(options?.operators ?? []))
 
   const _stringify = (query: JSONQuery, indent: string) =>
     isArray(query) ? stringifyFunction(query as JSONQueryFunction, indent) : JSON.stringify(query) // value (string, number, boolean, null)
