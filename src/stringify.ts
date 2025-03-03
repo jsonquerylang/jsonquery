@@ -73,6 +73,7 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
       const [left, right] = args
       const leftStr = _stringify(left, indent)
       const rightStr = _stringify(right, indent)
+      // FIXME: do not wrap in parenthesis when not needed: reckon with the operator precedence
       return `(${leftStr} ${op} ${rightStr})`
     }
 
