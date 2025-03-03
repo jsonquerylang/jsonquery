@@ -33,6 +33,10 @@ const DEFAULT_INDENTATION = '  '
  */
 export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
   const space = options?.indentation ?? DEFAULT_INDENTATION
+  const allOperators =
+    // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+    [...operators, ...(options?.operators ?? [])].reduce((all, ops) => ({ ...all, ...ops }), {}) ??
+    {}
 
   const _stringify = (query: JSONQuery, indent: string) =>
     isArray(query) ? stringifyFunction(query as JSONQueryFunction, indent) : JSON.stringify(query) // value (string, number, boolean, null)
@@ -64,7 +68,7 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
     }
 
     // operator like ".age >= 18"
-    const op = options?.operators?.[name] ?? operators[name]
+    const op = allOperators[name]
     if (op && args.length === 2) {
       const [left, right] = args
       const leftStr = _stringify(left, indent)

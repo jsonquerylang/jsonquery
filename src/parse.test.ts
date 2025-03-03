@@ -51,7 +51,7 @@ describe('customization', () => {
 
   test('should parse a custom operator', () => {
     const options: JSONQueryParseOptions = {
-      operators: { aboutEq: '~=' }
+      operators: [{ aboutEq: '~=' }]
     }
 
     expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])

@@ -1,24 +1,35 @@
-export const operators = {
-  and: 'and',
-  or: 'or',
-
-  eq: '==',
-  gt: '>',
-  gte: '>=',
-  lt: '<',
-  lte: '<=',
-  ne: '!=',
-
-  add: '+',
-  subtract: '-',
-  multiply: '*',
-  divide: '/',
-  pow: '^',
-  mod: '%',
-
-  in: 'in',
-  'not in': 'not in'
-}
+export const operators = [
+  {
+    in: 'in',
+    'not in': 'not in'
+  },
+  {
+    or: 'or'
+  },
+  {
+    and: 'and'
+  },
+  {
+    eq: '==',
+    gt: '>',
+    gte: '>=',
+    lt: '<',
+    lte: '<=',
+    ne: '!='
+  },
+  {
+    add: '+',
+    subtract: '-'
+  },
+  {
+    multiply: '*',
+    divide: '/',
+    mod: '%'
+  },
+  {
+    pow: '^'
+  }
+]
 
 export const unquotedPropertyRegex = /^[a-zA-Z_$][a-zA-Z\d_$]*$/
 export const startsWithUnquotedPropertyRegex = /^[a-zA-Z_$][a-zA-Z\d_$]*/

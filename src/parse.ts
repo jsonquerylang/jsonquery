@@ -26,12 +26,12 @@ import type { JSONQuery, JSONQueryParseOptions } from './types'
  *     //  ]
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
-  const allOperators = { ...operators, ...options?.operators }
-  const sortedOperatorNames = Object.keys(allOperators).sort((a, b) => b.length - a.length)
+  // FIXME: user must be able to specify precedence
+  const allOperators = [...operators, ...(options?.operators ?? [])]
 
   const parsePipe = () => {
     skipWhitespace()
-    const first = parseOperator()
+    const first = parseOperator(0)
     skipWhitespace()
 
     if (query[i] === '|') {
@@ -41,7 +41,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         i++
         skipWhitespace()
 
-        pipe.push(parseOperator())
+        pipe.push(parseOperator(0))
       }
 
       return ['pipe', ...pipe]
@@ -50,24 +50,47 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     return first
   }
 
-  const parseOperator = () => {
-    const left = parseParenthesis()
+  const parseOperator = (precedenceLevel: number) => {
+    const currentOperators = allOperators[precedenceLevel]
+    if (!currentOperators) {
+      return parseParenthesis()
+    }
+
+    let left = parseOperator(precedenceLevel + 1)
 
     skipWhitespace()
 
-    // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
-    for (const name of sortedOperatorNames) {
-      const op = allOperators[name]
-      if (query.substring(i, i + op.length) === op) {
-        i += op.length
-        skipWhitespace()
-        const right = parseParenthesis()
-
-        return [name, left, right]
+    while (true) {
+      const name = parseOperatorName(currentOperators)
+      if (!name) {
+        break
       }
+
+      const right = parseOperator(precedenceLevel + 1)
+      left = [name, left, right]
+
+      skipWhitespace()
     }
 
     return left
+  }
+
+  const parseOperatorName = (currentOperators: Record<string, string>): string | undefined => {
+    // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
+    const sortedOperatorNames = Object.keys(currentOperators).sort((a, b) => b.length - a.length)
+
+    for (const name of sortedOperatorNames) {
+      const op = currentOperators[name]
+      if (query.substring(i, i + op.length) === op) {
+        i += op.length
+
+        skipWhitespace()
+
+        return name
+      }
+    }
+
+    return undefined
   }
 
   const parseParenthesis = () => {

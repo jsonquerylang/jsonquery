@@ -163,14 +163,33 @@
     },
     {
       "category": "operator",
-      "description": "should throw an error when using multiple operators without parenthesis",
+      "description": "should parse operators and and or with more than two arguments",
       "tests": [
-        { "input": ".a == \"A\" and .b == \"B\"", "throws": "Unexpected part 'and .b == \"B\"'" },
         {
-          "input": "2 and 3 and 4",
-          "throws": "Unexpected part 'and 4' (pos: 8)"
+          "input": "1 and 2 and 3",
+          "output": ["and", ["and", 1, 2], 3]
         },
-        { "input": ".a + 2 * 3", "throws": "Unexpected part '* 3' (pos: 7)" }
+        {
+          "input": "1 or 2 or 3",
+          "output": ["or", ["or", 1, 2], 3]
+        },
+        {
+          "input": "1 or 2 or 3 or 4",
+          "output": ["or", ["or", ["or", 1, 2], 3], 4]
+        }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should parse operators with the right precedence",
+      "tests": [
+        { "input": "1 + 2 * 3", "output": ["add", 1, ["multiply", 2, 3]] },
+        { "input": "2 * 3 + 1", "output": ["add", ["multiply", 2, 3], 1] },
+        { "input": "1 * 2 / 3", "output": ["divide", ["multiply", 1, 2], 3] },
+        { "input": "1 + 2 - 3", "output": ["subtract", ["add", 1, 2], 3] },
+        { "input": "1 and 2 and 3", "output": ["and", ["and", 1, 2], 3] },
+        { "input": "1 and 2 or 3", "output": ["or", ["and", 1, 2], 3] },
+        { "input": "3 or 1 and 2", "output": ["or", 3, ["and", 1, 2]] }
       ]
     },
     {

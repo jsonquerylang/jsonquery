@@ -41,9 +41,11 @@ describe('jsonquery', () => {
 
   test('should execute a JSON query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: {
-        aboutEq: '~='
-      }
+      operators: [
+        {
+          aboutEq: '~='
+        }
+      ]
     }
 
     expect(jsonquery({ name: 'Joe' }, ['get', 'name'], options)).toEqual('Joe')
@@ -51,9 +53,11 @@ describe('jsonquery', () => {
 
   test('should execute a text query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: {
-        aboutEq: '~='
-      }
+      operators: [
+        {
+          aboutEq: '~='
+        }
+      ]
     }
 
     expect(jsonquery({ name: 'Joe' }, '.name', options)).toEqual('Joe')

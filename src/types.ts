@@ -10,7 +10,7 @@ export type JSONQueryProperty = ['get', path?: string | JSONPath]
 
 export interface JSONQueryOptions {
   functions?: FunctionBuildersMap
-  operators?: Record<string, string>
+  operators?: Record<string, string>[]
 }
 
 export interface JSONQueryCompileOptions {
@@ -18,14 +18,14 @@ export interface JSONQueryCompileOptions {
 }
 
 export interface JSONQueryStringifyOptions {
-  operators?: Record<string, string>
+  operators?: Record<string, string>[]
   maxLineLength?: number
   indentation?: string
 }
 
 export interface JSONQueryParseOptions {
   functions?: Record<string, boolean> | FunctionBuildersMap
-  operators?: Record<string, string>
+  operators?: Record<string, string>[]
 }
 
 export type Fun = (data: unknown) => unknown

@@ -48,7 +48,7 @@
       "category": "operator",
       "description": "should stringify a custom operator",
       "options": {
-        "operators": { "aboutEq": "~=" }
+        "operators": [{ "aboutEq": "~=" }]
       },
       "tests": [
         { "input": ["aboutEq", 2, 3], "output": "(2 ~= 3)" },
