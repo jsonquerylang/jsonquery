@@ -6,6 +6,7 @@ import schema from '../test-suite/parse.test.schema.json'
 import { compile } from './compile'
 import { parse } from './parse'
 import type { JSONQueryParseOptions } from './types'
+import { operators } from './constants'
 
 function isTestException(test: unknown): test is ParseTestException {
   return !!test && typeof (test as Record<string, unknown>).throws === 'string'
@@ -51,10 +52,11 @@ describe('customization', () => {
 
   test('should parse a custom operator', () => {
     const options: JSONQueryParseOptions = {
-      operators: [{ aboutEq: '~=' }]
+      operators: operators.map((ops) => Object.values(ops).includes('==') ? { ...ops, aboutEq: '~=' } : ops)
     }
 
     expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])
+    expect(parse('.score == 8', options)).toEqual(['eq', ['get', 'score'], 8])
   })
 })
 

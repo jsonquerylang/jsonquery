@@ -1,34 +1,12 @@
+// operator precedence from lowest to highest
 export const operators = [
-  {
-    in: 'in',
-    'not in': 'not in'
-  },
-  {
-    or: 'or'
-  },
-  {
-    and: 'and'
-  },
-  {
-    eq: '==',
-    gt: '>',
-    gte: '>=',
-    lt: '<',
-    lte: '<=',
-    ne: '!='
-  },
-  {
-    add: '+',
-    subtract: '-'
-  },
-  {
-    multiply: '*',
-    divide: '/',
-    mod: '%'
-  },
-  {
-    pow: '^'
-  }
+  { in: 'in', 'not in': 'not in' },
+  { or: 'or' },
+  { and: 'and' },
+  { eq: '==', gt: '>', gte: '>=', lt: '<', lte: '<=', ne: '!=' },
+  { add: '+', subtract: '-' },
+  { multiply: '*', divide: '/', mod: '%' },
+  { pow: '^' }
 ]
 
 export const unquotedPropertyRegex = /^[a-zA-Z_$][a-zA-Z\d_$]*$/

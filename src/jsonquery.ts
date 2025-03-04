@@ -15,5 +15,6 @@ export { compile } from './compile'
 export { stringify } from './stringify'
 export { parse } from './parse'
 export { buildFunction } from './functions'
+export { operators } from './constants'
 
 export * from './types'

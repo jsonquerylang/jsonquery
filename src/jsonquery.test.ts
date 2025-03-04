@@ -6,7 +6,8 @@ import {
   compile,
   jsonquery,
   parse,
-  stringify
+  stringify,
+  operators
 } from './jsonquery'
 
 describe('jsonquery', () => {
@@ -41,26 +42,25 @@ describe('jsonquery', () => {
 
   test('should execute a JSON query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: [
-        {
-          aboutEq: '~='
-        }
-      ]
+      functions: {
+        aboutEq: buildFunction((a: string, b: string) => a.toLowerCase() === b.toLowerCase())
+      }
     }
 
-    expect(jsonquery({ name: 'Joe' }, ['get', 'name'], options)).toEqual('Joe')
+    expect(jsonquery({ name: 'Joe' }, ['aboutEq', ['get', 'name'], 'joe'], options)).toEqual(true)
   })
 
   test('should execute a text query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: [
-        {
-          aboutEq: '~='
-        }
-      ]
+      operators: operators.map((ops) => {
+        return Object.values(ops).includes('==') ? { ...ops, aboutEq: '~=' } : ops
+      }),
+      functions: {
+        aboutEq: buildFunction((a: string, b: string) => a.toLowerCase() === b.toLowerCase())
+      }
     }
 
-    expect(jsonquery({ name: 'Joe' }, '.name', options)).toEqual('Joe')
+    expect(jsonquery({ name: 'Joe' }, '.name ~= "joe"', options)).toEqual(true)
   })
 
   test('have exported all documented functions', () => {

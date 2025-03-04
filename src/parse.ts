@@ -26,8 +26,7 @@ import type { JSONQuery, JSONQueryParseOptions } from './types'
  *     //  ]
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
-  // FIXME: user must be able to specify precedence
-  const allOperators = [...operators, ...(options?.operators ?? [])]
+  const allOperators = options?.operators ?? operators
 
   const parsePipe = () => {
     skipWhitespace()
