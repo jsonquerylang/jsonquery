@@ -10,7 +10,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small: just `3.3 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
+- Small: just `3.4 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.9 kB`.
 - Feature rich (50+ powerful functions and operators)
 - Easy to interoperate with thanks to the intermediate JSON format.
 - Expressive
@@ -440,10 +440,10 @@ Here:
     
         // Define a new operator "<>" which maps to the function "notEqual"
         // and has the same precedence as operator "==".
-        operators: operators.map((ops) => {
-          return Object.values(ops).includes('==')
-            ? { ...ops, notEqual: '<>' }
-            : ops
+        operators: operators.map((group) => {
+          return Object.values(group).includes('==')
+            ? { ...group, notEqual: '<>' }
+            : group
         })
       }
       ```

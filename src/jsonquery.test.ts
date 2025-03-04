@@ -54,10 +54,11 @@ describe('jsonquery', () => {
 
   test('should execute a text query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: operators.map((ops) => {
-        return Object.values(ops).includes('==') ? { ...ops, aboutEq: '~=' } : ops
+      operators: operators.map((group) => {
+        return Object.values(group).includes('==') ? { ...group, aboutEq: '~=' } : group
       }),
       functions: {
+        ...functions,
         aboutEq: buildFunction((a: string, b: string) => a.toLowerCase() === b.toLowerCase())
       }
     }

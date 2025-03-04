@@ -52,8 +52,8 @@ describe('customization', () => {
 
   test('should parse a custom operator', () => {
     const options: JSONQueryParseOptions = {
-      operators: operators.map((ops) =>
-        Object.values(ops).includes('==') ? { ...ops, aboutEq: '~=' } : ops
+      operators: operators.map((group) =>
+        Object.values(group).includes('==') ? { ...group, aboutEq: '~=' } : group
       )
     }
 
