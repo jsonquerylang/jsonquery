@@ -5,9 +5,9 @@ import {
   buildFunction,
   compile,
   jsonquery,
+  operators,
   parse,
-  stringify,
-  operators
+  stringify
 } from './jsonquery'
 
 describe('jsonquery', () => {
