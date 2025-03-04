@@ -26,6 +26,7 @@ import type { JSONQuery, JSONQueryParseOptions } from './types'
  *     //  ]
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
+  const allFunctions = options?.functions ?? functions
   const allOperators = options?.operators ?? operators
 
   const parsePipe = () => {
@@ -134,7 +135,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
     i++
 
-    if (!options?.functions[name] && !functions[name]) {
+    if (!allFunctions[name]) {
       throwError(`Unknown function '${name}'`)
     }
 

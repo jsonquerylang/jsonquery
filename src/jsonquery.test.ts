@@ -4,6 +4,7 @@ import {
   type JSONQueryOptions,
   buildFunction,
   compile,
+  functions,
   jsonquery,
   operators,
   parse,
@@ -33,6 +34,7 @@ describe('jsonquery', () => {
   test('should execute a text query with custom functions', () => {
     const options: JSONQueryOptions = {
       functions: {
+        ...functions,
         customFn: () => (_data: unknown) => 42
       }
     }

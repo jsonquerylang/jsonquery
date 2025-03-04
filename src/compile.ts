@@ -11,7 +11,7 @@ import type {
 const functionsStack: FunctionBuildersMap[] = []
 
 export function compile(query: JSONQuery, options?: JSONQueryCompileOptions): Fun {
-  functionsStack.unshift({ ...functions, ...functionsStack[0], ...options?.functions })
+  functionsStack.unshift({ ...functionsStack[0], ...(options?.functions ?? functions) })
 
   try {
     const exec = isArray(query)
