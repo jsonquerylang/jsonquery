@@ -20,28 +20,38 @@
       "category": "operator",
       "description": "should stringify all  operators",
       "tests": [
-        { "input": ["eq", ["get", "score"], 8], "output": "(.score == 8)" },
-        { "input": ["lt", ["get", "score"], 8], "output": "(.score < 8)" },
-        { "input": ["lte", ["get", "score"], 8], "output": "(.score <= 8)" },
-        { "input": ["gt", ["get", "score"], 8], "output": "(.score > 8)" },
-        { "input": ["gte", ["get", "score"], 8], "output": "(.score >= 8)" },
-        { "input": ["ne", ["get", "score"], 8], "output": "(.score != 8)" },
-        { "input": ["add", ["get", "score"], 8], "output": "(.score + 8)" },
-        { "input": ["subtract", ["get", "score"], 8], "output": "(.score - 8)" },
-        { "input": ["multiply", ["get", "score"], 8], "output": "(.score * 8)" },
-        { "input": ["divide", ["get", "score"], 8], "output": "(.score / 8)" },
-        { "input": ["pow", ["get", "score"], 8], "output": "(.score ^ 8)" },
-        { "input": ["mod", ["get", "score"], 8], "output": "(.score % 8)" },
-        { "input": ["and", ["get", "score"], 8], "output": "(.score and 8)" },
-        { "input": ["or", ["get", "score"], 8], "output": "(.score or 8)" },
+        { "input": ["eq", ["get", "score"], 8], "output": ".score == 8" },
+        { "input": ["lt", ["get", "score"], 8], "output": ".score < 8" },
+        { "input": ["lte", ["get", "score"], 8], "output": ".score <= 8" },
+        { "input": ["gt", ["get", "score"], 8], "output": ".score > 8" },
+        { "input": ["gte", ["get", "score"], 8], "output": ".score >= 8" },
+        { "input": ["ne", ["get", "score"], 8], "output": ".score != 8" },
+        { "input": ["add", ["get", "score"], 8], "output": ".score + 8" },
+        { "input": ["subtract", ["get", "score"], 8], "output": ".score - 8" },
+        { "input": ["multiply", ["get", "score"], 8], "output": ".score * 8" },
+        { "input": ["divide", ["get", "score"], 8], "output": ".score / 8" },
+        { "input": ["pow", ["get", "score"], 8], "output": ".score ^ 8" },
+        { "input": ["mod", ["get", "score"], 8], "output": ".score % 8" },
+        { "input": ["and", ["get", "score"], 8], "output": ".score and 8" },
+        { "input": ["or", ["get", "score"], 8], "output": ".score or 8" },
         {
           "input": ["in", ["get", "score"], ["array", 8, 9, 10]],
-          "output": "(.score in [8, 9, 10])"
+          "output": ".score in [8, 9, 10]"
         },
         {
           "input": ["not in", ["get", "score"], ["array", 8, 9, 10]],
-          "output": "(.score not in [8, 9, 10])"
+          "output": ".score not in [8, 9, 10]"
         }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should wrap operators in parenthesis when needed",
+      "tests": [
+        { "input": ["add", 2, 3], "output": "2 + 3" },
+        { "input": ["multiply", ["add", 1, 2], 3], "output": "(1 + 2) * 3" },
+        { "input": ["add", ["add", 1, 2], 3], "output": "1 + 2 + 3" },
+        { "input": ["add", ["multiply", 1, 2], 3], "output": "1 * 2 + 3" }
       ]
     },
     {
@@ -51,10 +61,10 @@
         "operators": [{ "eq": "==", "aboutEq": "~=" }]
       },
       "tests": [
-        { "input": ["aboutEq", 2, 3], "output": "(2 ~= 3)" },
+        { "input": ["aboutEq", 2, 3], "output": "2 ~= 3" },
         { "input": ["filter", ["aboutEq", 2, 3]], "output": "filter(2 ~= 3)" },
-        { "input": ["object", { "result": ["aboutEq", 2, 3] }], "output": "{ result: (2 ~= 3) }" },
-        { "input": ["eq", 2, 3], "output": "(2 == 3)" }
+        { "input": ["object", { "result": ["aboutEq", 2, 3] }], "output": "{ result: 2 ~= 3 }" },
+        { "input": ["eq", 2, 3], "output": "2 == 3" }
       ]
     },
     {
@@ -246,7 +256,7 @@
         },
         {
           "input": ["filter", ["and", ["gte", ["get", "age"], 23], ["lte", ["get", "age"], 27]]],
-          "output": "filter((.age >= 23) and (.age <= 27))"
+          "output": "filter(.age >= 23 and .age <= 27)"
         },
         {
           "input": [

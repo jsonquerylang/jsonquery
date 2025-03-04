@@ -273,6 +273,10 @@
         { "input": " { a : 1 } ", "output": ["object", { "a": 1 }] },
         { "input": "{a:1,b:2}", "output": ["object", { "a": 1, "b": 2 }] },
         { "input": "{ a : 1 , b : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
+        {
+          "input": "{ ok: .error == null }",
+          "output": ["object", { "ok": ["eq", ["get", "error"], null] }]
+        },
         { "input": "{ \"a\" : 1 , \"b\" : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
         { "input": "{ 2: \"two\" }", "output": ["object", { "2": "two" }] },
         { "input": "{ 0: \"zero\" }", "output": ["object", { "0": "zero" }] },

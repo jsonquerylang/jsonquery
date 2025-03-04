@@ -33,12 +33,19 @@ const DEFAULT_INDENTATION = '  '
  */
 export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
   const space = options?.indentation ?? DEFAULT_INDENTATION
-  const allOperators = Object.assign({}, ...(options?.operators ?? operators))
+  const allOperators = options?.operators ?? operators
+  const allOperatorsMap = Object.assign({}, ...allOperators)
 
-  const _stringify = (query: JSONQuery, indent: string) =>
-    isArray(query) ? stringifyFunction(query as JSONQueryFunction, indent) : JSON.stringify(query) // value (string, number, boolean, null)
+  const _stringify = (query: JSONQuery, indent: string, operatorPrecedence = 0) =>
+    isArray(query)
+      ? stringifyFunction(query as JSONQueryFunction, indent, operatorPrecedence)
+      : JSON.stringify(query) // value (string, number, boolean, null)
 
-  const stringifyFunction = (query: JSONQueryFunction, indent: string) => {
+  const stringifyFunction = (
+    query: JSONQueryFunction,
+    indent: string,
+    parentPrecedence: number
+  ) => {
     const [name, ...args] = query
 
     if (name === 'get' && args.length > 0) {
@@ -65,27 +72,28 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
     }
 
     // operator like ".age >= 18"
-    const op = allOperators[name]
+    const op = allOperatorsMap[name]
     if (op && args.length === 2) {
+      const precedence = allOperators.findIndex((group) => name in group)
       const [left, right] = args
-      const leftStr = _stringify(left, indent)
-      const rightStr = _stringify(right, indent)
-      // FIXME: do not wrap in parenthesis when not needed: reckon with the operator precedence
-      return `(${leftStr} ${op} ${rightStr})`
+      const leftStr = _stringify(left, indent, precedence)
+      const rightStr = _stringify(right, indent, precedence)
+
+      return parentPrecedence > precedence
+        ? `(${leftStr} ${op} ${rightStr})`
+        : `${leftStr} ${op} ${rightStr}`
     }
 
     // regular function like sort(.age)
     const childIndent = args.length === 1 ? indent : indent + space
     const argsStr = args.map((arg) => _stringify(arg, childIndent))
-    return args.length === 1 && argsStr[0][0] === '('
-      ? `${name}${argsStr[0]}`
-      : join(
-          argsStr,
-          [`${name}(`, ', ', ')'],
-          args.length === 1
-            ? [`${name}(`, `,\n${indent}`, ')']
-            : [`${name}(\n${childIndent}`, `,\n${childIndent}`, `\n${indent})`]
-        )
+    return join(
+      argsStr,
+      [`${name}(`, ', ', ')'],
+      args.length === 1
+        ? [`${name}(`, `,\n${indent}`, ')']
+        : [`${name}(\n${childIndent}`, `,\n${childIndent}`, `\n${indent})`]
+    )
   }
 
   const stringifyObject = (query: JSONQueryObject, indent: string) => {
