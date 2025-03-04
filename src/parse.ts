@@ -68,8 +68,6 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
       const right = parseOperator(precedenceLevel + 1)
       left = [name, left, right]
-
-      skipWhitespace()
     }
 
     return left
