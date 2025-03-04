@@ -136,7 +136,7 @@ The following table gives an overview of the JSON query text format:
 | Type                    | Syntax                                                                             | Example                                                                                 |
 |-------------------------|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | [Function](#functions)  | `name(argument1, argument2, ...)`                                                  | `sort(.age, "asc")`                                                                     |
-| [Operator](#operators)  | `(left operator right)`                                                            | `filter(.age >= 18)`                                                                    |
+| [Operator](#operators)  | `left operator right`                                                              | `filter(.age >= 18)`                                                                    |
 | [Pipe](#pipes)          | <code>query1 &#124; query2 &#124; ...</code>                                       | <code>sort(.age) &#124; pick(.name, .age)</code>                                        |
 | [Object](#objects)      | `{ prop1: query1, prop2: query2, ... }`                                            | `{ names: map(.name), total: sum() }`                                                   |
 | [Array](#arrays)        | `[ item1, item2, ... ]`                                                            | `[ "New York", "Atlanta" ]`                                                             |
@@ -184,16 +184,16 @@ See section [Function reference](reference/functions.md) for a detailed overview
 
 ### Operators
 
-JSON Query supports all basic operators. Operators must be wrapped in parentheses `(...)`, must have both a left and right hand side, and do not have precedence since parentheses are required. The syntax is:
+JSON Query supports all basic operators. Operators must have both a left and right hand side. To override the default precedence, an operator can be wrapped in parentheses `(...)`. The syntax is:
 
 ```text
-(left operator right)
+left operator right
 ```
 
 The following example tests whether a property `age` is greater than or equal to `18`:
 
 ```text
-(.age >= 18)
+.age >= 18
 ```
 
 Operators are for example used to specify filter conditions:
@@ -202,11 +202,21 @@ Operators are for example used to specify filter conditions:
 filter(.age >= 18)
 ```
 
-When composing multiple operators, it is necessary to use parentheses:
+When using multiple operators, they will be evaluated according to their precedence (highest first):
 
 ```text
-filter((.age >= 18) and (.age <= 65))
+filter(.age >= 18 and .age <= 65)
 ```
+
+The operators have the following precedence, from lowest to highest:
+
+- `in`, `not in`
+- `or`
+- `and`
+- `==`, `>`, `>=`, `<`, `<=`, `!=`
+- `+`, `-`
+- `*`, `/`, `%`
+- `^`
 
 See section [Function reference](reference/functions.md) for a detailed overview of all available functions and operators.
 
@@ -384,18 +394,41 @@ Here:
       ```
 
       You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
-  - `operators` is an optional map with operators, for example `{ eq: '==' }`. The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
+
+  - `operators` is an optional array with maps of operators having the same precedence, ordered from lowest to highest precedence. The default array with operators is the following, with the precedence going from lowest to highest:
+
+    ```js
+    const operators = [
+      { in: 'in', 'not in': 'not in' },
+      { or: 'or' },
+      { and: 'and' },
+      { eq: '==', gt: '>', gte: '>=', lt: '<', lte: '<=', ne: '!=' },
+      { add: '+', subtract: '-' },
+      { multiply: '*', divide: '/', mod: '%' },
+      { pow: '^' }
+     ]
+    ```
+
+    When extending the built-in operators with a custom operator, the built-in operators can be imported via `import { operators } from 'jsonquery'` and then extended by mapping over them and adding the custom operator to the group with the right precedence level, or adding a new precedence level if needed.
+
+    The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
 
       ```js
-      import { buildFunction } from 'jsonquery'
-      
+      import { buildFunction, operators } from 'jsonquery'
+     
       const options = {
-        operators: {
-          notEqual: '<>'
-        },
+        // Define a new function "notEqual".
         functions: {
           notEqual: buildFunction((a, b) => a !== b)
-        }
+        },
+    
+        // Define a new operator "<>" which maps to the function "notEqual"
+        // and has the same precedence as operator "==".
+        operators: operators.map((ops) => {
+          return Object.values(ops).includes('==')
+            ? { ...ops, notEqual: '<>' }
+            : ops
+        })
       }
       ```
 
@@ -489,9 +522,6 @@ The query engine passes the raw arguments to all functions, and the functions ha
 
 ```ts
 const options = {
-  operators: {
-    notEqual: '<>'
-  },
   functions: {
     notEqual: (a: JSONQuery, b: JSONQuery) => {
       const aCompiled = compile(a)
@@ -517,9 +547,6 @@ To automatically compile and evaluate the arguments of the function, the helper 
 import { jsonquery, buildFunction } from '@jsonquerylang/jsonquery'
 
 const options = {
-  operators: {
-    notEqual: '<>'
-  },
   functions: {
     notEqual: buildFunction((a: number, b: number) => a !== b)
   }
