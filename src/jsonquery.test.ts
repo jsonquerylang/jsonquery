@@ -4,9 +4,7 @@ import {
   type JSONQueryOptions,
   buildFunction,
   compile,
-  functions,
   jsonquery,
-  operators,
   parse,
   stringify
 } from './jsonquery'
@@ -34,7 +32,6 @@ describe('jsonquery', () => {
   test('should execute a text query with custom functions', () => {
     const options: JSONQueryOptions = {
       functions: {
-        ...functions,
         customFn: () => (_data: unknown) => 42
       }
     }
@@ -54,11 +51,8 @@ describe('jsonquery', () => {
 
   test('should execute a text query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: operators.map((group) => {
-        return Object.values(group).includes('==') ? { ...group, aboutEq: '~=' } : group
-      }),
+      operators: [{ name: 'aboutEq', op: '~=', at: '==' }],
       functions: {
-        ...functions,
         aboutEq: buildFunction((a: string, b: string) => a.toLowerCase() === b.toLowerCase())
       }
     }
@@ -66,7 +60,7 @@ describe('jsonquery', () => {
     expect(jsonquery({ name: 'Joe' }, '.name ~= "joe"', options)).toEqual(true)
   })
 
-  test('have exported all documented functions', () => {
+  test('have exported all documented functions and objects', () => {
     expect(jsonquery).toBeTypeOf('function')
     expect(parse).toBeTypeOf('function')
     expect(stringify).toBeTypeOf('function')

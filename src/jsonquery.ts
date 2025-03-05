@@ -14,7 +14,6 @@ export function jsonquery(
 export { compile } from './compile'
 export { stringify } from './stringify'
 export { parse } from './parse'
-export { buildFunction, functions } from './functions'
-export { operators } from './constants'
+export { buildFunction } from './functions'
 
 export * from './types'

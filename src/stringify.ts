@@ -1,5 +1,6 @@
 import { operators, unquotedPropertyRegex } from './constants'
 import { isArray } from './is'
+import { extendOperators } from './operators'
 import type {
   JSONPath,
   JSONQuery,
@@ -33,7 +34,7 @@ const DEFAULT_INDENTATION = '  '
  */
 export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
   const space = options?.indentation ?? DEFAULT_INDENTATION
-  const allOperators = options?.operators ?? operators
+  const allOperators = extendOperators(operators, options?.operators ?? [])
   const allOperatorsMap = Object.assign({}, ...allOperators)
 
   const _stringify = (

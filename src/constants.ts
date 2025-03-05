@@ -1,7 +1,7 @@
-import type { JSONQueryOperatorGroup } from './types'
+import type { OperatorGroup } from './types'
 
 // operator precedence from highest to lowest
-export const operators: JSONQueryOperatorGroup[] = [
+export const operators: OperatorGroup[] = [
   { pow: '^' },
   { multiply: '*', divide: '/', mod: '%' },
   { add: '+', subtract: '-' },

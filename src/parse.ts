@@ -8,7 +8,8 @@ import {
   startsWithWhitespaceRegex
 } from './constants'
 import { functions } from './functions'
-import type { JSONQuery, JSONQueryOperatorGroup, JSONQueryParseOptions } from './types'
+import { extendOperators } from './operators'
+import type { JSONQuery, JSONQueryParseOptions, OperatorGroup } from './types'
 
 /**
  * Parse a string containing a JSON Query into JSON.
@@ -27,7 +28,7 @@ import type { JSONQuery, JSONQueryOperatorGroup, JSONQueryParseOptions } from '.
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
   const allFunctions = options?.functions ?? functions
-  const allOperators = options?.operators ?? operators
+  const allOperators = extendOperators(operators, options?.operators ?? [])
 
   const parsePipe = () => {
     skipWhitespace()
@@ -73,7 +74,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     return left
   }
 
-  const parseOperatorName = (currentOperators: JSONQueryOperatorGroup): string | undefined => {
+  const parseOperatorName = (currentOperators: OperatorGroup): string | undefined => {
     // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
     const sortedOperatorNames = Object.keys(currentOperators).sort((a, b) => b.length - a.length)
 
