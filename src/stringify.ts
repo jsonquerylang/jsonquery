@@ -36,7 +36,11 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const allOperators = options?.operators ?? operators
   const allOperatorsMap = Object.assign({}, ...allOperators)
 
-  const _stringify = (query: JSONQuery, indent: string, operatorPrecedence = 0) =>
+  const _stringify = (
+    query: JSONQuery,
+    indent: string,
+    operatorPrecedence = allOperators.length - 1
+  ) =>
     isArray(query)
       ? stringifyFunction(query as JSONQueryFunction, indent, operatorPrecedence)
       : JSON.stringify(query) // value (string, number, boolean, null)
@@ -79,7 +83,7 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
       const leftStr = _stringify(left, indent, precedence)
       const rightStr = _stringify(right, indent, precedence)
 
-      return parentPrecedence > precedence
+      return parentPrecedence < precedence
         ? `(${leftStr} ${op} ${rightStr})`
         : `${leftStr} ${op} ${rightStr}`
     }

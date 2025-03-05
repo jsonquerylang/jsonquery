@@ -209,16 +209,15 @@ When using multiple operators, they will be evaluated according to their precede
 filter(.age >= 18 and .age <= 65)
 ```
 
-The operators have the following precedence, from lowest to highest:
+The operators have the following precedence, from highest to lowest:
 
-- 
-- `or`
-- `and`
-- `==`, `!=`
--  `>`, `>=`, `<`, `<=`, `in`, `not in`
-- `+`, `-`
-- `*`, `/`, `%`
 - `^`
+- `*`, `/`, `%`
+- `+`, `-`
+-  `>`, `>=`, `<`, `<=`, `in`, `not in`
+- `==`, `!=`
+- `and`
+- `or`
 
 See section [Function reference](reference/functions.md) for a detailed overview of all available functions and operators.
 
@@ -411,17 +410,17 @@ Here:
 
       You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
 
-  - `operators` is an optional array with maps of operators having the same precedence, ordered from lowest to highest precedence. The default array with operators is the following, with the precedence going from lowest to highest:
+  - `operators` is an optional array with maps of operators having the same precedence, ordered from highest to lowest precedence. The default array with operators is the following, with the precedence going from lowest to highest:
 
     ```js
     const operators = [
-      { or: 'or' },
-      { and: 'and' },
-      { eq: '==', ne: '!=' },
-      { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
-      { add: '+', subtract: '-' },
+      { pow: '^' },
       { multiply: '*', divide: '/', mod: '%' },
-      { pow: '^' }
+      { add: '+', subtract: '-' },
+      { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
+      { eq: '==', ne: '!=' },
+      { and: 'and' },
+      { or: 'or' }
     ]
     ```
 

@@ -7,10 +7,11 @@ export type JSONQuery = JSONQueryFunction | JSONQueryPipe | JSONQueryObject | JS
 export type JSONProperty = string
 export type JSONPath = JSONProperty[]
 export type JSONQueryProperty = ['get', path?: string | JSONPath]
+export type JSONQueryOperatorGroup = Record<string, string>
 
 export interface JSONQueryOptions {
   functions?: FunctionBuildersMap
-  operators?: Record<string, string>[]
+  operators?: JSONQueryOperatorGroup[]
 }
 
 export interface JSONQueryCompileOptions {
@@ -18,14 +19,14 @@ export interface JSONQueryCompileOptions {
 }
 
 export interface JSONQueryStringifyOptions {
-  operators?: Record<string, string>[]
+  operators?: JSONQueryOperatorGroup[]
   maxLineLength?: number
   indentation?: string
 }
 
 export interface JSONQueryParseOptions {
   functions?: Record<string, boolean> | FunctionBuildersMap
-  operators?: Record<string, string>[]
+  operators?: JSONQueryOperatorGroup[]
 }
 
 export type Fun = (data: unknown) => unknown

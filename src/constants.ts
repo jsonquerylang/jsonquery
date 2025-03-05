@@ -1,12 +1,14 @@
-// operator precedence from lowest to highest
-export const operators = [
-  { or: 'or' },
-  { and: 'and' },
-  { eq: '==', ne: '!=' },
-  { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
-  { add: '+', subtract: '-' },
+import type { JSONQueryOperatorGroup } from './types'
+
+// operator precedence from highest to lowest
+export const operators: JSONQueryOperatorGroup[] = [
+  { pow: '^' },
   { multiply: '*', divide: '/', mod: '%' },
-  { pow: '^' }
+  { add: '+', subtract: '-' },
+  { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
+  { eq: '==', ne: '!=' },
+  { and: 'and' },
+  { or: 'or' }
 ]
 
 export const unquotedPropertyRegex = /^[a-zA-Z_$][a-zA-Z\d_$]*$/
