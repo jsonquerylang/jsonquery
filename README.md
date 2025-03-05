@@ -211,10 +211,11 @@ filter(.age >= 18 and .age <= 65)
 
 The operators have the following precedence, from lowest to highest:
 
-- `in`, `not in`
+- 
 - `or`
 - `and`
-- `==`, `>`, `>=`, `<`, `<=`, `!=`
+- `==`, `!=`
+-  `>`, `>=`, `<`, `<=`, `in`, `not in`
 - `+`, `-`
 - `*`, `/`, `%`
 - `^`
@@ -414,14 +415,14 @@ Here:
 
     ```js
     const operators = [
-      { in: 'in', 'not in': 'not in' },
       { or: 'or' },
       { and: 'and' },
-      { eq: '==', gt: '>', gte: '>=', lt: '<', lte: '<=', ne: '!=' },
+      { eq: '==', ne: '!=' },
+      { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
       { add: '+', subtract: '-' },
       { multiply: '*', divide: '/', mod: '%' },
       { pow: '^' }
-     ]
+    ]
     ```
 
     When extending the built-in operators with a custom operator, the built-in operators can be imported via `import { operators } from '@jsonquerylang/jsonquery'` and then extended by mapping over them and adding the custom operator to the group with the right precedence level (see example below), or adding a new precedence level if needed.

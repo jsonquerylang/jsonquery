@@ -1,9 +1,9 @@
 // operator precedence from lowest to highest
 export const operators = [
-  { in: 'in', 'not in': 'not in' },
   { or: 'or' },
   { and: 'and' },
-  { eq: '==', gt: '>', gte: '>=', lt: '<', lte: '<=', ne: '!=' },
+  { eq: '==', ne: '!=' },
+  { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
   { add: '+', subtract: '-' },
   { multiply: '*', divide: '/', mod: '%' },
   { pow: '^' }
