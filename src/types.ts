@@ -42,12 +42,12 @@ export type CustomOperator =
   | {
       name: string
       op: string
-      below: string
+      after: string
     }
   | {
       name: string
       op: string
-      above: string
+      before: string
     }
 
 export interface Entry<T> {

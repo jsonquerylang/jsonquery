@@ -18,7 +18,7 @@ export function extendOperators(operators: OperatorGroup[], newOperators: Custom
 function extendOperator(
   operators: OperatorGroup[],
   // @ts-expect-error Inside the function we will check whether at, below, and above are defined
-  { name, op, at, below, above }: CustomOperator
+  { name, op, at, after, before }: CustomOperator
 ): OperatorGroup[] {
   if (at) {
     return operators.map((group) => {
@@ -26,10 +26,10 @@ function extendOperator(
     })
   }
 
-  const searchOp = below ?? above
+  const searchOp = after ?? before
   const index = operators.findIndex((group) => Object.values(group).includes(searchOp))
   if (index !== -1) {
-    return operators.toSpliced(index + (below ? 1 : 0), 0, { [name]: op })
+    return operators.toSpliced(index + (after ? 1 : 0), 0, { [name]: op })
   }
 
   throw new Error('Failed to extend with new operator')
