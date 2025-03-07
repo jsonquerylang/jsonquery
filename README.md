@@ -393,7 +393,7 @@ Here:
       }
       ```
 
-      You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
+      You can have a look at the source code of the functions in [`/src/functions.ts`](/src/functions.ts). for more examples.
 
   - `operators` is an optional array definitions for custom operators. Each definition describes the new operator, the name of the function that it maps to, and the desired precedence of the operator: the same, before, or after one of the existing operators (`at`, `before`, or `after`):
 
@@ -423,7 +423,7 @@ Here:
       }
       ```
 
-    The build-in operators can be found in the source code: [/src/operators.ts](https://github.com/jsonquerylang/jsonquery/blob/develop/src/operators.ts).
+    All build-in operators and their precedence are listed in the section [Operators](#operators).
 
 Here an example of using the function `jsonquery`:
 
