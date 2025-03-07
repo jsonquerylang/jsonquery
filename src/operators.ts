@@ -1,6 +1,15 @@
 import type { CustomOperator, OperatorGroup } from './types'
 
-// TODO: move the operators from constants.ts to this file
+// operator precedence from highest to lowest
+export const operators: OperatorGroup[] = [
+  { pow: '^' },
+  { multiply: '*', divide: '/', mod: '%' },
+  { add: '+', subtract: '-' },
+  { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
+  { eq: '==', ne: '!=' },
+  { and: 'and' },
+  { or: 'or' }
+]
 
 export function extendOperators(operators: OperatorGroup[], newOperators: CustomOperator[]) {
   return newOperators.reduce(extendOperator, operators)

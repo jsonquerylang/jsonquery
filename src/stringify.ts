@@ -1,6 +1,6 @@
-import { operators, unquotedPropertyRegex } from './constants'
 import { isArray } from './is'
-import { extendOperators } from './operators'
+import { extendOperators, operators } from './operators'
+import { unquotedPropertyRegex } from './regexps'
 import type {
   JSONPath,
   JSONQuery,

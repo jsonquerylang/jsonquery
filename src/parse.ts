@@ -1,14 +1,13 @@
+import { functions } from './functions'
+import { extendOperators, operators } from './operators'
 import {
-  operators,
   startsWithIntRegex,
   startsWithKeywordRegex,
   startsWithNumberRegex,
   startsWithStringRegex,
   startsWithUnquotedPropertyRegex,
   startsWithWhitespaceRegex
-} from './constants'
-import { functions } from './functions'
-import { extendOperators } from './operators'
+} from './regexps'
 import type { JSONQuery, JSONQueryParseOptions, OperatorGroup } from './types'
 
 /**

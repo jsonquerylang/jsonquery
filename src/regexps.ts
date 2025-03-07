@@ -1,16 +1,3 @@
-import type { OperatorGroup } from './types'
-
-// operator precedence from highest to lowest
-export const operators: OperatorGroup[] = [
-  { pow: '^' },
-  { multiply: '*', divide: '/', mod: '%' },
-  { add: '+', subtract: '-' },
-  { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
-  { eq: '==', ne: '!=' },
-  { and: 'and' },
-  { or: 'or' }
-]
-
 export const unquotedPropertyRegex = /^[a-zA-Z_$][a-zA-Z\d_$]*$/
 export const startsWithUnquotedPropertyRegex = /^[a-zA-Z_$][a-zA-Z\d_$]*/
 export const startsWithStringRegex = /^"(?:[^"\\]|\\.)*"/ // https://stackoverflow.com/a/249937/1262753

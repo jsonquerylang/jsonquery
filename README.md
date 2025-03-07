@@ -10,7 +10,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small: just `3.4 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.9 kB`.
+- Small: just `3.5 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
 - Feature rich (50+ powerful functions and operators)
 - Easy to interoperate with thanks to the intermediate JSON format.
 - Expressive
