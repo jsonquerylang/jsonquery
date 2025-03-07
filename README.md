@@ -92,11 +92,10 @@ jsonquery(data, [
 The build in functions can be extended with custom functions, like `times` in the following example:
 
 ```js
-import { jsonquery, functions } from '@jsonquerylang/jsonquery'
+import { jsonquery } from '@jsonquerylang/jsonquery'
 
 const options = {
   functions: {
-    ...functions,
     times: (value) => (data) => data.map((item) => item * value)
   }
 }
@@ -369,36 +368,22 @@ Here:
 - `data` is the JSON document that will be queried, often an array with objects.
 - `query` is a JSON document containing a JSON query, either the text format or the parsed JSON format.
 - `options` is an optional object that can contain the following properties:
-  - `functions` is an optional map with function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
+  - `functions` is an optional map with custom function creators. A function creator has optional arguments as input and must return a function that can be used to process the query data. For example:
 
       ```js
-      import { functions } from '@jsonquerylang/jsonquery'
-    
       const options = {
         functions: {
-          // keep all built-in functions
-          ...functions,
-    
-          // define a new custom function "times"
           // usage example: 'times(3)'
           times: (value) => (data) => data.map((item) => item * value)
         }
       }
       ```
-    
-      Note that configuring the option `functions` will overwrite the default functions. In order to extend the existing functions it is necessary to import the build-in functions and extend the custom `functions` object with them as in the example above.
 
       If the parameters are not a static value but can be a query themselves, the function `compile` can be used to compile them. For example, the actual implementation of the function `filter` is the following:
 
       ```js
-      import { functions } from '@jsonquerylang/jsonquery'
-    
       const options = {
         functions: {
-          // keep all built-in functions
-          ...functions,
-    
-          // overwrite function "filter" with our own implementation 
           // usage example: 'filter(.age > 20)'
           filter: (predicate) => {
             const _predicate = compile(predicate)
@@ -410,43 +395,35 @@ Here:
 
       You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
 
-  - `operators` is an optional array with maps of operators having the same precedence, ordered from highest to lowest precedence. The default array with operators is the following, with the precedence going from lowest to highest:
+  - `operators` is an optional array definitions for custom operators. Each definition describes the new operator, the name of the function that it maps to, and the desired precedence of the operator: the same, before, or after one of the existing operators (`at`, `before`, or `after`):
 
-    ```js
-    const operators = [
-      { pow: '^' },
-      { multiply: '*', divide: '/', mod: '%' },
-      { add: '+', subtract: '-' },
-      { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
-      { eq: '==', ne: '!=' },
-      { and: 'and' },
-      { or: 'or' }
-    ]
+    ```ts
+    type CustomOperator =
+      | { name: string; op: string; at: string }
+      | { name: string; op: string; after: string }
+      | { name: string; op: string; before: string }
     ```
-
-    When extending the built-in operators with a custom operator, the built-in operators can be imported via `import { operators } from '@jsonquerylang/jsonquery'` and then extended by mapping over them and adding the custom operator to the group with the right precedence level (see example below), or adding a new precedence level if needed.
 
     The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
 
       ```js
-      import { buildFunction, functions, operators } from '@jsonquerylang/jsonquery'
+      import { buildFunction } from '@jsonquerylang/jsonquery'
      
       const options = {
         // Define a new function "notEqual".
         functions: {
-          ...functions,
           notEqual: buildFunction((a, b) => a !== b)
         },
     
         // Define a new operator "<>" which maps to the function "notEqual"
         // and has the same precedence as operator "==".
-        operators: operators.map((group) => {
-          return Object.values(group).includes('==')
-            ? { ...group, notEqual: '<>' }
-            : group
-        })
+        operators: [
+          { name: 'aboutEq', op: '~=', at: '==' }
+        ]
       }
       ```
+
+    The build-in operators can be found in the source code: [/src/operators.ts](https://github.com/jsonquerylang/jsonquery/blob/develop/src/operators.ts).
 
 Here an example of using the function `jsonquery`:
 
@@ -537,12 +514,8 @@ The function `buildFunction` is a helper function to create a custom function. I
 The query engine passes the raw arguments to all functions, and the functions have to compile the arguments themselves when they are dynamic. For example:
 
 ```ts
-import { functions } from '@jsonquerylang/jsonquery'
-
 const options = {
   functions: {
-    ...functions,
-    
     notEqual: (a: JSONQuery, b: JSONQuery) => {
       const aCompiled = compile(a)
       const bCompiled = compile(b)
@@ -564,11 +537,10 @@ const result = jsonquery(data, '(.x + .y) <> 6', options) // true
 To automatically compile and evaluate the arguments of the function, the helper function `buildFunction` can be used:
 
 ```ts
-import { jsonquery, functions, buildFunction } from '@jsonquerylang/jsonquery'
+import { jsonquery, buildFunction } from '@jsonquerylang/jsonquery'
 
 const options = {
   functions: {
-    ...functions,
     notEqual: buildFunction((a: number, b: number) => a !== b)
   }
 }
