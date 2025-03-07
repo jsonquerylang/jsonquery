@@ -43,7 +43,7 @@ for (const [category, testGroups] of Object.entries(testsByCategory)) {
 describe('customization', () => {
   test('should parse a custom function', () => {
     const options: JSONQueryParseOptions = {
-      functions: { customFn: true }
+      functions: { customFn: () => () => 42 }
     }
 
     expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
