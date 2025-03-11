@@ -1,4 +1,5 @@
 import type { CustomOperator, OperatorGroup } from './types'
+import { isArray } from './is'
 
 // operator precedence from highest to lowest
 export const operators: OperatorGroup[] = [
@@ -12,6 +13,11 @@ export const operators: OperatorGroup[] = [
 ]
 
 export function extendOperators(operators: OperatorGroup[], newOperators: CustomOperator[]) {
+  // backward compatibility error with v4 where `operators` was an object
+  if (!isArray(newOperators)) {
+    throw new Error('Invalid custom operators')
+  }
+
   return newOperators.reduce(extendOperator, operators)
 }
 

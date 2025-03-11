@@ -57,6 +57,24 @@ describe('customization', () => {
     expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])
     expect(parse('.score == 8', options)).toEqual(['eq', ['get', 'score'], 8])
   })
+
+  test('should throw an error in case of an invalid custom operator', () => {
+    const options: JSONQueryParseOptions = {
+      // @ts-ignore
+      operators: [{}]
+    }
+
+    expect(() => parse('.score > 8', options)).toThrow('Invalid custom operator')
+  })
+
+  test('should throw an error in case of an invalid custom operator (2)', () => {
+    const options: JSONQueryParseOptions = {
+      // @ts-ignore
+      operators: {}
+    }
+
+    expect(() => parse('.score > 8', options)).toThrow('Invalid custom operators')
+  })
 })
 
 describe('test-suite', () => {
