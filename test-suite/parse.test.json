@@ -181,16 +181,73 @@
     },
     {
       "category": "operator",
-      "description": "should parse operators with the right precedence",
+      "description": "should parse operators with the same precedence",
       "tests": [
-        { "input": "1 + 2 * 3", "output": ["add", 1, ["multiply", 2, 3]] },
-        { "input": "(1 + 2) * 3", "output": ["multiply", ["add", 1, 2], 3] },
-        { "input": "2 * 3 + 1", "output": ["add", ["multiply", 2, 3], 1] },
-        { "input": "1 * 2 / 3", "output": ["divide", ["multiply", 1, 2], 3] },
-        { "input": "1 + 2 - 3", "output": ["subtract", ["add", 1, 2], 3] },
-        { "input": "1 and 2 and 3", "output": ["and", ["and", 1, 2], 3] },
-        { "input": "1 and 2 or 3", "output": ["or", ["and", 1, 2], 3] },
-        { "input": "3 or 1 and 2", "output": ["or", 3, ["and", 1, 2]] }
+        { "input": "2 * 3 * 4", "output": ["multiply", ["multiply", 2, 3], 4] },
+        { "input": "2 / 3 / 4", "output": ["divide", ["divide", 2, 3], 4] },
+        { "input": "2 * 3 / 4", "output": ["divide", ["multiply", 2, 3], 4] },
+        { "input": "2 / 3 * 4", "output": ["multiply", ["divide", 2, 3], 4] },
+        { "input": "2 * 3 % 4", "output": ["mod", ["multiply", 2, 3], 4] },
+        { "input": "2 % 3 * 4", "output": ["multiply", ["mod", 2, 3], 4] },
+        { "input": "2 + 3 + 4", "output": ["add", ["add", 2, 3], 4] },
+        { "input": "2 - 3 - 4", "output": ["subtract", ["subtract", 2, 3], 4] },
+        { "input": "2 + 3 - 4", "output": ["subtract", ["add", 2, 3], 4] },
+        { "input": "2 - 3 + 4", "output": ["add", ["subtract", 2, 3], 4] },
+        { "input": "2 > 3 > 4", "output": ["gt", ["gt", 2, 3], 4] },
+        { "input": "2 >= 3 >= 4", "output": ["gte", ["gte", 2, 3], 4] },
+        { "input": "2 < 3 < 4", "output": ["lt", ["lt", 2, 3], 4] },
+        { "input": "2 <= 3 <= 4", "output": ["lte", ["lte", 2, 3], 4] },
+        { "input": "2 in 3 in 4", "output": ["in", ["in", 2, 3], 4] },
+        { "input": "2 not in 3 not in 4", "output": ["not in", ["not in", 2, 3], 4] },
+        { "input": "2 > 3 >= 4", "output": ["gte", ["gt", 2, 3], 4] },
+        { "input": "2 >= 3 > 4", "output": ["gt", ["gte", 2, 3], 4] },
+        { "input": "2 > 3 < 4", "output": ["lt", ["gt", 2, 3], 4] },
+        { "input": "2 < 3 > 4", "output": ["gt", ["lt", 2, 3], 4] },
+        { "input": "2 > 3 <= 4", "output": ["lte", ["gt", 2, 3], 4] },
+        { "input": "2 <= 3 > 4", "output": ["gt", ["lte", 2, 3], 4] },
+        { "input": "2 > .a in .b", "output": ["in", ["gt", 2, ["get", "a"]], ["get", "b"]] },
+        { "input": ".a in .b > 2", "output": ["gt", ["in", ["get", "a"], ["get", "b"]], 2] },
+        {
+          "input": "2 > .a not in .b",
+          "output": ["not in", ["gt", 2, ["get", "a"]], ["get", "b"]]
+        },
+        {
+          "input": ".a not in .b > 2",
+          "output": ["gt", ["not in", ["get", "a"], ["get", "b"]], 2]
+        },
+        { "input": "2 == 3 == 4", "output": ["eq", ["eq", 2, 3], 4] },
+        { "input": "2 != 3 != 4", "output": ["ne", ["ne", 2, 3], 4] },
+        { "input": "2 == 3 != 4", "output": ["ne", ["eq", 2, 3], 4] },
+        { "input": "2 != 3 == 4", "output": ["eq", ["ne", 2, 3], 4] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should parse operators with differing precedence",
+      "tests": [
+        { "input": "2 ^ 3 * 4", "output": ["multiply", ["pow", 2, 3], 4] },
+        { "input": "2 * 3 ^ 4", "output": ["multiply", 2, ["pow", 3, 4]] },
+        { "input": "2 * 3 + 4", "output": ["add", ["multiply", 2, 3], 4] },
+        { "input": "2 + 3 * 4", "output": ["add", 2, ["multiply", 3, 4]] },
+        { "input": "2 + 3 > 4", "output": ["gt", ["add", 2, 3], 4] },
+        { "input": "2 > 3 + 4", "output": ["gt", 2, ["add", 3, 4]] },
+        { "input": "2 > 3 == 4", "output": ["eq", ["gt", 2, 3], 4] },
+        { "input": "2 == 3 > 4", "output": ["eq", 2, ["gt", 3, 4]] },
+        { "input": "2 == 3 and 4", "output": ["and", ["eq", 2, 3], 4] },
+        { "input": "2 and 3 == 4", "output": ["and", 2, ["eq", 3, 4]] },
+        { "input": "2 and 3 or 4", "output": ["or", ["and", 2, 3], 4] },
+        { "input": "2 or 3 and 4", "output": ["or", 2, ["and", 3, 4]] },
+        { "input": "2 > 3 and 4", "output": ["and", ["gt", 2, 3], 4] },
+        { "input": "2 and 3 > 4", "output": ["and", 2, ["gt", 3, 4]] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should override operator precedence using parenthesis",
+      "tests": [
+        { "input": "2 + 3 * 4", "output": ["add", 2, ["multiply", 3, 4]] },
+        { "input": "(2 + 3) * 4", "output": ["multiply", ["add", 2, 3], 4] },
+        { "input": "2 * (3 + 4)", "output": ["multiply", 2, ["add", 3, 4]] }
       ]
     },
     {
