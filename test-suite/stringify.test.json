@@ -90,20 +90,22 @@
       "category": "operator",
       "description": "should wrap operators in parenthesis when needed because of precedence",
       "tests": [
+        { "input": ["add", 2, 3], "output": "2 + 3" },
+        { "input": ["abs", ["add", 2, 3]], "output": "abs(2 + 3)" },
         { "input": ["multiply", ["pow", 2, 3], 4], "output": "2 ^ 3 * 4" },
-        { "input": ["multiply", 2, ["pow", 3, 4]], "output": "2 * 3 ^ 4" },
+        { "input": ["pow", 2, ["multiply", 3, 4]], "output": "2 ^ (3 * 4)" },
         { "input": ["add", ["multiply", 2, 3], 4], "output": "2 * 3 + 4" },
-        { "input": ["add", 2, ["multiply", 3, 4]], "output": "2 + 3 * 4" },
+        { "input": ["multiply", 2, ["add", 3, 4]], "output": "2 * (3 + 4)" },
         { "input": ["gt", ["add", 2, 3], 4], "output": "2 + 3 > 4" },
-        { "input": ["gt", 2, ["add", 3, 4]], "output": "2 > 3 + 4" },
+        { "input": ["add", 2, ["gt", 3, 4]], "output": "2 + (3 > 4)" },
         { "input": ["eq", ["gt", 2, 3], 4], "output": "2 > 3 == 4" },
-        { "input": ["eq", 2, ["gt", 3, 4]], "output": "2 == 3 > 4" },
+        { "input": ["gt", 2, ["eq", 3, 4]], "output": "2 > (3 == 4)" },
         { "input": ["and", ["eq", 2, 3], 4], "output": "2 == 3 and 4" },
-        { "input": ["and", 2, ["eq", 3, 4]], "output": "2 and 3 == 4" },
+        { "input": ["eq", 2, ["and", 3, 4]], "output": "2 == (3 and 4)" },
         { "input": ["or", ["and", 2, 3], 4], "output": "2 and 3 or 4" },
-        { "input": ["or", 2, ["and", 3, 4]], "output": "2 or 3 and 4" },
+        { "input": ["and", 2, ["or", 3, 4]], "output": "2 and (3 or 4)" },
         { "input": ["and", ["gt", 2, 3], 4], "output": "2 > 3 and 4" },
-        { "input": ["and", 2, ["gt", 3, 4]], "output": "2 and 3 > 4" }
+        { "input": ["gt", 2, ["and", 3, 4]], "output": "2 > (3 and 4)" }
       ]
     },
     {
