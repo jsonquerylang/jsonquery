@@ -1,5 +1,5 @@
-import type { CustomOperator, OperatorGroup } from './types'
 import { isArray } from './is'
+import type { CustomOperator, OperatorGroup } from './types'
 
 // operator precedence from highest to lowest
 export const operators: OperatorGroup[] = [
