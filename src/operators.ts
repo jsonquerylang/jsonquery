@@ -32,5 +32,5 @@ function extendOperator(
     return operators.toSpliced(index + (after ? 1 : 0), 0, { [name]: op })
   }
 
-  throw new Error('Failed to extend with new operator')
+  throw new Error('Invalid custom operator')
 }
