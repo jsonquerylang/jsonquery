@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/parse.test.json",
-  "updated": "2024-11-15T09:00:00Z",
+  "version": "2.0.0",
   "groups": [
     {
       "category": "property",
