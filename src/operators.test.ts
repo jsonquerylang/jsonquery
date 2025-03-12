@@ -11,7 +11,7 @@ describe('operators', () => {
     ])
   })
 
-  test('should extend operators (below)', () => {
+  test('should extend operators (after)', () => {
     const ops = [{ add: '+', subtract: '-' }, { eq: '==' }]
 
     expect(extendOperators(ops, [{ name: 'aboutEq', op: '~=', after: '+' }])).toEqual([
@@ -21,7 +21,7 @@ describe('operators', () => {
     ])
   })
 
-  test('should extend operators (above)', () => {
+  test('should extend operators (before)', () => {
     const ops = [{ add: '+', subtract: '-' }, { eq: '==' }]
 
     expect(extendOperators(ops, [{ name: 'aboutEq', op: '~=', before: '==' }])).toEqual([
