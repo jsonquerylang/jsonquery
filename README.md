@@ -210,6 +210,7 @@ filter(.age >= 18 and .age <= 65)
 
 The operators have the following precedence, from highest to lowest:
 
+- `|`
 - `^`
 - `*`, `/`, `%`
 - `+`, `-`

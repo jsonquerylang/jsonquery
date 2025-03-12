@@ -29,27 +29,6 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   const allFunctions = options?.functions ?? functions
   const allOperators = extendOperators(operators, options?.operators ?? [])
 
-  const parsePipe = () => {
-    skipWhitespace()
-    const first = parseOperator(allOperators.length - 1)
-    skipWhitespace()
-
-    if (query[i] === '|') {
-      const pipe = [first]
-
-      while (query[i] === '|') {
-        i++
-        skipWhitespace()
-
-        pipe.push(parseOperator(allOperators.length - 1))
-      }
-
-      return ['pipe', ...pipe]
-    }
-
-    return first
-  }
-
   const parseOperator = (precedenceLevel: number) => {
     const currentOperators = allOperators[precedenceLevel]
     if (!currentOperators) {
@@ -58,16 +37,16 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
     let left = parseOperator(precedenceLevel - 1)
 
-    skipWhitespace()
-
     while (true) {
+      skipWhitespace()
+
       const name = parseOperatorName(currentOperators)
       if (!name) {
         break
       }
 
       const right = parseOperator(precedenceLevel - 1)
-      left = [name, left, right]
+      left = name === left[0] ? [...left, right] : [name, left, right]
     }
 
     return left
@@ -92,9 +71,11 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   const parseParenthesis = () => {
+    skipWhitespace()
+
     if (query[i] === '(') {
       i++
-      const inner = parsePipe()
+      const inner = parseOperator(allOperators.length - 1)
       eatChar(')')
       return inner
     }
@@ -139,11 +120,11 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
     skipWhitespace()
 
-    const args = query[i] !== ')' ? [parsePipe()] : []
+    const args = query[i] !== ')' ? [parseOperator(allOperators.length - 1)] : []
     while (i < query.length && query[i] !== ')') {
       skipWhitespace()
       eatChar(',')
-      args.push(parsePipe())
+      args.push(parseOperator(allOperators.length - 1))
     }
 
     eatChar(')')
@@ -172,7 +153,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         skipWhitespace()
         eatChar(':')
 
-        object[key] = parsePipe()
+        object[key] = parseOperator(allOperators.length - 1)
       }
 
       eatChar('}')
@@ -199,7 +180,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
           skipWhitespace()
         }
 
-        array.push(parsePipe())
+        array.push(parseOperator(allOperators.length - 1))
       }
 
       eatChar(']')
@@ -258,7 +239,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   let i = 0
-  const output = parsePipe()
+  const output = parseOperator(allOperators.length - 1)
   parseEnd()
 
   return output

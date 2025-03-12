@@ -40,10 +40,10 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const _stringify = (
     query: JSONQuery,
     indent: string,
-    operatorPrecedence = allOperators.length - 1
+    parentPrecedence = allOperators.length - 1
   ) =>
     isArray(query)
-      ? stringifyFunction(query as JSONQueryFunction, indent, operatorPrecedence)
+      ? stringifyFunction(query as JSONQueryFunction, indent, parentPrecedence)
       : JSON.stringify(query) // value (string, number, boolean, null)
 
   const stringifyFunction = (
@@ -55,12 +55,6 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
 
     if (name === 'get' && args.length > 0) {
       return stringifyPath(args as JSONPath)
-    }
-
-    if (name === 'pipe') {
-      const argsStr = args.map((arg) => _stringify(arg, indent + space))
-
-      return join(argsStr, ['', ' | ', ''], ['', `\n${indent + space}| `, ''])
     }
 
     if (name === 'object') {
@@ -78,15 +72,13 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
 
     // operator like ".age >= 18"
     const op = allOperatorsMap[name]
-    if (op && args.length === 2) {
+    if (op) {
       const precedence = allOperators.findIndex((group) => name in group)
-      const [left, right] = args
-      const leftStr = _stringify(left, indent, precedence)
-      const rightStr = _stringify(right, indent, precedence)
+      const start = parentPrecedence < precedence ? '(' : ''
+      const end = parentPrecedence < precedence ? ')' : ''
+      const argsStr = args.map((arg) => _stringify(arg, indent + space, precedence))
 
-      return parentPrecedence < precedence
-        ? `(${leftStr} ${op} ${rightStr})`
-        : `${leftStr} ${op} ${rightStr}`
+      return join(argsStr, [start, ` ${op} `, end], [start, `\n${indent + space}${op} `, end])
     }
 
     // regular function like sort(.age)

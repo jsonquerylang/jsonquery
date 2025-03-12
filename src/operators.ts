@@ -3,6 +3,7 @@ import type { CustomOperator, OperatorGroup } from './types'
 
 // operator precedence from highest to lowest
 export const operators: OperatorGroup[] = [
+  { pipe: '|' },
   { pow: '^' },
   { multiply: '*', divide: '/', mod: '%' },
   { add: '+', subtract: '-' },

@@ -27,6 +27,20 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
   }
 }
 
+const validateMaxArgs = (fn: (...args: unknown[]) => unknown) => {
+  return (...args: unknown[]) => {
+    if (args.length > fn.length) {
+      throw new Error('Too many arguments')
+    }
+
+    return fn(...args)
+  }
+}
+
+const reduceArgs = (fn: (...args: unknown[]) => unknown) => {
+  return (...args: unknown[]) => args.reduce(fn)
+}
+
 export const functions: FunctionBuildersMap = {
   pipe: (...entries: JSONQuery[]) => {
     const _entries = entries.map((entry) => compile(entry))
@@ -247,8 +261,8 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  and: buildFunction((a, b) => !!(a && b)),
-  or: buildFunction((a, b) => !!(a || b)),
+  and: buildFunction(reduceArgs((a, b) => !!(a && b))),
+  or: buildFunction(reduceArgs((a, b) => !!(a || b))),
   not: buildFunction((a: unknown) => !a),
 
   exists: (queryGet: JSONQueryFunction) => {
@@ -286,19 +300,20 @@ export const functions: FunctionBuildersMap = {
     return (data: unknown) => regex.test(getter(data) as string)
   },
 
-  eq: buildFunction((a, b) => a === b),
-  gt: buildFunction((a, b) => a > b),
-  gte: buildFunction((a, b) => a >= b),
-  lt: buildFunction((a, b) => a < b),
-  lte: buildFunction((a, b) => a <= b),
-  ne: buildFunction((a, b) => a !== b),
+  eq: buildFunction(validateMaxArgs((a, b) => a === b)),
+  gt: buildFunction(validateMaxArgs((a, b) => a > b)),
+  gte: buildFunction(validateMaxArgs((a, b) => a >= b)),
+  lt: buildFunction(validateMaxArgs((a, b) => a < b)),
+  lte: buildFunction(validateMaxArgs((a, b) => a <= b)),
+  ne: buildFunction(validateMaxArgs((a, b) => a !== b)),
 
-  add: buildFunction((a: number, b: number) => a + b),
-  subtract: buildFunction((a: number, b: number) => a - b),
-  multiply: buildFunction((a: number, b: number) => a * b),
-  divide: buildFunction((a: number, b: number) => a / b),
-  pow: buildFunction((a: number, b: number) => a ** b),
-  mod: buildFunction((a: number, b: number) => a % b),
+  add: buildFunction(reduceArgs((a: number, b: number) => a + b)),
+  subtract: buildFunction(reduceArgs((a: number, b: number) => a - b)),
+  multiply: buildFunction(reduceArgs((a: number, b: number) => a * b)),
+  divide: buildFunction(reduceArgs((a: number, b: number) => a / b)),
+  pow: buildFunction(validateMaxArgs((a: number, b: number) => a ** b)),
+  mod: buildFunction(validateMaxArgs((a: number, b: number) => a % b)),
+
   abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {
     const num = Math.round(Number(`${value}e${digits}`))
