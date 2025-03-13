@@ -312,7 +312,7 @@ export const functions: FunctionBuildersMap = {
   multiply: buildFunction(reduceArgs((a: number, b: number) => a * b)),
   divide: buildFunction(reduceArgs((a: number, b: number) => a / b)),
   pow: buildFunction(validateMaxArgs((a: number, b: number) => a ** b)),
-  mod: buildFunction(validateMaxArgs((a: number, b: number) => a % b)),
+  mod: buildFunction(reduceArgs((a: number, b: number) => a % b)),
 
   abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {

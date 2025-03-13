@@ -1446,7 +1446,7 @@
       "description": "should throw when passing more than two arguments",
       "input": null,
       "query": ["mod", 20, 12, 3],
-      "throws": "Too many arguments"
+      "output": 2
     },
 
     {
