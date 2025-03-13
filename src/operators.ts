@@ -13,6 +13,8 @@ export const operators: OperatorGroup[] = [
   { or: 'or' }
 ]
 
+export const varargOperators = ['|', '*', '/', '%', '+', '-', 'and', 'or']
+
 export function extendOperators(operators: OperatorGroup[], newOperators: CustomOperator[]) {
   // backward compatibility error with v4 where `operators` was an object
   if (!isArray(newOperators)) {

@@ -1,5 +1,5 @@
 import { functions } from './functions'
-import { extendOperators, operators } from './operators'
+import { extendOperators, operators, varargOperators } from './operators'
 import {
   startsWithIntRegex,
   startsWithKeywordRegex,
@@ -28,6 +28,7 @@ import type { JSONQuery, JSONQueryParseOptions, OperatorGroup } from './types'
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
   const allFunctions = options?.functions ?? functions
   const allOperators = extendOperators(operators, options?.operators ?? [])
+  const allOperatorsMap = Object.assign({}, ...allOperators)
 
   const parseOperator = (precedenceLevel: number) => {
     const currentOperators = allOperators[precedenceLevel]
@@ -40,13 +41,21 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     while (true) {
       skipWhitespace()
 
+      const start = i
       const name = parseOperatorName(currentOperators)
       if (!name) {
         break
       }
 
       const right = parseOperator(precedenceLevel - 1)
-      left = name === left[0] ? [...left, right] : [name, left, right]
+
+      const chained = name === left[0]
+      if (chained && !varargOperators.includes(allOperatorsMap[name])) {
+        i = start
+        break
+      }
+
+      left = chained ? [...left, right] : [name, left, right]
     }
 
     return left

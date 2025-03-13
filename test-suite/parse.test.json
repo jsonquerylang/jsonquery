@@ -167,12 +167,25 @@
       "tests": [
         { "input": "1 and 2 and 3", "output": ["and", 1, 2, 3] },
         { "input": "1 or 2 or 3", "output": ["or", 1, 2, 3] },
-        { "input": "1 ^ 2 ^ 3", "output": ["pow", 1, 2, 3] },
         { "input": "1 * 2 * 3", "output": ["multiply", 1, 2, 3] },
         { "input": "1 / 2 / 3", "output": ["divide", 1, 2, 3] },
+        { "input": "1 % 2 % 3", "output": ["mod", 1, 2, 3] },
         { "input": "1 + 2 + 3", "output": ["add", 1, 2, 3] },
-        { "input": "1 - 2 - 3", "output": ["subtract", 1, 2, 3] },
-        { "input": "1 % 2 % 3", "output": ["mod", 1, 2, 3] }
+        { "input": "1 - 2 - 3", "output": ["subtract", 1, 2, 3] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should throw when chaining operators without vararg support",
+      "tests": [
+        { "input": "1 ^ 2 ^ 3", "throws": "Unexpected part '^ 3'" },
+        { "input": "1 == 2 == 3", "throws": "Unexpected part '== 3'" },
+        { "input": "1 != 2 != 3", "throws": "Unexpected part '!= 3'" },
+        { "input": "1 < 2 < 3", "throws": "Unexpected part '< 3'" },
+        { "input": "1 <= 2 <= 3", "throws": "Unexpected part '<= 3'" },
+        { "input": "1 > 2 > 3", "throws": "Unexpected part '> 3'" },
+        { "input": "1 >= 2 >= 3", "throws": "Unexpected part '>= 3'" },
+        { "input": "1 == 2 == 3", "throws": "Unexpected part '== 3'" }
       ]
     },
     {

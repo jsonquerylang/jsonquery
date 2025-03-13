@@ -18,7 +18,7 @@
     },
     {
       "category": "operator",
-      "description": "should stringify all  operators",
+      "description": "should stringify all operators",
       "tests": [
         { "input": ["eq", ["get", "score"], 8], "output": ".score == 8" },
         { "input": ["lt", ["get", "score"], 8], "output": ".score < 8" },
@@ -48,9 +48,6 @@
       "category": "operator",
       "description": "should not wrap operators in parenthesis when they have the same precedence",
       "tests": [
-        { "input": ["pow", 2, 3, 4], "output": "2 ^ 3 ^ 4" },
-        { "input": ["pow", ["pow", 2, 3], 4], "output": "2 ^ 3 ^ 4" },
-        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ 3 ^ 4" },
         { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
         { "input": ["multiply", ["multiply", 2, 3], 4], "output": "2 * 3 * 4" },
         { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
@@ -89,6 +86,14 @@
         { "input": ["and", 2, ["or", 3, 4]], "output": "2 and (3 or 4)" },
         { "input": ["and", ["gt", 2, 3], 4], "output": "2 > 3 and 4" },
         { "input": ["gt", 2, ["and", 3, 4]], "output": "2 > (3 and 4)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should wrap operators in parenthesis when needed because of a lack of vararg support",
+      "tests": [
+        { "input": ["pow", ["pow", 2, 3], 4], "output": "(2 ^ 3) ^ 4" },
+        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ (3 ^ 4)" }
       ]
     },
     {
