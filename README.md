@@ -208,7 +208,7 @@ When using multiple operators, they will be evaluated according to their precede
 filter(.age >= 18 and .age <= 65)
 ```
 
-Note that some operators, like `and`, `or`, `+`, and `-`, support more than two values, like `2 + 3 + 4`. Others, like `^` and `==`, do not support more than two values. If needed, it is always possible to use parenthesis, like `(2 ^ 3) ^ 4`.
+Note that some operators, like `and`, `or`, `+`, and `-`, support more than two values and are evaluated left-to-right (left associative), like `2 + 3 + 4` Others, like `^` and `==`, do not support more than two values. If needed, it is always possible to use parenthesis, like `(2 ^ 3) ^ 4`.
 
 The operators have the following precedence, from highest to lowest:
 

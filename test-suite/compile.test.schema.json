@@ -9,16 +9,32 @@
     "tests": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "category": { "type": "string" },
-          "description": { "type": "string" },
-          "input": {},
-          "query": {},
-          "output": {}
-        },
-        "required": ["category", "description", "input", "query", "output"],
-        "additionalProperties": false
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string" },
+              "description": { "type": "string" },
+              "input": {},
+              "query": {},
+              "output": {}
+            },
+            "required": ["category", "description", "input", "query", "output"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string" },
+              "description": { "type": "string" },
+              "input": {},
+              "query": {},
+              "throws": { "type": "string" }
+            },
+            "required": ["category", "description", "input", "query", "throws"],
+            "additionalProperties": false
+          }
+        ]
       }
     }
   },

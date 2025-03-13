@@ -753,6 +753,13 @@
       "query": ["eq", 2, 2],
       "output": true
     },
+    {
+      "category": "eq",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["eq", 2, 3, 4],
+      "throws": "Too many arguments"
+    },
 
     {
       "category": "gt",
@@ -781,6 +788,13 @@
       "input": null,
       "query": ["gt", 3, 2],
       "output": true
+    },
+    {
+      "category": "gt",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["gt", 2, 3, 4],
+      "throws": "Too many arguments"
     },
 
     {
@@ -811,6 +825,13 @@
       "query": ["gte", 3, 2],
       "output": true
     },
+    {
+      "category": "gte",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["gte", 2, 3, 4],
+      "throws": "Too many arguments"
+    },
 
     {
       "category": "lt",
@@ -839,6 +860,13 @@
       "input": null,
       "query": ["lt", 1, 2],
       "output": true
+    },
+    {
+      "category": "lt",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["lt", 2, 3, 4],
+      "throws": "Too many arguments"
     },
 
     {
@@ -869,6 +897,13 @@
       "query": ["lte", 2, 2],
       "output": true
     },
+    {
+      "category": "lte",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["lte", 2, 3, 4],
+      "throws": "Too many arguments"
+    },
 
     {
       "category": "ne",
@@ -897,6 +932,13 @@
       "input": null,
       "query": ["ne", 3, 2],
       "output": true
+    },
+    {
+      "category": "ne",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["ne", 2, 3, 4],
+      "throws": "Too many arguments"
     },
 
     {
@@ -1377,6 +1419,13 @@
       "query": ["pow", ["get"], 0.5],
       "output": 5
     },
+    {
+      "category": "pow",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["pow", 3, 2, 3],
+      "throws": "Too many arguments"
+    },
 
     {
       "category": "mod",
@@ -1391,6 +1440,13 @@
       "input": null,
       "query": ["mod", 8, 3],
       "output": 2
+    },
+    {
+      "category": "mod",
+      "description": "should throw when passing more than two arguments",
+      "input": null,
+      "query": ["mod", 20, 12, 3],
+      "throws": "Too many arguments"
     },
 
     {
