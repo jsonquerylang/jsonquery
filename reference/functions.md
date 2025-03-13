@@ -1085,7 +1085,7 @@ jsonquery(data, 'filter(regex(.message, "like|awesome", "i"))')
 
 ## add (`+`)
 
-Add two or more values. The operator is left associative.
+Add two or more values. The operator evaluated left-to-right (left associative).
 
 ```text
 a + b
@@ -1111,7 +1111,7 @@ jsonquery(user, '(.firstName + " ") + .lastName')
 
 ## subtract (`-`)
 
-Subtract two or more values. The operator is left associative.
+Subtract two or more values. The operator evaluated left-to-right (left associative).
 
 ```text
 a - b
@@ -1130,7 +1130,7 @@ jsonquery(data, '.a - .b') // 4
 
 ## multiply (`*`)
 
-Multiply two or more values. The operator is left associative.
+Multiply two or more values. The operator evaluated left-to-right (left associative).
 
 ```text
 a * b
@@ -1149,7 +1149,7 @@ jsonquery(data, '.a * .b') // 12
 
 ## divide (`/`)
 
-Divide two or more values. The operator is left associative.
+Divide two or more values. The operator evaluated left-to-right (left associative).
 
 ```text
 a / b
@@ -1185,11 +1185,13 @@ jsonquery(data, '.a ^ .b') // 8
 
 ## mod (`%`)
 
-Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`. The modulus operator does not support more than two values, so if you need to calculate a chain of multiple modulus operators you'll have to use parenthesis, like `(a % b) % c`.
+Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`. Multiple values can be chained, in that case they are evaluated left-to-right (left associative).
 
 ```text
 a % b
+a % b % c % ...
 mod(a, b)
+mod(a, b, c, ...)
 ```
 
 Examples:

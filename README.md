@@ -208,18 +208,20 @@ When using multiple operators, they will be evaluated according to their precede
 filter(.age >= 18 and .age <= 65)
 ```
 
-Note that some operators, like `and`, `or`, `+`, and `-`, support more than two values and are evaluated left-to-right (left associative), like `2 + 3 + 4` Others, like `^` and `==`, do not support more than two values. If needed, it is always possible to use parenthesis, like `(2 ^ 3) ^ 4`.
+Note that some operators, like `and`, `or`, `+`, and `-`, support more than two values and are evaluated left-to-right, like `2 + 3 + 4`. Others, like `^` and `==`, do not support more than two values. If needed, it is always possible to use parenthesis, like `(2 ^ 3) ^ 4`.
 
 The operators have the following precedence, from highest to lowest:
 
-- `|`
-- `^`
-- `*`, `/`, `%`
-- `+`, `-`
--  `>`, `>=`, `<`, `<=`, `in`, `not in`
-- `==`, `!=`
-- `and`
-- `or`
+| Precedence                  | Associativity | Operators                            |
+|-----------------------------|---------------|--------------------------------------|
+| 8: pipe                     | left-to-right | `\|`                                 |
+| 7: exponentiation           | n/a           | `^`                                  |
+| 6: multiplicative operators | left-to-right | `*`, `/`, `%`                        |
+| 5: additive operators       | left-to-right | `+`, `-`                             |
+| 4: relational operators     | n/a           | `>`, `>=`, `<`, `<=`, `in`, `not in` |
+| 3: equality operators       | n/a           | `==`, `!=`                           |
+| 2: and                      | left-to-right | `and`                                |
+| 1: or                       | left-to-right | `or`                                 |
 
 See section [Function reference](reference/functions.md) for a detailed overview of all available functions and operators.
 
