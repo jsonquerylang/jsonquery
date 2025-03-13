@@ -869,11 +869,13 @@ jsonquery({ a: 2 }, 'a != "2"') // true (since not strictly equal)
 
 ## and
 
-Test whether both values are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
+Test whether two or more values are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
 
 ```text
 a and b
+a and b and c and ...
 and(a, b)
+and(a, b, c, ...)
 ```
 
 Examples:
@@ -893,11 +895,13 @@ jsonquery(data, 'filter((.name == "Chris") and (.age == 16))')
 
 ## or
 
-Test whether one or both values are truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
+Test whether at least one of the values is truthy. A non-truthy value is any of `false`, `0`, `""`, `null`, or `undefined`.
 
 ```text
 a or b
+a or b or c or ...
 or(a, b)
+or(a, b, c, ...)
 ```
 
 Examples:
@@ -1081,11 +1085,13 @@ jsonquery(data, 'filter(regex(.message, "like|awesome", "i"))')
 
 ## add (`+`)
 
-Add two values.
+Add two or more values. The operator is left associative.
 
 ```text
 a + b
+a + b + c + ...
 add(a, b)
+add(a, b, c, ...)
 ```
 
 Examples:
@@ -1105,11 +1111,13 @@ jsonquery(user, '(.firstName + " ") + .lastName')
 
 ## subtract (`-`)
 
-Subtract two values.
+Subtract two or more values. The operator is left associative.
 
 ```text
 a - b
+a - b - c - ...
 subtract(a, b)
+subtract(a, b, c, ...)
 ```
 
 Examples:
@@ -1122,11 +1130,13 @@ jsonquery(data, '.a - .b') // 4
 
 ## multiply (`*`)
 
-Multiply two values.
+Multiply two or more values. The operator is left associative.
 
 ```text
 a * b
+a * b * c * ...
 multiply(a, b)
+multiply(a, b, c, ...)
 ```
 
 Examples:
@@ -1139,11 +1149,13 @@ jsonquery(data, '.a * .b') // 12
 
 ## divide (`/`)
 
-Divide two values.
+Divide two or more values. The operator is left associative.
 
 ```text
 a / b
+a / b / c / ...
 divide(a, b)
+divide(a, b, c, ...)
 ```
 
 Examples:
@@ -1156,7 +1168,7 @@ jsonquery(data, '.a / .b') // 3
 
 ## pow (`^`)
 
-Calculate the exponent. Returns the result of raising `a` to the power of `b`, like `a^b`
+Calculate the exponent. Returns the result of raising `a` to the power of `b`, like `a ^ b`. The `^` operator does not support more than two values, so if you need to calculate a chain of multiple exponents you'll have to use parenthesis, like `(a ^ b) ^ c`.
 
 ```text
 a ^ b
@@ -1173,7 +1185,7 @@ jsonquery(data, '.a ^ .b') // 8
 
 ## mod (`%`)
 
-Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`.
+Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`. The modulus operator does not support more than two values, so if you need to calculate a chain of multiple modulus operators you'll have to use parenthesis, like `(a % b) % c`.
 
 ```text
 a % b
