@@ -1,5 +1,5 @@
 import { isArray } from './is'
-import { extendOperators, operators, varargOperators } from './operators'
+import { extendOperators, extendVarargOperators, operators, varargOperators } from './operators'
 import { unquotedPropertyRegex } from './regexps'
 import type {
   JSONPath,
@@ -34,8 +34,10 @@ const DEFAULT_INDENTATION = '  '
  */
 export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
   const space = options?.indentation ?? DEFAULT_INDENTATION
-  const allOperators = extendOperators(operators, options?.operators ?? [])
+  const customOperators = options?.operators ?? []
+  const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
+  const allVarargOperators = extendVarargOperators(varargOperators, customOperators)
 
   const _stringify = (
     query: JSONQuery,
@@ -76,7 +78,7 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
       const precedence = allOperators.findIndex((group) => name in group)
       const parenthesis =
         parentPrecedence < precedence ||
-        (parentPrecedence === precedence && !varargOperators.includes(op))
+        (parentPrecedence === precedence && !allVarargOperators.includes(op))
       const start = parenthesis ? '(' : ''
       const end = parenthesis ? ')' : ''
       const argsStr = args.map((arg) => _stringify(arg, indent + space, precedence))

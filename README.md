@@ -404,9 +404,9 @@ Here:
 
     ```ts
     type CustomOperator =
-      | { name: string; op: string; at: string }
-      | { name: string; op: string; after: string }
-      | { name: string; op: string; before: string }
+      | { name: string; op: string; at: string; vararg?: boolean }
+      | { name: string; op: string; after: string; vararg?: boolean }
+      | { name: string; op: string; before: string; vararg?: boolean }
     ```
 
     The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
@@ -427,6 +427,8 @@ Here:
         ]
       }
       ```
+
+    When the function of the operator supports more than two arguments, like `and(a, b, c, ...)`, the option `vararg` can be set `true` to allow using a chain of multiple operators without parenthesis, like `a and b and c`. When `vararg` is not set `true`, this would throw an exception, which can be solved by using parenthesis like `(a and b) and c`.
 
     All build-in operators and their precedence are listed in the section [Operators](#operators).
 

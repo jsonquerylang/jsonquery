@@ -49,13 +49,25 @@ describe('customization', () => {
     expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
   })
 
-  test('should parse a custom operator', () => {
+  test('should parse a custom operator without vararg', () => {
     const options: JSONQueryParseOptions = {
       operators: [{ name: 'aboutEq', op: '~=', at: '==' }]
     }
 
     expect(parse('.score ~= 8', options)).toEqual(['aboutEq', ['get', 'score'], 8])
     expect(parse('.score == 8', options)).toEqual(['eq', ['get', 'score'], 8])
+
+    expect(() => parse('2 ~= 3 ~= 4', options)).toThrow("Unexpected part '~= 4'")
+  })
+
+  test('should parse a custom operator with vararg', () => {
+    const options: JSONQueryParseOptions = {
+      operators: [{ name: 'aboutEq', op: '~=', at: '==', vararg: true }]
+    }
+
+    expect(parse('2 and 3 and 4', options)).toEqual(['and', 2, 3, 4])
+    expect(parse('2 ~= 3 ~= 4', options)).toEqual(['aboutEq', 2, 3, 4])
+    expect(() => parse('2 == 3 == 4', options)).toThrow("Unexpected part '== 4'")
   })
 
   test('should throw an error in case of an invalid custom operator', () => {

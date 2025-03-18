@@ -34,9 +34,9 @@ export type FunctionBuildersMap = Record<string, FunctionBuilder>
 export type Getter = [key: string, Fun]
 export type OperatorGroup = Record<string, string>
 export type CustomOperator =
-  | { name: string; op: string; at: string }
-  | { name: string; op: string; after: string }
-  | { name: string; op: string; before: string }
+  | { name: string; op: string; at: string; vararg?: boolean }
+  | { name: string; op: string; after: string; vararg?: boolean }
+  | { name: string; op: string; before: string; vararg?: boolean }
 
 export interface Entry<T> {
   key: string
