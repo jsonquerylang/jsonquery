@@ -38,22 +38,12 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
 
-  const _stringify = (
-    query: JSONQuery,
-    indent: string,
-    parentFn: string = undefined,
-    argIndex: number = undefined
-  ) =>
+  const _stringify = (query: JSONQuery, indent: string, parenthesis = false) =>
     isArray(query)
-      ? stringifyFunction(query as JSONQueryFunction, indent, parentFn, argIndex)
+      ? stringifyFunction(query as JSONQueryFunction, indent, parenthesis)
       : JSON.stringify(query) // value (string, number, boolean, null)
 
-  const stringifyFunction = (
-    query: JSONQueryFunction,
-    indent: string,
-    parentFn: string | undefined,
-    argIndex: number | undefined
-  ) => {
+  const stringifyFunction = (query: JSONQueryFunction, indent: string, parenthesis: boolean) => {
     const [name, ...args] = query
 
     if (name === 'get' && args.length > 0) {
@@ -76,15 +66,17 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
     // operator like ".age >= 18"
     const op = allOperatorsMap[name]
     if (op) {
-      const firstGroup = allOperators.filter((group) => name in group || parentFn in group)[0]
-      const parenthesis =
-        name === parentFn ||
-        (parentFn in firstGroup && !(name in firstGroup)) ||
-        (parentFn in firstGroup && name in firstGroup && argIndex > 0) // all operators are left-to-right
       const start = parenthesis ? '(' : ''
       const end = parenthesis ? ')' : ''
 
-      const argsStr = args.map((arg, index) => _stringify(arg, indent + space, name, index))
+      const argsStr = args.map((child, index) => {
+        const childName = child?.[0]
+        const firstGroup = allOperators.filter((group) => name in group || childName in group)[0]
+        const noParenthesis =
+          (childName in firstGroup && index === 0 && name !== childName) || !(name in firstGroup)
+
+        return _stringify(child, indent + space, !noParenthesis)
+      })
 
       return join(argsStr, [start, ` ${op} `, end], [start, `\n${indent + space}${op} `, end])
     }
