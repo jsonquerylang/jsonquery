@@ -225,6 +225,7 @@
       "description": "should override operator precedence using parenthesis",
       "tests": [
         { "input": "2 + 3 * 4", "output": ["add", 2, ["multiply", 3, 4]] },
+        { "input": "2 + (3 * 4)", "output": ["add", 2, ["multiply", 3, 4]] },
         { "input": "(2 + 3) * 4", "output": ["multiply", ["add", 2, 3], 4] },
         { "input": "2 * (3 + 4)", "output": ["multiply", 2, ["add", 3, 4]] }
       ]

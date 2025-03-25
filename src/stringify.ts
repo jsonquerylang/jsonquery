@@ -1,5 +1,5 @@
 import { isArray } from './is'
-import { extendOperators, extendVarargOperators, operators, varargOperators } from './operators'
+import { extendOperators, operators } from './operators'
 import { unquotedPropertyRegex } from './regexps'
 import type {
   JSONPath,
@@ -37,21 +37,22 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const customOperators = options?.operators ?? []
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
-  const allVarargOperators = extendVarargOperators(varargOperators, customOperators)
 
   const _stringify = (
     query: JSONQuery,
     indent: string,
-    parentPrecedence = allOperators.length - 1
+    parentFn: string = undefined,
+    argIndex: number = undefined
   ) =>
     isArray(query)
-      ? stringifyFunction(query as JSONQueryFunction, indent, parentPrecedence)
+      ? stringifyFunction(query as JSONQueryFunction, indent, parentFn, argIndex)
       : JSON.stringify(query) // value (string, number, boolean, null)
 
   const stringifyFunction = (
     query: JSONQueryFunction,
     indent: string,
-    parentPrecedence: number
+    parentFn: string | undefined,
+    argIndex: number | undefined
   ) => {
     const [name, ...args] = query
 
@@ -75,13 +76,15 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
     // operator like ".age >= 18"
     const op = allOperatorsMap[name]
     if (op) {
-      const precedence = allOperators.findIndex((group) => name in group)
+      const firstGroup = allOperators.filter((group) => name in group || parentFn in group)[0]
       const parenthesis =
-        parentPrecedence < precedence ||
-        (parentPrecedence === precedence && !allVarargOperators.includes(op))
+        name === parentFn ||
+        (parentFn in firstGroup && !(name in firstGroup)) ||
+        (parentFn in firstGroup && name in firstGroup && argIndex > 0) // all operators are left-to-right
       const start = parenthesis ? '(' : ''
       const end = parenthesis ? ')' : ''
-      const argsStr = args.map((arg) => _stringify(arg, indent + space, precedence))
+
+      const argsStr = args.map((arg, index) => _stringify(arg, indent + space, name, index))
 
       return join(argsStr, [start, ` ${op} `, end], [start, `\n${indent + space}${op} `, end])
     }

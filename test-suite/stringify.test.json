@@ -46,31 +46,8 @@
     },
     {
       "category": "operator",
-      "description": "should not wrap operators in parenthesis when they have the same precedence",
+      "description": "should wrap operators with differing precedence in parenthesis when needed",
       "tests": [
-        { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
-        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "2 * 3 * 4" },
-        { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
-        { "input": ["divide", ["divide", 2, 3], 4], "output": "2 / 3 / 4" },
-        { "input": ["divide", ["multiply", 2, 3], 4], "output": "2 * 3 / 4" },
-        { "input": ["multiply", ["divide", 2, 3], 4], "output": "2 / 3 * 4" },
-        { "input": ["mod", 2, 3, 4], "output": "2 % 3 % 4" },
-        { "input": ["mod", ["mod", 2, 3], 4], "output": "2 % 3 % 4" },
-        { "input": ["mod", ["multiply", 2, 3], 4], "output": "2 * 3 % 4" },
-        { "input": ["multiply", ["mod", 2, 3], 4], "output": "2 % 3 * 4" },
-        { "input": ["add", 2, 3, 4], "output": "2 + 3 + 4" },
-        { "input": ["add", ["add", 2, 3], 4], "output": "2 + 3 + 4" },
-        { "input": ["subtract", 2, 3, 4], "output": "2 - 3 - 4" },
-        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "2 - 3 - 4" },
-        { "input": ["subtract", ["add", 2, 3], 4], "output": "2 + 3 - 4" },
-        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" }
-      ]
-    },
-    {
-      "category": "operator",
-      "description": "should wrap operators in parenthesis when needed because of precedence",
-      "tests": [
-        { "input": ["add", 2, 3], "output": "2 + 3" },
         { "input": ["abs", ["add", 2, 3]], "output": "abs(2 + 3)" },
         { "input": ["multiply", ["pow", 2, 3], 4], "output": "2 ^ 3 * 4" },
         { "input": ["pow", 2, ["multiply", 3, 4]], "output": "2 ^ (3 * 4)" },
@@ -86,6 +63,49 @@
         { "input": ["and", 2, ["or", 3, 4]], "output": "2 and (3 or 4)" },
         { "input": ["and", ["gt", 2, 3], 4], "output": "2 > 3 and 4" },
         { "input": ["gt", 2, ["and", 3, 4]], "output": "2 > (3 and 4)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should wrap operators with the same precedence in parenthesis when needed (must maintain original JSON structure when parsing again)",
+      "tests": [
+        { "input": ["add", ["add", 2, 3], 4], "output": "(2 + 3) + 4" },
+        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" },
+        { "input": ["add", 2, ["subtract", 3, 4]], "output": "2 + (3 - 4)" },
+        { "input": ["add", 2, ["add", 3, 4]], "output": "2 + (3 + 4)" },
+        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "(2 - 3) - 4" },
+        { "input": ["subtract", ["add", 2, 3], 4], "output": "2 + 3 - 4" },
+        { "input": ["subtract", 2, ["add", 3, 4]], "output": "2 - (3 + 4)" },
+        { "input": ["subtract", 2, ["subtract", 3, 4]], "output": "2 - (3 - 4)" },
+        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "(2 * 3) * 4" },
+        { "input": ["multiply", ["divide", 2, 3], 4], "output": "2 / 3 * 4" },
+        { "input": ["multiply", ["mod", 2, 3], 4], "output": "2 % 3 * 4" },
+        { "input": ["multiply", 2, ["multiply", 3, 4]], "output": "2 * (3 * 4)" },
+        { "input": ["divide", ["divide", 2, 3], 4], "output": "(2 / 3) / 4" },
+        { "input": ["divide", ["multiply", 2, 3], 4], "output": "2 * 3 / 4" },
+        { "input": ["divide", 2, ["divide", 3, 4]], "output": "2 / (3 / 4)" },
+        { "input": ["divide", 2, ["multiply", 3, 4]], "output": "2 / (3 * 4)" },
+        { "input": ["mod", ["mod", 2, 3], 4], "output": "(2 % 3) % 4" },
+        { "input": ["mod", ["multiply", 2, 3], 4], "output": "2 * 3 % 4" },
+        { "input": ["mod", ["divide", 2, 3], 4], "output": "2 / 3 % 4" },
+        { "input": ["mod", 2, ["multiply", 3, 4]], "output": "2 % (3 * 4)" },
+        { "input": ["mod", 2, ["mod", 3, 4]], "output": "2 % (3 % 4)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should stringify a variable number of arguments in operators",
+      "tests": [
+        { "input": ["pipe", 2, 3, 4], "output": "2 | 3 | 4" },
+        { "input": ["get", 2, 3, 4], "output": ".2.3.4" },
+        { "input": ["and", 2, 3, 4], "output": "2 and 3 and 4" },
+        { "input": ["and", 2, 3, 4, 5], "output": "2 and 3 and 4 and 5" },
+        { "input": ["or", 2, 3, 4], "output": "2 or 3 or 4" },
+        { "input": ["add", 2, 3, 4], "output": "2 + 3 + 4" },
+        { "input": ["subtract", 2, 3, 4], "output": "2 - 3 - 4" },
+        { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
+        { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
+        { "input": ["mod", 2, 3, 4], "output": "2 % 3 % 4" }
       ]
     },
     {
