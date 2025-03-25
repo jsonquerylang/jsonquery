@@ -57,8 +57,9 @@
           <label for="query">Query</label>
           <textarea id="query">
 [
-  ["filter", "city", "==", "New York"],
-  ["map", "name"]
+  "pipe",
+  ["filter", ["eq", ["get", "city"], "New York"]],
+  ["map", ["get", "name"]]
 ]</textarea
           >
         </div>
