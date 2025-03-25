@@ -27,7 +27,7 @@ import type { JSONQuery, JSONQueryParseOptions, OperatorGroup } from './types'
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
   const customOperators = options?.operators ?? []
-  const allFunctions = options?.functions ?? functions
+  const allFunctions = { ...functions, ...options?.functions }
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
   const allVarargOperators = extendVarargOperators(varargOperators, customOperators)
