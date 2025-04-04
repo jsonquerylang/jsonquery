@@ -1085,13 +1085,11 @@ jsonquery(data, 'filter(regex(.message, "like|awesome", "i"))')
 
 ## add (`+`)
 
-Add two or more values. The operator evaluated left-to-right (left associative).
+Add two values.
 
 ```text
 a + b
-a + b + c + ...
 add(a, b)
-add(a, b, c, ...)
 ```
 
 Examples:
@@ -1111,13 +1109,11 @@ jsonquery(user, '(.firstName + " ") + .lastName')
 
 ## subtract (`-`)
 
-Subtract two or more values. The operator evaluated left-to-right (left associative).
+Subtract two values.
 
 ```text
 a - b
-a - b - c - ...
 subtract(a, b)
-subtract(a, b, c, ...)
 ```
 
 Examples:
@@ -1130,13 +1126,11 @@ jsonquery(data, '.a - .b') // 4
 
 ## multiply (`*`)
 
-Multiply two or more values. The operator evaluated left-to-right (left associative).
+Multiply two values.
 
 ```text
 a * b
-a * b * c * ...
 multiply(a, b)
-multiply(a, b, c, ...)
 ```
 
 Examples:
@@ -1149,13 +1143,11 @@ jsonquery(data, '.a * .b') // 12
 
 ## divide (`/`)
 
-Divide two or more values. The operator evaluated left-to-right (left associative).
+Divide two values.
 
 ```text
 a / b
-a / b / c / ...
 divide(a, b)
-divide(a, b, c, ...)
 ```
 
 Examples:
@@ -1185,13 +1177,11 @@ jsonquery(data, '.a ^ .b') // 8
 
 ## mod (`%`)
 
-Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`. Multiple values can be chained, in that case they are evaluated left-to-right (left associative).
+Calculate the remainder (the modulus) of `a` divided by `b`, like `a % b`.
 
 ```text
 a % b
-a % b % c % ...
 mod(a, b)
-mod(a, b, c, ...)
 ```
 
 Examples:
