@@ -51,7 +51,8 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
       const right = parseOperator(precedenceLevel - 1)
 
-      const chained = name === left[0]
+      const childName = left[0]
+      const chained = name === childName
       if (chained && !allVarargOperators.includes(allOperatorsMap[name])) {
         i = start
         break

@@ -46,6 +46,40 @@
     },
     {
       "category": "operator",
+      "description": "should wrap operators with the same precedence in parenthesis when needed",
+      "tests": [
+        { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
+        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "2 * 3 * 4" },
+        { "input": ["multiply", 2, ["multiply", 3, 4]], "output": "2 * (3 * 4)" },
+        { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
+        { "input": ["divide", ["divide", 2, 3], 4], "output": "2 / 3 / 4" },
+        { "input": ["divide", 2, ["divide", 3, 4]], "output": "2 / (3 / 4)" },
+        { "input": ["divide", ["multiply", 2, 3], 4], "output": "2 * 3 / 4" },
+        { "input": ["divide", 2, ["multiply", 3, 4]], "output": "2 / (3 * 4)" },
+        { "input": ["divide", 2, 3, ["multiply", 4, 5]], "output": "2 / 3 / (4 * 5)" },
+        {
+          "input": ["divide", 2, ["multiply", 3, 4], ["multiply", 5, 6]],
+          "output": "2 / (3 * 4) / (5 * 6)"
+        },
+        { "input": ["multiply", ["divide", 2, 3], 4], "output": "2 / 3 * 4" },
+        { "input": ["mod", 2, 3, 4], "output": "2 % 3 % 4" },
+        { "input": ["mod", ["mod", 2, 3], 4], "output": "2 % 3 % 4" },
+        { "input": ["mod", 2, ["mod", 3, 4]], "output": "2 % (3 % 4)" },
+        { "input": ["mod", ["multiply", 2, 3], 4], "output": "2 * 3 % 4" },
+        { "input": ["multiply", ["mod", 2, 3], 4], "output": "2 % 3 * 4" },
+        { "input": ["add", 2, 3, 4], "output": "2 + 3 + 4" },
+        { "input": ["add", ["add", 2, 3], 4], "output": "2 + 3 + 4" },
+        { "input": ["add", 2, ["add", 3, 4]], "output": "2 + (3 + 4)" },
+        { "input": ["subtract", 2, 3, 4], "output": "2 - 3 - 4" },
+        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "2 - 3 - 4" },
+        { "input": ["subtract", 2, ["subtract", 3, 4]], "output": "2 - (3 - 4)" },
+        { "input": ["subtract", ["add", 2, 3], 4], "output": "2 + 3 - 4" },
+        { "input": ["subtract", 2, ["add", 3, 4]], "output": "2 - (3 + 4)" },
+        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" }
+      ]
+    },
+    {
+      "category": "operator",
       "description": "should wrap operators with differing precedence in parenthesis when needed",
       "tests": [
         { "input": ["abs", ["add", 2, 3]], "output": "abs(2 + 3)" },
@@ -67,29 +101,10 @@
     },
     {
       "category": "operator",
-      "description": "should wrap operators with the same precedence in parenthesis when needed (must maintain original JSON structure when parsing again)",
+      "description": "should wrap operators in without vararg support in parenthesis",
       "tests": [
-        { "input": ["add", ["add", 2, 3], 4], "output": "(2 + 3) + 4" },
-        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" },
-        { "input": ["add", 2, ["subtract", 3, 4]], "output": "2 + (3 - 4)" },
-        { "input": ["add", 2, ["add", 3, 4]], "output": "2 + (3 + 4)" },
-        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "(2 - 3) - 4" },
-        { "input": ["subtract", ["add", 2, 3], 4], "output": "2 + 3 - 4" },
-        { "input": ["subtract", 2, ["add", 3, 4]], "output": "2 - (3 + 4)" },
-        { "input": ["subtract", 2, ["subtract", 3, 4]], "output": "2 - (3 - 4)" },
-        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "(2 * 3) * 4" },
-        { "input": ["multiply", ["divide", 2, 3], 4], "output": "2 / 3 * 4" },
-        { "input": ["multiply", ["mod", 2, 3], 4], "output": "2 % 3 * 4" },
-        { "input": ["multiply", 2, ["multiply", 3, 4]], "output": "2 * (3 * 4)" },
-        { "input": ["divide", ["divide", 2, 3], 4], "output": "(2 / 3) / 4" },
-        { "input": ["divide", ["multiply", 2, 3], 4], "output": "2 * 3 / 4" },
-        { "input": ["divide", 2, ["divide", 3, 4]], "output": "2 / (3 / 4)" },
-        { "input": ["divide", 2, ["multiply", 3, 4]], "output": "2 / (3 * 4)" },
-        { "input": ["mod", ["mod", 2, 3], 4], "output": "(2 % 3) % 4" },
-        { "input": ["mod", ["multiply", 2, 3], 4], "output": "2 * 3 % 4" },
-        { "input": ["mod", ["divide", 2, 3], 4], "output": "2 / 3 % 4" },
-        { "input": ["mod", 2, ["multiply", 3, 4]], "output": "2 % (3 * 4)" },
-        { "input": ["mod", 2, ["mod", 3, 4]], "output": "2 % (3 % 4)" }
+        { "input": ["pow", ["pow", 2, 3], 4], "output": "(2 ^ 3) ^ 4" },
+        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ (3 ^ 4)" }
       ]
     },
     {
@@ -106,14 +121,6 @@
         { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
         { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
         { "input": ["mod", 2, 3, 4], "output": "2 % 3 % 4" }
-      ]
-    },
-    {
-      "category": "operator",
-      "description": "should wrap operators in parenthesis when needed because of a lack of vararg support",
-      "tests": [
-        { "input": ["pow", ["pow", 2, 3], 4], "output": "(2 ^ 3) ^ 4" },
-        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ (3 ^ 4)" }
       ]
     },
     {
