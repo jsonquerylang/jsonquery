@@ -27,10 +27,6 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
   }
 }
 
-const reduceArgs = (fn: (...args: unknown[]) => unknown) => {
-  return (...args: unknown[]) => args.reduce(fn)
-}
-
 export const functions: FunctionBuildersMap = {
   pipe: (...entries: JSONQuery[]) => {
     const _entries = entries.map((entry) => compile(entry))
@@ -251,8 +247,8 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  and: buildFunction(reduceArgs((a, b) => !!(a && b))),
-  or: buildFunction(reduceArgs((a, b) => !!(a || b))),
+  and: buildFunction((...args) => args.reduce((a, b) => !!(a && b))),
+  or: buildFunction((...args) => args.reduce((a, b) => !!(a || b))),
   not: buildFunction((a: unknown) => !a),
 
   exists: (queryGet: JSONQueryFunction) => {
@@ -297,11 +293,11 @@ export const functions: FunctionBuildersMap = {
   lte: buildFunction((a, b) => a <= b),
   ne: buildFunction((a, b) => a !== b),
 
-  add: buildFunction(reduceArgs((a: number, b: number) => a + b)),
-  subtract: buildFunction(reduceArgs((a: number, b: number) => a - b)),
-  multiply: buildFunction(reduceArgs((a: number, b: number) => a * b)),
-  divide: buildFunction(reduceArgs((a: number, b: number) => a / b)),
-  mod: buildFunction(reduceArgs((a: number, b: number) => a % b)),
+  add: buildFunction((a: number, b: number) => a + b),
+  subtract: buildFunction((a: number, b: number) => a - b),
+  multiply: buildFunction((a: number, b: number) => a * b),
+  divide: buildFunction((a: number, b: number) => a / b),
+  mod: buildFunction((a: number, b: number) => a % b),
   pow: buildFunction((a: number, b: number) => a ** b),
 
   abs: buildFunction(Math.abs),

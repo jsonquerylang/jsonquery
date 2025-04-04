@@ -1,5 +1,5 @@
 import { functions } from './functions'
-import { extendOperators, extendVarargOperators, operators, varargOperators } from './operators'
+import { extendOperators, leftAssociativeOperators, operators, varargOperators } from './operators'
 import {
   startsWithIntRegex,
   startsWithKeywordRegex,
@@ -30,7 +30,12 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   const allFunctions = { ...functions, ...options?.functions }
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
-  const allVarargOperators = extendVarargOperators(varargOperators, customOperators)
+  const allVarargOperators = varargOperators.concat(
+    customOperators.filter((op) => op.vararg).map((op) => op.op)
+  )
+  const allLeftAssociativeOperators = leftAssociativeOperators.concat(
+    customOperators.filter((op) => op.leftAssociative).map((op) => op.op)
+  )
 
   const parseOperator = (precedenceLevel: number) => {
     const currentOperators = allOperators[precedenceLevel]
@@ -54,12 +59,15 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
       const childName = left[0]
       const chained = name === childName && !leftParenthesis
-      if (chained && !allVarargOperators.includes(allOperatorsMap[name])) {
+      if (chained && !allLeftAssociativeOperators.includes(allOperatorsMap[name])) {
         i = start
         break
       }
 
-      left = chained ? [...left, right] : [name, left, right]
+      left =
+        chained && allVarargOperators.includes(allOperatorsMap[name])
+          ? [...left, right]
+          : [name, left, right]
     }
 
     return left

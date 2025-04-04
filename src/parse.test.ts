@@ -65,12 +65,28 @@ describe('customization', () => {
     expect(() => parse('2 ~= 3 ~= 4', options)).toThrow("Unexpected part '~= 4'")
   })
 
-  test('should parse a custom operator with vararg', () => {
+  test('should parse a custom operator with vararg without leftAssociative', () => {
     const options: JSONQueryParseOptions = {
       operators: [{ name: 'aboutEq', op: '~=', at: '==', vararg: true }]
     }
 
     expect(parse('2 and 3 and 4', options)).toEqual(['and', 2, 3, 4])
+    expect(parse('2 ~= 3', options)).toEqual(['aboutEq', 2, 3])
+    expect(parse('2 ~= 3 and 4', options)).toEqual(['and', ['aboutEq', 2, 3], 4])
+    expect(parse('2 and 3 ~= 4', options)).toEqual(['and', 2, ['aboutEq', 3, 4]])
+    expect(parse('2 == 3 ~= 4', options)).toEqual(['aboutEq', ['eq', 2, 3], 4])
+    expect(parse('2 ~= 3 == 4', options)).toEqual(['eq', ['aboutEq', 2, 3], 4])
+    expect(() => parse('2 ~= 3 ~= 4', options)).toThrow("Unexpected part '~= 4'")
+    expect(() => parse('2 == 3 == 4', options)).toThrow("Unexpected part '== 4'")
+  })
+
+  test('should parse a custom operator with vararg with leftAssociative', () => {
+    const options: JSONQueryParseOptions = {
+      operators: [{ name: 'aboutEq', op: '~=', at: '==', vararg: true, leftAssociative: true }]
+    }
+
+    expect(parse('2 and 3 and 4', options)).toEqual(['and', 2, 3, 4])
+    expect(parse('2 ~= 3', options)).toEqual(['aboutEq', 2, 3])
     expect(parse('2 ~= 3 ~= 4', options)).toEqual(['aboutEq', 2, 3, 4])
     expect(() => parse('2 == 3 == 4', options)).toThrow("Unexpected part '== 4'")
   })

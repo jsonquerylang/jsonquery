@@ -948,13 +948,6 @@
       "query": ["and", true, true],
       "output": true
     },
-    {
-      "category": "and",
-      "description": "should calculate and with more than two arguments",
-      "input": null,
-      "query": ["and", true, true, false],
-      "output": false
-    },
 
     {
       "category": "or",
@@ -1282,13 +1275,6 @@
       "query": ["add", "is:", true],
       "output": "is:true"
     },
-    {
-      "category": "add",
-      "description": "should add more than two arguments",
-      "input": null,
-      "query": ["add", 6, 2, 3],
-      "output": 11
-    },
 
     {
       "category": "subtract",
@@ -1303,13 +1289,6 @@
       "input": null,
       "query": ["subtract", 6, 2],
       "output": 4
-    },
-    {
-      "category": "subtract",
-      "description": "should subtract more than two arguments",
-      "input": null,
-      "query": ["subtract", 6, 2, 1],
-      "output": 3
     },
 
     {
@@ -1326,13 +1305,6 @@
       "query": ["multiply", 6, 2],
       "output": 12
     },
-    {
-      "category": "multiply",
-      "description": "should multiply more than two arguments",
-      "input": null,
-      "query": ["multiply", 6, 2, 3],
-      "output": 36
-    },
 
     {
       "category": "divide",
@@ -1347,13 +1319,6 @@
       "input": null,
       "query": ["divide", 6, 2],
       "output": 3
-    },
-    {
-      "category": "divide",
-      "description": "should divide more than two arguments",
-      "input": null,
-      "query": ["divide", 6, 2, 3],
-      "output": 1
     },
 
     {
@@ -1390,13 +1355,6 @@
       "description": "should calculate the remainder (the modulus) of two numbers",
       "input": null,
       "query": ["mod", 8, 3],
-      "output": 2
-    },
-    {
-      "category": "mod",
-      "description": "should calculate the modulus for more than two arguments",
-      "input": null,
-      "query": ["mod", 20, 12, 3],
       "output": 2
     },
 

@@ -10,7 +10,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small: just `3.5 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
+- Small: just `3.7 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
 - Feature rich (50+ powerful functions and operators)
 - Easy to interoperate with thanks to the intermediate JSON format.
 - Expressive
@@ -404,9 +404,9 @@ Here:
 
     ```ts
     type CustomOperator =
-      | { name: string; op: string; at: string; vararg?: boolean }
-      | { name: string; op: string; after: string; vararg?: boolean }
-      | { name: string; op: string; before: string; vararg?: boolean }
+      | { name: string; op: string; at: string; vararg?: boolean, leftAssociative?: boolean }
+      | { name: string; op: string; after: string; vararg?: boolean, leftAssociative?: boolean }
+      | { name: string; op: string; before: string; vararg?: boolean, leftAssociative?: boolean }
     ```
 
     The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
@@ -428,8 +428,10 @@ Here:
       }
       ```
 
-    When the function of the operator supports more than two arguments, like `and(a, b, c, ...)`, the option `vararg` can be set `true` to allow using a chain of multiple operators without parenthesis, like `a and b and c`. When `vararg` is not set `true`, this would throw an exception, which can be solved by using parenthesis like `(a and b) and c`.
+    To allow using a chain of multiple operators without parenthesis, like `a and b and c`, the option `leftAssociative` can be set `true`. Without this, an exception will be thrown, which can be solved by using parenthesis like `(a and b) and c`.
 
+    When the function of the operator supports more than two arguments, like `and(a, b, c, ...)`, the option `vararg` can be set `true`. In that case, a chain of operators like `a and b and c` will be parsed into the JSON Format `["and", a, b, c, ...]`.  Operators that do not support variable arguments, like `1 + 2 + 3`, will be parsed into a nested JSON Format like `["add", ["add", 1, 2], 3]`.
+  
     All build-in operators and their precedence are listed in the section [Operators](#operators).
 
 Here an example of using the function `jsonquery`:

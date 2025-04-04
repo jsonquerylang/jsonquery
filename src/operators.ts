@@ -13,7 +13,8 @@ export const operators: OperatorGroup[] = [
   { or: 'or' }
 ]
 
-export const varargOperators = ['|', '*', '/', '%', '+', '-', 'and', 'or']
+export const varargOperators = ['|', 'and', 'or']
+export const leftAssociativeOperators = ['|', 'and', 'or', '*', '/', '%', '+', '-']
 
 export function extendOperators(operators: OperatorGroup[], customOperators: CustomOperator[]) {
   // backward compatibility error with v4 where `operators` was an object
@@ -42,16 +43,4 @@ function extendOperator(
   }
 
   throw new Error('Invalid custom operator')
-}
-
-export function extendVarargOperators(
-  varargOperators: string[],
-  customOperators: CustomOperator[]
-): string[] {
-  return [
-    ...varargOperators,
-    ...customOperators
-      .filter((customOperator) => customOperator.vararg)
-      .map((customOperator) => customOperator.op)
-  ]
 }
