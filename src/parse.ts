@@ -38,6 +38,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       return parseParenthesis()
     }
 
+    const leftParenthesis = query[i] === '('
     let left = parseOperator(precedenceLevel - 1)
 
     while (true) {
@@ -52,7 +53,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       const right = parseOperator(precedenceLevel - 1)
 
       const childName = left[0]
-      const chained = name === childName
+      const chained = name === childName && !leftParenthesis
       if (chained && !allVarargOperators.includes(allOperatorsMap[name])) {
         i = start
         break

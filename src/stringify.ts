@@ -1,5 +1,5 @@
 import { isArray } from './is'
-import { extendOperators, extendVarargOperators, operators, varargOperators } from './operators'
+import { extendOperators, operators } from './operators'
 import { unquotedPropertyRegex } from './regexps'
 import type {
   JSONPath,
@@ -37,7 +37,6 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const customOperators = options?.operators ?? []
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
-  const allVarargOperators = extendVarargOperators(varargOperators, customOperators)
 
   const _stringify = (query: JSONQuery, indent: string, parenthesis = false) =>
     isArray(query)
@@ -74,16 +73,9 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
         const childName = child?.[0]
         const precedence = allOperators.findIndex((group) => name in group)
         const childPrecedence = allOperators.findIndex((group) => childName in group)
+        const parenthesis = precedence <= childPrecedence && (index > 0 || name === childName)
 
-        const higherPrecedence = precedence > childPrecedence
-        const isFirstArgument = index === 0 // we only support left associative operators
-        const selfWithVarargSupport =
-          isFirstArgument && name === childName && allVarargOperators.includes(op)
-        const notSelf = isFirstArgument && name !== childName
-
-        const noParenthesis = higherPrecedence || selfWithVarargSupport || notSelf
-
-        return _stringify(child, indent + space, !noParenthesis)
+        return _stringify(child, indent + space, parenthesis)
       })
 
       return join(argsStr, [start, ` ${op} `, end], [start, `\n${indent + space}${op} `, end])

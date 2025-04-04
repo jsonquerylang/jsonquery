@@ -232,6 +232,26 @@
     },
     {
       "category": "operator",
+      "description": "should keep the structure based on parenthesis",
+      "tests": [
+        { "input": "(2 * 3) * 4", "output": ["multiply", ["multiply", 2, 3], 4] },
+        {
+          "input": "((2 * 3) * 4) * 5",
+          "output": ["multiply", ["multiply", ["multiply", 2, 3], 4], 5]
+        },
+        {
+          "input": "(2 * 3) * (4 * 5)",
+          "output": ["multiply", ["multiply", 2, 3], ["multiply", 4, 5]]
+        },
+        { "input": "2 * (3 * 4)", "output": ["multiply", 2, ["multiply", 3, 4]] },
+        { "input": "(2 + 3) + 4", "output": ["add", ["add", 2, 3], 4] },
+        { "input": "2 + (3 + 4)", "output": ["add", 2, ["add", 3, 4]] },
+        { "input": "(2 - 3) - 4", "output": ["subtract", ["subtract", 2, 3], 4] },
+        { "input": "2 - (3 - 4)", "output": ["subtract", 2, ["subtract", 3, 4]] }
+      ]
+    },
+    {
+      "category": "operator",
       "description": "should throw an error in case of an unknown operator",
       "tests": [
         { "input": ".a === \"A\"", "throws": "Value expected (pos: 5)" },
