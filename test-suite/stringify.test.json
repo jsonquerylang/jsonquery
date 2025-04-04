@@ -84,8 +84,10 @@
       "tests": [
         { "input": ["abs", ["add", 2, 3]], "output": "abs(2 + 3)" },
         { "input": ["multiply", ["pow", 2, 3], 4], "output": "2 ^ 3 * 4" },
+        { "input": ["multiply", 2, ["pow", 3, 4]], "output": "2 * 3 ^ 4" },
         { "input": ["pow", 2, ["multiply", 3, 4]], "output": "2 ^ (3 * 4)" },
         { "input": ["add", ["multiply", 2, 3], 4], "output": "2 * 3 + 4" },
+        { "input": ["add", 2, ["multiply", 3, 4]], "output": "2 + 3 * 4" },
         { "input": ["multiply", 2, ["add", 3, 4]], "output": "2 * (3 + 4)" },
         { "input": ["gt", ["add", 2, 3], 4], "output": "2 + 3 > 4" },
         { "input": ["add", 2, ["gt", 3, 4]], "output": "2 + (3 > 4)" },

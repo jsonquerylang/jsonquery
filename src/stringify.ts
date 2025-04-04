@@ -72,15 +72,16 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
 
       const argsStr = args.map((child, index) => {
         const childName = child?.[0]
-        const firstGroup = allOperators.filter((group) => name in group || childName in group)[0]
+        const precedence = allOperators.findIndex((group) => name in group)
+        const childPrecedence = allOperators.findIndex((group) => childName in group)
 
-        const higherPrecedence = !(name in firstGroup)
+        const higherPrecedence = precedence > childPrecedence
+        const isFirstArgument = index === 0 // we only support left associative operators
         const selfWithVarargSupport =
-          name === childName && allVarargOperators.includes(op) && index === 0
-        const leftWithSamePrecedence =
-          name !== childName && name in firstGroup && childName in firstGroup && index === 0
+          isFirstArgument && name === childName && allVarargOperators.includes(op)
+        const notSelf = isFirstArgument && name !== childName
 
-        const noParenthesis = higherPrecedence || selfWithVarargSupport || leftWithSamePrecedence
+        const noParenthesis = higherPrecedence || selfWithVarargSupport || notSelf
 
         return _stringify(child, indent + space, !noParenthesis)
       })
