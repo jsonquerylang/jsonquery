@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>jsonquery browser test - parse and stringify</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f5f5f5;
+      }
+
+      textarea {
+        width: 500px;
+        height: 400px;
+      }
+
+      .sections {
+        display: flex;
+        flex-direction: row;
+        gap: 1em;
+      }
+
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      label {
+        color: dodgerblue;
+        margin-top: 10px;
+      }
+
+      .error {
+        color: orangered;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <h1>jsonquery browser test - parse and stringify</h1>
+      <div class="sections">
+        <div class="section">
+          <label for="text-format">Text Format</label>
+          <textarea id="text-format">filter(.city == "New York") | map(.name)</textarea>
+
+          <label for="text-format-back">Text Format (after parse and stringify)</label>
+          <pre id="text-format-back"></pre>
+        </div>
+
+        <div class="section">
+          <label for="json-format">JSON Format</label>
+          <textarea id="json-format"></textarea>
+
+          <label for="json-format-back">JSON Format (after stringify and parse)</label>
+          <pre id="json-format-back"></pre>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { parse, stringify } from '../lib/jsonquery.js'
+
+      const refTextFormat = document.getElementById('text-format')
+      const refTextFormatBack = document.getElementById('text-format-back')
+      const refJsonFormat = document.getElementById('json-format')
+      const refJsonFormatBack = document.getElementById('json-format-back')
+
+      function toJsonFormat() {
+        try {
+          const json = parse(refTextFormat.value)
+
+          refJsonFormat.value = JSON.stringify(json, null, 2)
+          refJsonFormat.classList.remove('error')
+
+          // convert back to see whether the text stays the same
+          refTextFormatBack.innerText = stringify(json)
+          refJsonFormatBack.innerText = ''
+        } catch (err) {
+          console.error({ message: err.message, stack: err.query })
+          refJsonFormat.value = String(err)
+          refJsonFormat.classList.add('error')
+        }
+      }
+
+      function toTextFormat() {
+        try {
+          const text = stringify(JSON.parse(refJsonFormat.value))
+
+          refTextFormat.value = text
+          refTextFormat.classList.remove('error')
+
+          // convert back to see whether the json stays the same
+          refJsonFormatBack.innerText = JSON.stringify(parse(refTextFormat.value), null, 2)
+          refTextFormatBack.innerText = ''
+        } catch (err) {
+          console.error({ message: err.message, stack: err.query })
+          refTextFormat.value = String(err)
+          refTextFormat.classList.add('error')
+        }
+      }
+
+      refTextFormat.addEventListener('input', toJsonFormat)
+      refJsonFormat.addEventListener('input', toTextFormat)
+      toJsonFormat()
+    </script>
+  </body>
+</html>
