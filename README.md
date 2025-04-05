@@ -214,14 +214,14 @@ The operators have the following precedence, from highest to lowest:
 
 | Precedence                  | Associativity | Operators                            |
 |-----------------------------|---------------|--------------------------------------|
-| 8: pipe                     | left-to-right | `\|`                                 |
-| 7: exponentiation           | n/a           | `^`                                  |
-| 6: multiplicative operators | left-to-right | `*`, `/`, `%`                        |
-| 5: additive operators       | left-to-right | `+`, `-`                             |
-| 4: relational operators     | n/a           | `>`, `>=`, `<`, `<=`, `in`, `not in` |
-| 3: equality operators       | n/a           | `==`, `!=`                           |
-| 2: and                      | left-to-right | `and`                                |
-| 1: or                       | left-to-right | `or`                                 |
+| 8: exponentiation           | n/a           | `^`                                  |
+| 7: multiplicative operators | left-to-right | `*`, `/`, `%`                        |
+| 6: additive operators       | left-to-right | `+`, `-`                             |
+| 5: relational operators     | n/a           | `>`, `>=`, `<`, `<=`, `in`, `not in` |
+| 4: equality operators       | n/a           | `==`, `!=`                           |
+| 3: and                      | left-to-right | `and`                                |
+| 2: or                       | left-to-right | `or`                                 |
+| 1: pipe                     | left-to-right | `\|`                                 |
 
 See section [Function reference](reference/functions.md) for a detailed overview of all available functions and operators.
 

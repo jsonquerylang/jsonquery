@@ -217,7 +217,9 @@
         { "input": "2 and 3 or 4", "output": ["or", ["and", 2, 3], 4] },
         { "input": "2 or 3 and 4", "output": ["or", 2, ["and", 3, 4]] },
         { "input": "2 > 3 and 4", "output": ["and", ["gt", 2, 3], 4] },
-        { "input": "2 and 3 > 4", "output": ["and", 2, ["gt", 3, 4]] }
+        { "input": "2 and 3 > 4", "output": ["and", 2, ["gt", 3, 4]] },
+        { "input": "2 or 3 | 4", "output": ["pipe", ["or", 2, 3], 4] },
+        { "input": "2 | 3 or 4", "output": ["pipe", 2, ["or", 3, 4]] }
       ]
     },
     {

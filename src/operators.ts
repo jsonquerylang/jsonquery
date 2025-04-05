@@ -3,14 +3,14 @@ import type { CustomOperator, OperatorGroup } from './types'
 
 // operator precedence from highest to lowest
 export const operators: OperatorGroup[] = [
-  { pipe: '|' },
   { pow: '^' },
   { multiply: '*', divide: '/', mod: '%' },
   { add: '+', subtract: '-' },
   { gt: '>', gte: '>=', lt: '<', lte: '<=', in: 'in', 'not in': 'not in' },
   { eq: '==', ne: '!=' },
   { and: 'and' },
-  { or: 'or' }
+  { or: 'or' },
+  { pipe: '|' }
 ]
 
 export const varargOperators = ['|', 'and', 'or']
