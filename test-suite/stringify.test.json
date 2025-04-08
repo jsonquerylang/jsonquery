@@ -127,19 +127,6 @@
       ]
     },
     {
-      "category": "operator",
-      "description": "should stringify a custom operator",
-      "options": {
-        "operators": [{ "name": "aboutEq", "op": "~=", "at": "==" }]
-      },
-      "tests": [
-        { "input": ["aboutEq", 2, 3], "output": "2 ~= 3" },
-        { "input": ["filter", ["aboutEq", 2, 3]], "output": "filter(2 ~= 3)" },
-        { "input": ["object", { "result": ["aboutEq", 2, 3] }], "output": "{ result: 2 ~= 3 }" },
-        { "input": ["eq", 2, 3], "output": "2 == 3" }
-      ]
-    },
-    {
       "category": "function",
       "description": "should stringify a function",
       "tests": [

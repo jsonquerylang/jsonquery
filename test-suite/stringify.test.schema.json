@@ -20,11 +20,7 @@
             "type": "object",
             "properties": {
               "indentation": { "type": "string" },
-              "maxLineLength": { "type": "number" },
-              "operators": {
-                "type": "array",
-                "items": { "type": "object" }
-              }
+              "maxLineLength": { "type": "number" }
             }
           },
           "tests": {
