@@ -48,11 +48,11 @@
       "category": "operator",
       "description": "should wrap operators with the same precedence in parenthesis when needed",
       "tests": [
-        { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
-        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "(2 * 3) * 4" },
+        { "input": ["pow", ["pow", 2, 3], 4], "output": "(2 ^ 3) ^ 4" },
+        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ (3 ^ 4)" },
+        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "2 * 3 * 4" },
         { "input": ["multiply", 2, ["multiply", 3, 4]], "output": "2 * (3 * 4)" },
-        { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
-        { "input": ["divide", ["divide", 2, 3], 4], "output": "(2 / 3) / 4" },
+        { "input": ["divide", ["divide", 2, 3], 4], "output": "2 / 3 / 4" },
         { "input": ["divide", 2, ["divide", 3, 4]], "output": "2 / (3 / 4)" },
         { "input": ["divide", ["multiply", 2, 3], 4], "output": "2 * 3 / 4" },
         { "input": ["divide", 2, ["multiply", 3, 4]], "output": "2 / (3 * 4)" },
@@ -62,20 +62,19 @@
           "output": "2 / (3 * 4) / (5 * 6)"
         },
         { "input": ["multiply", ["divide", 2, 3], 4], "output": "2 / 3 * 4" },
-        { "input": ["mod", 2, 3, 4], "output": "2 % 3 % 4" },
-        { "input": ["mod", ["mod", 2, 3], 4], "output": "(2 % 3) % 4" },
+        { "input": ["mod", ["mod", 2, 3], 4], "output": "2 % 3 % 4" },
         { "input": ["mod", 2, ["mod", 3, 4]], "output": "2 % (3 % 4)" },
         { "input": ["mod", ["multiply", 2, 3], 4], "output": "2 * 3 % 4" },
         { "input": ["multiply", ["mod", 2, 3], 4], "output": "2 % 3 * 4" },
-        { "input": ["add", 2, 3, 4], "output": "2 + 3 + 4" },
-        { "input": ["add", ["add", 2, 3], 4], "output": "(2 + 3) + 4" },
+        { "input": ["add", ["add", 2, 3], 4], "output": "2 + 3 + 4" },
         { "input": ["add", 2, ["add", 3, 4]], "output": "2 + (3 + 4)" },
-        { "input": ["subtract", 2, 3, 4], "output": "2 - 3 - 4" },
-        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "(2 - 3) - 4" },
+        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "2 - 3 - 4" },
         { "input": ["subtract", 2, ["subtract", 3, 4]], "output": "2 - (3 - 4)" },
         { "input": ["subtract", ["add", 2, 3], 4], "output": "2 + 3 - 4" },
         { "input": ["subtract", 2, ["add", 3, 4]], "output": "2 - (3 + 4)" },
-        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" }
+        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" },
+        { "input": ["eq", ["eq", 2, 3], 4], "output": "(2 == 3) == 4" },
+        { "input": ["eq", 2, ["eq", 3, 4]], "output": "2 == (3 == 4)" }
       ]
     },
     {
@@ -86,27 +85,29 @@
         { "input": ["multiply", ["pow", 2, 3], 4], "output": "2 ^ 3 * 4" },
         { "input": ["multiply", 2, ["pow", 3, 4]], "output": "2 * 3 ^ 4" },
         { "input": ["pow", 2, ["multiply", 3, 4]], "output": "2 ^ (3 * 4)" },
+        { "input": ["pow", ["multiply", 2, 3], 4], "output": "(2 * 3) ^ 4" },
         { "input": ["add", ["multiply", 2, 3], 4], "output": "2 * 3 + 4" },
         { "input": ["add", 2, ["multiply", 3, 4]], "output": "2 + 3 * 4" },
         { "input": ["multiply", 2, ["add", 3, 4]], "output": "2 * (3 + 4)" },
+        { "input": ["multiply", ["add", 2, 3], 4], "output": "(2 + 3) * 4" },
         { "input": ["gt", ["add", 2, 3], 4], "output": "2 + 3 > 4" },
+        { "input": ["gt", 2, ["add", 3, 4]], "output": "2 > 3 + 4" },
         { "input": ["add", 2, ["gt", 3, 4]], "output": "2 + (3 > 4)" },
+        { "input": ["add", ["gt", 2, 3], 4], "output": "(2 > 3) + 4" },
         { "input": ["eq", ["gt", 2, 3], 4], "output": "2 > 3 == 4" },
         { "input": ["gt", 2, ["eq", 3, 4]], "output": "2 > (3 == 4)" },
         { "input": ["and", ["eq", 2, 3], 4], "output": "2 == 3 and 4" },
         { "input": ["eq", 2, ["and", 3, 4]], "output": "2 == (3 and 4)" },
+        { "input": ["eq", ["and", 2, 3], 4], "output": "(2 and 3) == 4" },
         { "input": ["or", ["and", 2, 3], 4], "output": "2 and 3 or 4" },
         { "input": ["and", 2, ["or", 3, 4]], "output": "2 and (3 or 4)" },
         { "input": ["and", ["gt", 2, 3], 4], "output": "2 > 3 and 4" },
-        { "input": ["gt", 2, ["and", 3, 4]], "output": "2 > (3 and 4)" }
-      ]
-    },
-    {
-      "category": "operator",
-      "description": "should wrap operators in without vararg support in parenthesis",
-      "tests": [
-        { "input": ["pow", ["pow", 2, 3], 4], "output": "(2 ^ 3) ^ 4" },
-        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ (3 ^ 4)" }
+        { "input": ["gt", 2, ["and", 3, 4]], "output": "2 > (3 and 4)" },
+        { "input": ["gt", ["and", 2, 3], 4], "output": "(2 and 3) > 4" },
+        { "input": ["pipe", ["and", 2, 3], 4], "output": "2 and 3 | 4" },
+        { "input": ["pipe", 2, ["and", 3, 4]], "output": "2 | 3 and 4" },
+        { "input": ["and", ["pipe", 2, 3], 4], "output": "(2 | 3) and 4" },
+        { "input": ["and", 2, ["pipe", 3, 4]], "output": "2 and (3 | 4)" }
       ]
     },
     {

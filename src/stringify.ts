@@ -1,5 +1,5 @@
 import { isArray } from './is'
-import { extendOperators, operators } from './operators'
+import { extendOperators, leftAssociativeOperators, operators } from './operators'
 import { unquotedPropertyRegex } from './regexps'
 import type {
   JSONPath,
@@ -37,6 +37,9 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
   const customOperators = options?.operators ?? []
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
+  const allLeftAssociativeOperators = leftAssociativeOperators.concat(
+    customOperators.filter((op) => op.leftAssociative).map((op) => op.op)
+  )
 
   const _stringify = (query: JSONQuery, indent: string, parenthesis = false) =>
     isArray(query)
@@ -73,7 +76,10 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
         const childName = child?.[0]
         const precedence = allOperators.findIndex((group) => name in group)
         const childPrecedence = allOperators.findIndex((group) => childName in group)
-        const parenthesis = precedence <= childPrecedence && (index > 0 || name === childName)
+        const parenthesis =
+          precedence < childPrecedence ||
+          (precedence === childPrecedence && index > 0) ||
+          (name === childName && !allLeftAssociativeOperators.includes(op))
 
         return _stringify(child, indent + space, parenthesis)
       })
