@@ -72,22 +72,22 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
       const start = parenthesis ? '(' : ''
       const end = parenthesis ? ')' : ''
 
-      const argsStr = args.map((child, index) => {
-        const childName = child?.[0]
+      const argsStr = args.map((arg, index) => {
+        const childName = arg?.[0]
         const precedence = allOperators.findIndex((group) => name in group)
         const childPrecedence = allOperators.findIndex((group) => childName in group)
-        const parenthesis =
+        const childParenthesis =
           precedence < childPrecedence ||
           (precedence === childPrecedence && index > 0) ||
           (name === childName && !allLeftAssociativeOperators.includes(op))
 
-        return _stringify(child, indent + space, parenthesis)
+        return _stringify(arg, indent + space, childParenthesis)
       })
 
       return join(argsStr, [start, ` ${op} `, end], [start, `\n${indent + space}${op} `, end])
     }
 
-    // regular function like sort(.age)
+    // regular function like "sort(.age)"
     const childIndent = args.length === 1 ? indent : indent + space
     const argsStr = args.map((arg) => _stringify(arg, childIndent))
     return join(
