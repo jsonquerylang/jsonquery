@@ -27,7 +27,6 @@ import type { JSONQuery, JSONQueryParseOptions, OperatorGroup } from './types'
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
   const customOperators = options?.operators ?? []
-  const allFunctions = { ...functions, ...options?.functions }
   const allOperators = extendOperators(operators, customOperators)
   const allOperatorsMap = Object.assign({}, ...allOperators)
   const allVarargOperators = varargOperators.concat(
@@ -134,10 +133,6 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       return parseObject()
     }
     i++
-
-    if (!allFunctions[name]) {
-      throwError(`Unknown function '${name}'`)
-    }
 
     skipWhitespace()
 
