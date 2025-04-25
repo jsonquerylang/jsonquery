@@ -423,6 +423,7 @@ npm run format
 npm run coverage
 npm run build
 npm run build-and-test
+npm run release-dry-run
 ```
 
 Note that a new package is published on [npm](https://www.npmjs.com/package/@jsonquerylang/jsonquery) and [GitHub](https://github.com/jsonquerylang/jsonquery/releases) on changes pushed to the `main` branch. This is done using [`semantic-release`](https://github.com/semantic-release/semantic-release), and we do not use the `version` number in the `package.json` file. A changelog can be found by looking at the [releases on GitHub](https://github.com/jsonquerylang/jsonquery/releases).

@@ -50,7 +50,8 @@
     "format:readme": "prettier README.md --write --ignore-path notneeded",
     "build-and-test": "npm-run-all test-ci lint build",
     "prepublishOnly": "npm run build-and-test",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "release-dry-run": "semantic-release --dry-run --plugins \"@semantic-release/commit-analyzer\""
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
