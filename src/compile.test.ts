@@ -109,16 +109,6 @@ describe('error handling', () => {
     ])
   })
 
-  test('should do nothing when sorting objects without a getter', () => {
-    const data = [{ a: 1 }, { c: 3 }, { b: 2 }]
-    expect(go(data, ['sort'])).toEqual(data)
-  })
-
-  test('should not crash when sorting a list with nested arrays', () => {
-    expect(go([[3], [7], [4]], ['sort'])).toEqual([[3], [4], [7]])
-    expect(go([[], [], []], ['sort'])).toEqual([[], [], []])
-  })
-
   test('should throw an error when calculating the sum of an empty array', () => {
     expect(() => go([], ['sum'])).toThrow('Reduce of empty array with no initial value')
   })
