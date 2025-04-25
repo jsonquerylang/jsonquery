@@ -97,7 +97,7 @@ describe('error handling', () => {
       actualErr = err
     }
 
-    expect(actualErr?.message).toBe("Cannot read properties of null (reading 'reduce')")
+    expect(actualErr?.message).toBe('Array expected')
     expect(actualErr?.jsonquery).toEqual([
       { data: scoreData, query },
       {
@@ -117,18 +117,6 @@ describe('error handling', () => {
   test('should not crash when sorting a list with nested arrays', () => {
     expect(go([[3], [7], [4]], ['sort'])).toEqual([[3], [4], [7]])
     expect(go([[], [], []], ['sort'])).toEqual([[], [], []])
-  })
-
-  test('should throw an error when calculating the sum of an empty array', () => {
-    expect(() => go([], ['sum'])).toThrow('Reduce of empty array with no initial value')
-  })
-
-  test('should throw an error when calculating the prod of an empty array', () => {
-    expect(() => go([], ['prod'])).toThrow('Reduce of empty array with no initial value')
-  })
-
-  test('should throw an error when calculating the average of an empty array', () => {
-    expect(() => go([], ['average'])).toThrow('Reduce of empty array with no initial value')
   })
 })
 

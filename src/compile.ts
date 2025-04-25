@@ -1,4 +1,4 @@
-import { functions } from './functions'
+import { functions, throwTypeError } from './functions'
 import { isArray, isObject } from './is'
 import type {
   Fun,
@@ -47,8 +47,4 @@ function compileFunction(query: JSONQueryFunction, functions: FunctionBuildersMa
   }
 
   return fnBuilder(...args)
-}
-
-function throwTypeError(message: string): () => void {
-  throw new Error(message)
 }

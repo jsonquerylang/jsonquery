@@ -685,6 +685,20 @@
       "query": ["sum"],
       "output": 8.1
     },
+    {
+      "category": "sum",
+      "description": "should throw an error when calculating the sum of an empty array",
+      "input": [],
+      "query": ["sum"],
+      "throws": "Non-empty array expected"
+    },
+    {
+      "category": "sum",
+      "description": "should throw an error when calculating the sum a string",
+      "input": "abc",
+      "query": ["sum"],
+      "throws": "Array expected"
+    },
 
     {
       "category": "min",
@@ -692,6 +706,20 @@
       "input": [3, -4, 1, -7],
       "query": ["min"],
       "output": -7
+    },
+    {
+      "category": "min",
+      "description": "should throw an error when calculating min on an empty array",
+      "input": [],
+      "query": ["min"],
+      "throws": "Non-empty array expected"
+    },
+    {
+      "category": "min",
+      "description": "should throw an error when calculating min on a string",
+      "input": "abc",
+      "query": ["min"],
+      "throws": "Array expected"
     },
 
     {
@@ -701,6 +729,20 @@
       "query": ["max"],
       "output": 3
     },
+    {
+      "category": "max",
+      "description": "should throw an error when calculating max on an empty array",
+      "input": [],
+      "query": ["max"],
+      "throws": "Non-empty array expected"
+    },
+    {
+      "category": "max",
+      "description": "should throw an error when calculating max on a string",
+      "input": "abc",
+      "query": ["max"],
+      "throws": "Array expected"
+    },
 
     {
       "category": "prod",
@@ -708,6 +750,20 @@
       "input": [2, 3, 5],
       "query": ["prod"],
       "output": 30
+    },
+    {
+      "category": "prod",
+      "description": "should throw an error when calculating the prod of an empty array",
+      "input": [],
+      "query": ["prod"],
+      "throws": "Non-empty array expected"
+    },
+    {
+      "category": "prod",
+      "description": "should throw an error when calculating the prod a string",
+      "input": "abc",
+      "query": ["prod"],
+      "throws": "Array expected"
     },
 
     {
@@ -723,6 +779,20 @@
       "input": [2, 3, 2, 7, 1],
       "query": ["average"],
       "output": 3
+    },
+    {
+      "category": "average",
+      "description": "should throw an error when calculating the average of an empty array",
+      "input": [],
+      "query": ["average"],
+      "throws": "Non-empty array expected"
+    },
+    {
+      "category": "average",
+      "description": "should throw an error when calculating the average a string",
+      "input": "abc",
+      "query": ["average"],
+      "throws": "Array expected"
     },
 
     {
@@ -955,6 +1025,27 @@
       "query": ["and", true, true, false],
       "output": false
     },
+    {
+      "category": "and",
+      "description": "should calculate and with one argument (1)",
+      "input": null,
+      "query": ["and", false],
+      "output": false
+    },
+    {
+      "category": "and",
+      "description": "should calculate and with one argument (2)",
+      "input": null,
+      "query": ["and", true],
+      "output": true
+    },
+    {
+      "category": "and",
+      "description": "should throw when calculating and with no arguments",
+      "input": null,
+      "query": ["and"],
+      "throws": "Non-empty array expected"
+    },
 
     {
       "category": "or",
@@ -1011,6 +1102,27 @@
       "input": null,
       "query": ["or", false, false, true],
       "output": true
+    },
+    {
+      "category": "or",
+      "description": "should calculate or with one argument (1)",
+      "input": null,
+      "query": ["or", false],
+      "output": false
+    },
+    {
+      "category": "or",
+      "description": "should calculate or with one argument (2)",
+      "input": null,
+      "query": ["or", true],
+      "output": true
+    },
+    {
+      "category": "or",
+      "description": "should throw when calculating or with no arguments",
+      "input": null,
+      "query": ["or"],
+      "throws": "Non-empty array expected"
     },
 
     {
