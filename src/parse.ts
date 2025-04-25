@@ -1,4 +1,3 @@
-import { functions } from './functions'
 import { extendOperators, leftAssociativeOperators, operators, varargOperators } from './operators'
 import {
   startsWithIntRegex,
