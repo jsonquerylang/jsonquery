@@ -10,7 +10,7 @@ export type JSONQueryProperty = ['get', path?: string | JSONPath]
 
 export interface JSONQueryOptions {
   functions?: FunctionBuildersMap
-  operators?: Record<string, string>
+  operators?: CustomOperator[]
 }
 
 export interface JSONQueryCompileOptions {
@@ -18,20 +18,25 @@ export interface JSONQueryCompileOptions {
 }
 
 export interface JSONQueryStringifyOptions {
-  operators?: Record<string, string>
+  operators?: CustomOperator[]
   maxLineLength?: number
   indentation?: string
 }
 
 export interface JSONQueryParseOptions {
   functions?: Record<string, boolean> | FunctionBuildersMap
-  operators?: Record<string, string>
+  operators?: CustomOperator[]
 }
 
 export type Fun = (data: unknown) => unknown
 export type FunctionBuilder = (...args: JSONQuery[]) => Fun
 export type FunctionBuildersMap = Record<string, FunctionBuilder>
 export type Getter = [key: string, Fun]
+export type OperatorGroup = Record<string, string>
+export type CustomOperator =
+  | { name: string; op: string; at: string; vararg?: boolean; leftAssociative?: boolean }
+  | { name: string; op: string; after: string; vararg?: boolean; leftAssociative?: boolean }
+  | { name: string; op: string; before: string; vararg?: boolean; leftAssociative?: boolean }
 
 export interface Entry<T> {
   key: string

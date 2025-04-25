@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/stringify.test.json",
-  "updated": "2024-11-12T09:00:00Z",
+  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/stringify.test.json",
+  "version": "5.0.0",
   "groups": [
     {
       "category": "property",
@@ -18,43 +18,112 @@
     },
     {
       "category": "operator",
-      "description": "should stringify all  operators",
+      "description": "should stringify all operators",
       "tests": [
-        { "input": ["eq", ["get", "score"], 8], "output": "(.score == 8)" },
-        { "input": ["lt", ["get", "score"], 8], "output": "(.score < 8)" },
-        { "input": ["lte", ["get", "score"], 8], "output": "(.score <= 8)" },
-        { "input": ["gt", ["get", "score"], 8], "output": "(.score > 8)" },
-        { "input": ["gte", ["get", "score"], 8], "output": "(.score >= 8)" },
-        { "input": ["ne", ["get", "score"], 8], "output": "(.score != 8)" },
-        { "input": ["add", ["get", "score"], 8], "output": "(.score + 8)" },
-        { "input": ["subtract", ["get", "score"], 8], "output": "(.score - 8)" },
-        { "input": ["multiply", ["get", "score"], 8], "output": "(.score * 8)" },
-        { "input": ["divide", ["get", "score"], 8], "output": "(.score / 8)" },
-        { "input": ["pow", ["get", "score"], 8], "output": "(.score ^ 8)" },
-        { "input": ["mod", ["get", "score"], 8], "output": "(.score % 8)" },
-        { "input": ["and", ["get", "score"], 8], "output": "(.score and 8)" },
-        { "input": ["or", ["get", "score"], 8], "output": "(.score or 8)" },
+        { "input": ["eq", ["get", "score"], 8], "output": ".score == 8" },
+        { "input": ["lt", ["get", "score"], 8], "output": ".score < 8" },
+        { "input": ["lte", ["get", "score"], 8], "output": ".score <= 8" },
+        { "input": ["gt", ["get", "score"], 8], "output": ".score > 8" },
+        { "input": ["gte", ["get", "score"], 8], "output": ".score >= 8" },
+        { "input": ["ne", ["get", "score"], 8], "output": ".score != 8" },
+        { "input": ["add", ["get", "score"], 8], "output": ".score + 8" },
+        { "input": ["subtract", ["get", "score"], 8], "output": ".score - 8" },
+        { "input": ["multiply", ["get", "score"], 8], "output": ".score * 8" },
+        { "input": ["divide", ["get", "score"], 8], "output": ".score / 8" },
+        { "input": ["pow", ["get", "score"], 8], "output": ".score ^ 8" },
+        { "input": ["mod", ["get", "score"], 8], "output": ".score % 8" },
+        { "input": ["and", ["get", "score"], 8], "output": ".score and 8" },
+        { "input": ["or", ["get", "score"], 8], "output": ".score or 8" },
         {
           "input": ["in", ["get", "score"], ["array", 8, 9, 10]],
-          "output": "(.score in [8, 9, 10])"
+          "output": ".score in [8, 9, 10]"
         },
         {
           "input": ["not in", ["get", "score"], ["array", 8, 9, 10]],
-          "output": "(.score not in [8, 9, 10])"
+          "output": ".score not in [8, 9, 10]"
         }
       ]
     },
     {
       "category": "operator",
-      "description": "should stringify a custom operator",
-      "options": {
-        "operators": { "aboutEq": "~=" }
-      },
+      "description": "should wrap operators with the same precedence in parenthesis when needed",
       "tests": [
-        { "input": ["aboutEq", 2, 3], "output": "(2 ~= 3)" },
-        { "input": ["filter", ["aboutEq", 2, 3]], "output": "filter(2 ~= 3)" },
-        { "input": ["object", { "result": ["aboutEq", 2, 3] }], "output": "{ result: (2 ~= 3) }" },
-        { "input": ["eq", 2, 3], "output": "(2 == 3)" }
+        { "input": ["pow", ["pow", 2, 3], 4], "output": "(2 ^ 3) ^ 4" },
+        { "input": ["pow", 2, ["pow", 3, 4]], "output": "2 ^ (3 ^ 4)" },
+        { "input": ["multiply", ["multiply", 2, 3], 4], "output": "2 * 3 * 4" },
+        { "input": ["multiply", 2, ["multiply", 3, 4]], "output": "2 * (3 * 4)" },
+        { "input": ["divide", ["divide", 2, 3], 4], "output": "2 / 3 / 4" },
+        { "input": ["divide", 2, ["divide", 3, 4]], "output": "2 / (3 / 4)" },
+        { "input": ["divide", ["multiply", 2, 3], 4], "output": "2 * 3 / 4" },
+        { "input": ["divide", 2, ["multiply", 3, 4]], "output": "2 / (3 * 4)" },
+        { "input": ["divide", 2, 3, ["multiply", 4, 5]], "output": "2 / 3 / (4 * 5)" },
+        {
+          "input": ["divide", 2, ["multiply", 3, 4], ["multiply", 5, 6]],
+          "output": "2 / (3 * 4) / (5 * 6)"
+        },
+        { "input": ["multiply", ["divide", 2, 3], 4], "output": "2 / 3 * 4" },
+        { "input": ["mod", ["mod", 2, 3], 4], "output": "2 % 3 % 4" },
+        { "input": ["mod", 2, ["mod", 3, 4]], "output": "2 % (3 % 4)" },
+        { "input": ["mod", ["multiply", 2, 3], 4], "output": "2 * 3 % 4" },
+        { "input": ["multiply", ["mod", 2, 3], 4], "output": "2 % 3 * 4" },
+        { "input": ["add", ["add", 2, 3], 4], "output": "2 + 3 + 4" },
+        { "input": ["add", 2, ["add", 3, 4]], "output": "2 + (3 + 4)" },
+        { "input": ["subtract", ["subtract", 2, 3], 4], "output": "2 - 3 - 4" },
+        { "input": ["subtract", 2, ["subtract", 3, 4]], "output": "2 - (3 - 4)" },
+        { "input": ["subtract", ["add", 2, 3], 4], "output": "2 + 3 - 4" },
+        { "input": ["subtract", 2, ["add", 3, 4]], "output": "2 - (3 + 4)" },
+        { "input": ["add", ["subtract", 2, 3], 4], "output": "2 - 3 + 4" },
+        { "input": ["eq", ["eq", 2, 3], 4], "output": "(2 == 3) == 4" },
+        { "input": ["eq", 2, ["eq", 3, 4]], "output": "2 == (3 == 4)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should wrap operators with differing precedence in parenthesis when needed",
+      "tests": [
+        { "input": ["abs", ["add", 2, 3]], "output": "abs(2 + 3)" },
+        { "input": ["multiply", ["pow", 2, 3], 4], "output": "2 ^ 3 * 4" },
+        { "input": ["multiply", 2, ["pow", 3, 4]], "output": "2 * 3 ^ 4" },
+        { "input": ["pow", 2, ["multiply", 3, 4]], "output": "2 ^ (3 * 4)" },
+        { "input": ["pow", ["multiply", 2, 3], 4], "output": "(2 * 3) ^ 4" },
+        { "input": ["add", ["multiply", 2, 3], 4], "output": "2 * 3 + 4" },
+        { "input": ["add", 2, ["multiply", 3, 4]], "output": "2 + 3 * 4" },
+        { "input": ["multiply", 2, ["add", 3, 4]], "output": "2 * (3 + 4)" },
+        { "input": ["multiply", ["add", 2, 3], 4], "output": "(2 + 3) * 4" },
+        { "input": ["gt", ["add", 2, 3], 4], "output": "2 + 3 > 4" },
+        { "input": ["gt", 2, ["add", 3, 4]], "output": "2 > 3 + 4" },
+        { "input": ["add", 2, ["gt", 3, 4]], "output": "2 + (3 > 4)" },
+        { "input": ["add", ["gt", 2, 3], 4], "output": "(2 > 3) + 4" },
+        { "input": ["eq", ["gt", 2, 3], 4], "output": "2 > 3 == 4" },
+        { "input": ["gt", 2, ["eq", 3, 4]], "output": "2 > (3 == 4)" },
+        { "input": ["and", ["eq", 2, 3], 4], "output": "2 == 3 and 4" },
+        { "input": ["eq", 2, ["and", 3, 4]], "output": "2 == (3 and 4)" },
+        { "input": ["eq", ["and", 2, 3], 4], "output": "(2 and 3) == 4" },
+        { "input": ["or", ["and", 2, 3], 4], "output": "2 and 3 or 4" },
+        { "input": ["and", 2, ["or", 3, 4]], "output": "2 and (3 or 4)" },
+        { "input": ["and", ["gt", 2, 3], 4], "output": "2 > 3 and 4" },
+        { "input": ["gt", 2, ["and", 3, 4]], "output": "2 > (3 and 4)" },
+        { "input": ["gt", ["and", 2, 3], 4], "output": "(2 and 3) > 4" },
+        { "input": ["pipe", ["and", 2, 3], 4], "output": "2 and 3 | 4" },
+        { "input": ["pipe", 2, ["and", 3, 4]], "output": "2 | 3 and 4" },
+        { "input": ["and", ["pipe", 2, 3], 4], "output": "(2 | 3) and 4" },
+        { "input": ["and", 2, ["pipe", 3, 4]], "output": "2 and (3 | 4)" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should stringify a variable number of arguments in operators",
+      "tests": [
+        { "input": ["pipe", 2, 3, 4], "output": "2 | 3 | 4" },
+        { "input": ["get", 2, 3, 4], "output": ".2.3.4" },
+        { "input": ["and", 2, 3, 4], "output": "2 and 3 and 4" },
+        { "input": ["and", 2, 3, 4, 5], "output": "2 and 3 and 4 and 5" },
+        { "input": ["or", 2, 3, 4], "output": "2 or 3 or 4" },
+        { "input": ["add", 2, 3, 4], "output": "2 + 3 + 4" },
+        { "input": ["subtract", 2, 3, 4], "output": "2 - 3 - 4" },
+        { "input": ["multiply", 2, 3, 4], "output": "2 * 3 * 4" },
+        { "input": ["divide", 2, 3, 4], "output": "2 / 3 / 4" },
+        { "input": ["mod", 2, 3, 4], "output": "2 % 3 % 4" }
       ]
     },
     {
@@ -235,7 +304,7 @@
         },
         {
           "input": ["filter", ["and", ["gte", ["get", "age"], 23], ["lte", ["get", "age"], 27]]],
-          "output": "filter((.age >= 23) and (.age <= 27))"
+          "output": "filter(.age >= 23 and .age <= 27)"
         },
         {
           "input": [

@@ -1,27 +1,46 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/compile.test.schema.json",
   "type": "object",
   "properties": {
-    "source": { "type": "string", "pattern": "^https://" },
-    "updated": {
-      "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    "source": {
+      "const": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/compile.test.json"
+    },
+    "version": {
+      "const": "5.0.0"
     },
     "tests": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "category": { "type": "string" },
-          "description": { "type": "string" },
-          "input": {},
-          "query": {},
-          "output": {}
-        },
-        "required": ["category", "description", "input", "query", "output"],
-        "additionalProperties": false
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string" },
+              "description": { "type": "string" },
+              "input": {},
+              "query": {},
+              "output": {}
+            },
+            "required": ["category", "description", "input", "query", "output"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string" },
+              "description": { "type": "string" },
+              "input": {},
+              "query": {},
+              "throws": { "type": "string" }
+            },
+            "required": ["category", "description", "input", "query", "throws"],
+            "additionalProperties": false
+          }
+        ]
       }
     }
   },
-  "required": ["source", "updated", "tests"],
+  "required": ["source", "version", "tests"],
   "additionalProperties": false
 }

@@ -41,25 +41,26 @@ describe('jsonquery', () => {
 
   test('should execute a JSON query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: {
-        aboutEq: '~='
+      functions: {
+        aboutEq: buildFunction((a: string, b: string) => a.toLowerCase() === b.toLowerCase())
       }
     }
 
-    expect(jsonquery({ name: 'Joe' }, ['get', 'name'], options)).toEqual('Joe')
+    expect(jsonquery({ name: 'Joe' }, ['aboutEq', ['get', 'name'], 'joe'], options)).toEqual(true)
   })
 
   test('should execute a text query with custom operators', () => {
     const options: JSONQueryOptions = {
-      operators: {
-        aboutEq: '~='
+      operators: [{ name: 'aboutEq', op: '~=', at: '==' }],
+      functions: {
+        aboutEq: buildFunction((a: string, b: string) => a.toLowerCase() === b.toLowerCase())
       }
     }
 
-    expect(jsonquery({ name: 'Joe' }, '.name', options)).toEqual('Joe')
+    expect(jsonquery({ name: 'Joe' }, '.name ~= "joe"', options)).toEqual(true)
   })
 
-  test('have exported all documented functions', () => {
+  test('have exported all documented functions and objects', () => {
     expect(jsonquery).toBeTypeOf('function')
     expect(parse).toBeTypeOf('function')
     expect(stringify).toBeTypeOf('function')

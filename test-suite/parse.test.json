@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/parse.test.json",
-  "updated": "2024-11-15T09:00:00Z",
+  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/parse.test.json",
+  "version": "5.0.0",
   "groups": [
     {
       "category": "property",
@@ -163,14 +163,93 @@
     },
     {
       "category": "operator",
-      "description": "should throw an error when using multiple operators without parenthesis",
+      "description": "should parse operators and and or with more than two arguments",
       "tests": [
-        { "input": ".a == \"A\" and .b == \"B\"", "throws": "Unexpected part 'and .b == \"B\"'" },
+        { "input": "1 and 2 and 3", "output": ["and", 1, 2, 3] },
+        { "input": "1 or 2 or 3", "output": ["or", 1, 2, 3] },
+        { "input": "1 * 2 * 3", "output": ["multiply", ["multiply", 1, 2], 3] },
+        { "input": "1 / 2 / 3", "output": ["divide", ["divide", 1, 2], 3] },
+        { "input": "1 % 2 % 3", "output": ["mod", ["mod", 1, 2], 3] },
+        { "input": "1 + 2 + 3", "output": ["add", ["add", 1, 2], 3] },
+        { "input": "1 - 2 - 3", "output": ["subtract", ["subtract", 1, 2], 3] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should throw when chaining operators without vararg support",
+      "tests": [
+        { "input": "1 ^ 2 ^ 3", "throws": "Unexpected part '^ 3'" },
+        { "input": "1 == 2 == 3", "throws": "Unexpected part '== 3'" },
+        { "input": "1 != 2 != 3", "throws": "Unexpected part '!= 3'" },
+        { "input": "1 < 2 < 3", "throws": "Unexpected part '< 3'" },
+        { "input": "1 <= 2 <= 3", "throws": "Unexpected part '<= 3'" },
+        { "input": "1 > 2 > 3", "throws": "Unexpected part '> 3'" },
+        { "input": "1 >= 2 >= 3", "throws": "Unexpected part '>= 3'" },
+        { "input": "1 == 2 == 3", "throws": "Unexpected part '== 3'" }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should parse operators with the same precedence",
+      "tests": [
+        { "input": "2 * 3 / 4", "output": ["divide", ["multiply", 2, 3], 4] },
+        { "input": "2 / 3 * 4", "output": ["multiply", ["divide", 2, 3], 4] },
+        { "input": "2 * 3 % 4", "output": ["mod", ["multiply", 2, 3], 4] },
+        { "input": "2 % 3 * 4", "output": ["multiply", ["mod", 2, 3], 4] },
+        { "input": "2 + 3 - 4", "output": ["subtract", ["add", 2, 3], 4] },
+        { "input": "2 - 3 + 4", "output": ["add", ["subtract", 2, 3], 4] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should parse operators with differing precedence",
+      "tests": [
+        { "input": "2 ^ 3 * 4", "output": ["multiply", ["pow", 2, 3], 4] },
+        { "input": "2 * 3 ^ 4", "output": ["multiply", 2, ["pow", 3, 4]] },
+        { "input": "2 * 3 + 4", "output": ["add", ["multiply", 2, 3], 4] },
+        { "input": "2 + 3 * 4", "output": ["add", 2, ["multiply", 3, 4]] },
+        { "input": "2 + 3 > 4", "output": ["gt", ["add", 2, 3], 4] },
+        { "input": "2 > 3 + 4", "output": ["gt", 2, ["add", 3, 4]] },
+        { "input": "2 > 3 == 4", "output": ["eq", ["gt", 2, 3], 4] },
+        { "input": "2 == 3 > 4", "output": ["eq", 2, ["gt", 3, 4]] },
+        { "input": "2 == 3 and 4", "output": ["and", ["eq", 2, 3], 4] },
+        { "input": "2 and 3 == 4", "output": ["and", 2, ["eq", 3, 4]] },
+        { "input": "2 and 3 or 4", "output": ["or", ["and", 2, 3], 4] },
+        { "input": "2 or 3 and 4", "output": ["or", 2, ["and", 3, 4]] },
+        { "input": "2 > 3 and 4", "output": ["and", ["gt", 2, 3], 4] },
+        { "input": "2 and 3 > 4", "output": ["and", 2, ["gt", 3, 4]] },
+        { "input": "2 or 3 | 4", "output": ["pipe", ["or", 2, 3], 4] },
+        { "input": "2 | 3 or 4", "output": ["pipe", 2, ["or", 3, 4]] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should override operator precedence using parenthesis",
+      "tests": [
+        { "input": "2 + 3 * 4", "output": ["add", 2, ["multiply", 3, 4]] },
+        { "input": "2 + (3 * 4)", "output": ["add", 2, ["multiply", 3, 4]] },
+        { "input": "(2 + 3) * 4", "output": ["multiply", ["add", 2, 3], 4] },
+        { "input": "2 * (3 + 4)", "output": ["multiply", 2, ["add", 3, 4]] }
+      ]
+    },
+    {
+      "category": "operator",
+      "description": "should keep the structure based on parenthesis",
+      "tests": [
+        { "input": "(2 * 3) * 4", "output": ["multiply", ["multiply", 2, 3], 4] },
         {
-          "input": "2 and 3 and 4",
-          "throws": "Unexpected part 'and 4' (pos: 8)"
+          "input": "((2 * 3) * 4) * 5",
+          "output": ["multiply", ["multiply", ["multiply", 2, 3], 4], 5]
         },
-        { "input": ".a + 2 * 3", "throws": "Unexpected part '* 3' (pos: 7)" }
+        {
+          "input": "(2 * 3) * (4 * 5)",
+          "output": ["multiply", ["multiply", 2, 3], ["multiply", 4, 5]]
+        },
+        { "input": "2 * (3 * 4)", "output": ["multiply", 2, ["multiply", 3, 4]] },
+        { "input": "(2 + 3) + 4", "output": ["add", ["add", 2, 3], 4] },
+        { "input": "2 + (3 + 4)", "output": ["add", 2, ["add", 3, 4]] },
+        { "input": "(2 - 3) - 4", "output": ["subtract", ["subtract", 2, 3], 4] },
+        { "input": "2 - (3 - 4)", "output": ["subtract", 2, ["subtract", 3, 4]] }
       ]
     },
     {
@@ -253,6 +332,10 @@
         { "input": " { a : 1 } ", "output": ["object", { "a": 1 }] },
         { "input": "{a:1,b:2}", "output": ["object", { "a": 1, "b": 2 }] },
         { "input": "{ a : 1 , b : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
+        {
+          "input": "{ ok: .error == null }",
+          "output": ["object", { "ok": ["eq", ["get", "error"], null] }]
+        },
         { "input": "{ \"a\" : 1 , \"b\" : 2 }", "output": ["object", { "a": 1, "b": 2 }] },
         { "input": "{ 2: \"two\" }", "output": ["object", { "2": "two" }] },
         { "input": "{ 0: \"zero\" }", "output": ["object", { "0": "zero" }] },

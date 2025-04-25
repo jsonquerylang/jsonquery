@@ -1,5 +1,6 @@
-import { operators, unquotedPropertyRegex } from './constants'
 import { isArray } from './is'
+import { extendOperators, leftAssociativeOperators, operators } from './operators'
+import { unquotedPropertyRegex } from './regexps'
 import type {
   JSONPath,
   JSONQuery,
@@ -33,21 +34,23 @@ const DEFAULT_INDENTATION = '  '
  */
 export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions) => {
   const space = options?.indentation ?? DEFAULT_INDENTATION
+  const customOperators = options?.operators ?? []
+  const allOperators = extendOperators(operators, customOperators)
+  const allOperatorsMap = Object.assign({}, ...allOperators)
+  const allLeftAssociativeOperators = leftAssociativeOperators.concat(
+    customOperators.filter((op) => op.leftAssociative).map((op) => op.op)
+  )
 
-  const _stringify = (query: JSONQuery, indent: string) =>
-    isArray(query) ? stringifyFunction(query as JSONQueryFunction, indent) : JSON.stringify(query) // value (string, number, boolean, null)
+  const _stringify = (query: JSONQuery, indent: string, parenthesis = false) =>
+    isArray(query)
+      ? stringifyFunction(query as JSONQueryFunction, indent, parenthesis)
+      : JSON.stringify(query) // value (string, number, boolean, null)
 
-  const stringifyFunction = (query: JSONQueryFunction, indent: string) => {
+  const stringifyFunction = (query: JSONQueryFunction, indent: string, parenthesis: boolean) => {
     const [name, ...args] = query
 
     if (name === 'get' && args.length > 0) {
       return stringifyPath(args as JSONPath)
-    }
-
-    if (name === 'pipe') {
-      const argsStr = args.map((arg) => _stringify(arg, indent + space))
-
-      return join(argsStr, ['', ' | ', ''], ['', `\n${indent + space}| `, ''])
     }
 
     if (name === 'object') {
@@ -64,26 +67,36 @@ export const stringify = (query: JSONQuery, options?: JSONQueryStringifyOptions)
     }
 
     // operator like ".age >= 18"
-    const op = options?.operators?.[name] ?? operators[name]
-    if (op && args.length === 2) {
-      const [left, right] = args
-      const leftStr = _stringify(left, indent)
-      const rightStr = _stringify(right, indent)
-      return `(${leftStr} ${op} ${rightStr})`
+    const op = allOperatorsMap[name]
+    if (op) {
+      const start = parenthesis ? '(' : ''
+      const end = parenthesis ? ')' : ''
+
+      const argsStr = args.map((arg, index) => {
+        const childName = arg?.[0]
+        const precedence = allOperators.findIndex((group) => name in group)
+        const childPrecedence = allOperators.findIndex((group) => childName in group)
+        const childParenthesis =
+          precedence < childPrecedence ||
+          (precedence === childPrecedence && index > 0) ||
+          (name === childName && !allLeftAssociativeOperators.includes(op))
+
+        return _stringify(arg, indent + space, childParenthesis)
+      })
+
+      return join(argsStr, [start, ` ${op} `, end], [start, `\n${indent + space}${op} `, end])
     }
 
-    // regular function like sort(.age)
+    // regular function like "sort(.age)"
     const childIndent = args.length === 1 ? indent : indent + space
     const argsStr = args.map((arg) => _stringify(arg, childIndent))
-    return args.length === 1 && argsStr[0][0] === '('
-      ? `${name}${argsStr[0]}`
-      : join(
-          argsStr,
-          [`${name}(`, ', ', ')'],
-          args.length === 1
-            ? [`${name}(`, `,\n${indent}`, ')']
-            : [`${name}(\n${childIndent}`, `,\n${childIndent}`, `\n${indent})`]
-        )
+    return join(
+      argsStr,
+      [`${name}(`, ', ', ')'],
+      args.length === 1
+        ? [`${name}(`, `,\n${indent}`, ')']
+        : [`${name}(\n${childIndent}`, `,\n${childIndent}`, `\n${indent})`]
+    )
   }
 
   const stringifyObject = (query: JSONQueryObject, indent: string) => {

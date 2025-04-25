@@ -247,8 +247,8 @@ export const functions: FunctionBuildersMap = {
 
   max: () => (data: number[]) => Math.max(...data),
 
-  and: buildFunction((a, b) => !!(a && b)),
-  or: buildFunction((a, b) => !!(a || b)),
+  and: buildFunction((...args) => args.reduce((a, b) => !!(a && b))),
+  or: buildFunction((...args) => args.reduce((a, b) => !!(a || b))),
   not: buildFunction((a: unknown) => !a),
 
   exists: (queryGet: JSONQueryFunction) => {
@@ -297,8 +297,9 @@ export const functions: FunctionBuildersMap = {
   subtract: buildFunction((a: number, b: number) => a - b),
   multiply: buildFunction((a: number, b: number) => a * b),
   divide: buildFunction((a: number, b: number) => a / b),
-  pow: buildFunction((a: number, b: number) => a ** b),
   mod: buildFunction((a: number, b: number) => a % b),
+  pow: buildFunction((a: number, b: number) => a ** b),
+
   abs: buildFunction(Math.abs),
   round: buildFunction((value: number, digits = 0) => {
     const num = Math.round(Number(`${value}e${digits}`))

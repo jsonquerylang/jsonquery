@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/jsonquerylang/jsonquery/tree/main/test-suite/compile.test.json",
-  "updated": "2024-12-03T09:00:00Z",
+  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/compile.test.json",
+  "version": "5.0.0",
   "tests": [
     {
       "category": "value",
@@ -948,6 +948,13 @@
       "query": ["and", true, true],
       "output": true
     },
+    {
+      "category": "and",
+      "description": "should calculate and with more than two arguments",
+      "input": null,
+      "query": ["and", true, true, false],
+      "output": false
+    },
 
     {
       "category": "or",
@@ -996,6 +1003,13 @@
       "description": "should calculate or (7)",
       "input": null,
       "query": ["or", false, true],
+      "output": true
+    },
+    {
+      "category": "or",
+      "description": "should calculate or with more than two arguments",
+      "input": null,
+      "query": ["or", false, false, true],
       "output": true
     },
 

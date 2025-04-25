@@ -1,10 +1,13 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/parse.test.schema.json",
   "type": "object",
   "properties": {
-    "source": { "type": "string", "pattern": "^https://" },
-    "updated": {
-      "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    "source": {
+      "const": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/parse.test.json"
+    },
+    "version": {
+      "const": "5.0.0"
     },
     "groups": {
       "type": "array",
@@ -44,6 +47,6 @@
       }
     }
   },
-  "required": ["source", "updated", "groups"],
+  "required": ["source", "version", "groups"],
   "additionalProperties": false
 }

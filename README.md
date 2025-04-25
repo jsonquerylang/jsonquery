@@ -10,7 +10,7 @@ Try it out on the online playground: <https://jsonquerylang.org>
 
 ## Features
 
-- Small: just `3.3 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
+- Small: just `3.7 kB` when minified and gzipped! The JSON query engine without parse/stringify is only `1.7 kB`.
 - Feature rich (50+ powerful functions and operators)
 - Easy to interoperate with thanks to the intermediate JSON format.
 - Expressive
@@ -152,21 +152,41 @@ Here:
       }
       ```
 
-      You can have a look at the source code of the functions in `/src/functions.ts` for more examples.
-  - `operators` is an optional map with operators, for example `{ eq: '==' }`. The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
+      You can have a look at the source code of the functions in [`/src/functions.ts`](/src/functions.ts) for more examples.
+
+  - `operators` is an optional array definitions for custom operators. Each definition describes the new operator, the name of the function that it maps to, and the desired precedence of the operator: the same, before, or after one of the existing operators (`at`, `before`, or `after`):
+
+    ```ts
+    type CustomOperator =
+      | { name: string; op: string; at: string; vararg?: boolean, leftAssociative?: boolean }
+      | { name: string; op: string; after: string; vararg?: boolean, leftAssociative?: boolean }
+      | { name: string; op: string; before: string; vararg?: boolean, leftAssociative?: boolean }
+    ```
+
+    The defined operators can be used in a text query. Only operators with both a left and right hand side are supported, like `a == b`. They can only be executed when there is a corresponding function. For example:
 
       ```js
-      import { buildFunction } from 'jsonquery'
-      
+      import { buildFunction } from '@jsonquerylang/jsonquery'
+     
       const options = {
-        operators: {
-          notEqual: '<>'
-        },
+        // Define a new function "notEqual".
         functions: {
           notEqual: buildFunction((a, b) => a !== b)
-        }
+        },
+    
+        // Define a new operator "<>" which maps to the function "notEqual"
+        // and has the same precedence as operator "==".
+        operators: [
+          { name: 'aboutEq', op: '~=', at: '==' }
+        ]
       }
       ```
+
+    To allow using a chain of multiple operators without parenthesis, like `a and b and c`, the option `leftAssociative` can be set `true`. Without this, an exception will be thrown, which can be solved by using parenthesis like `(a and b) and c`.
+
+    When the function of the operator supports more than two arguments, like `and(a, b, c, ...)`, the option `vararg` can be set `true`. In that case, a chain of operators like `a and b and c` will be parsed into the JSON Format `["and", a, b, c, ...]`.  Operators that do not support variable arguments, like `1 + 2 + 3`, will be parsed into a nested JSON Format like `["add", ["add", 1, 2], 3]`.
+  
+    All build-in operators and their precedence are listed on the documentation page in the section [Operators](https://jsonquerylang.org/docs/#operators).
 
 Here an example of using the function `jsonquery`:
 
@@ -258,9 +278,6 @@ The query engine passes the raw arguments to all functions, and the functions ha
 
 ```ts
 const options = {
-  operators: {
-    notEqual: '<>'
-  },
   functions: {
     notEqual: (a: JSONQuery, b: JSONQuery) => {
       const aCompiled = compile(a)
@@ -286,9 +303,6 @@ To automatically compile and evaluate the arguments of the function, the helper 
 import { jsonquery, buildFunction } from '@jsonquerylang/jsonquery'
 
 const options = {
-  operators: {
-    notEqual: '<>'
-  },
   functions: {
     notEqual: buildFunction((a: number, b: number) => a !== b)
   }

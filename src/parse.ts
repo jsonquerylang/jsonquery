@@ -1,14 +1,14 @@
+import { functions } from './functions'
+import { extendOperators, leftAssociativeOperators, operators, varargOperators } from './operators'
 import {
-  operators,
   startsWithIntRegex,
   startsWithKeywordRegex,
   startsWithNumberRegex,
   startsWithStringRegex,
   startsWithUnquotedPropertyRegex,
   startsWithWhitespaceRegex
-} from './constants'
-import { functions } from './functions'
-import type { JSONQuery, JSONQueryParseOptions } from './types'
+} from './regexps'
+import type { JSONQuery, JSONQueryParseOptions, OperatorGroup } from './types'
 
 /**
  * Parse a string containing a JSON Query into JSON.
@@ -26,54 +26,77 @@ import type { JSONQuery, JSONQueryParseOptions } from './types'
  *     //  ]
  */
 export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery {
-  const allOperators = { ...operators, ...options?.operators }
-  const sortedOperatorNames = Object.keys(allOperators).sort((a, b) => b.length - a.length)
+  const customOperators = options?.operators ?? []
+  const allFunctions = { ...functions, ...options?.functions }
+  const allOperators = extendOperators(operators, customOperators)
+  const allOperatorsMap = Object.assign({}, ...allOperators)
+  const allVarargOperators = varargOperators.concat(
+    customOperators.filter((op) => op.vararg).map((op) => op.op)
+  )
+  const allLeftAssociativeOperators = leftAssociativeOperators.concat(
+    customOperators.filter((op) => op.leftAssociative).map((op) => op.op)
+  )
 
-  const parsePipe = () => {
-    skipWhitespace()
-    const first = parseOperator()
-    skipWhitespace()
-
-    if (query[i] === '|') {
-      const pipe = [first]
-
-      while (query[i] === '|') {
-        i++
-        skipWhitespace()
-
-        pipe.push(parseOperator())
-      }
-
-      return ['pipe', ...pipe]
+  const parseOperator = (precedenceLevel = allOperators.length - 1) => {
+    const currentOperators = allOperators[precedenceLevel]
+    if (!currentOperators) {
+      return parseParenthesis()
     }
 
-    return first
-  }
+    const leftParenthesis = query[i] === '('
+    let left = parseOperator(precedenceLevel - 1)
 
-  const parseOperator = () => {
-    const left = parseParenthesis()
+    while (true) {
+      skipWhitespace()
 
-    skipWhitespace()
-
-    // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
-    for (const name of sortedOperatorNames) {
-      const op = allOperators[name]
-      if (query.substring(i, i + op.length) === op) {
-        i += op.length
-        skipWhitespace()
-        const right = parseParenthesis()
-
-        return [name, left, right]
+      const start = i
+      const name = parseOperatorName(currentOperators)
+      if (!name) {
+        break
       }
+
+      const right = parseOperator(precedenceLevel - 1)
+
+      const childName = left[0]
+      const chained = name === childName && !leftParenthesis
+      if (chained && !allLeftAssociativeOperators.includes(allOperatorsMap[name])) {
+        i = start
+        break
+      }
+
+      left =
+        chained && allVarargOperators.includes(allOperatorsMap[name])
+          ? [...left, right]
+          : [name, left, right]
     }
 
     return left
   }
 
+  const parseOperatorName = (currentOperators: OperatorGroup): string | undefined => {
+    // we sort the operators from longest to shortest, so we first handle "<=" and next "<"
+    const sortedOperatorNames = Object.keys(currentOperators).sort((a, b) => b.length - a.length)
+
+    for (const name of sortedOperatorNames) {
+      const op = currentOperators[name]
+      if (query.substring(i, i + op.length) === op) {
+        i += op.length
+
+        skipWhitespace()
+
+        return name
+      }
+    }
+
+    return undefined
+  }
+
   const parseParenthesis = () => {
+    skipWhitespace()
+
     if (query[i] === '(') {
       i++
-      const inner = parsePipe()
+      const inner = parseOperator()
       eatChar(')')
       return inner
     }
@@ -112,17 +135,17 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
     i++
 
-    if (!options?.functions[name] && !functions[name]) {
+    if (!allFunctions[name]) {
       throwError(`Unknown function '${name}'`)
     }
 
     skipWhitespace()
 
-    const args = query[i] !== ')' ? [parsePipe()] : []
+    const args = query[i] !== ')' ? [parseOperator()] : []
     while (i < query.length && query[i] !== ')') {
       skipWhitespace()
       eatChar(',')
-      args.push(parsePipe())
+      args.push(parseOperator())
     }
 
     eatChar(')')
@@ -151,7 +174,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         skipWhitespace()
         eatChar(':')
 
-        object[key] = parsePipe()
+        object[key] = parseOperator()
       }
 
       eatChar('}')
@@ -178,7 +201,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
           skipWhitespace()
         }
 
-        array.push(parsePipe())
+        array.push(parseOperator())
       }
 
       eatChar(']')
@@ -237,7 +260,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
   }
 
   let i = 0
-  const output = parsePipe()
+  const output = parseOperator()
   parseEnd()
 
   return output

@@ -1,11 +1,15 @@
 import Ajv from 'ajv'
 import { describe, expect, test } from 'vitest'
-import type { CompileTestSuite } from '../test-suite/compile.test'
+import type { CompileTestException, CompileTestSuite } from '../test-suite/compile.test'
 import suite from '../test-suite/compile.test.json'
 import schema from '../test-suite/compile.test.schema.json'
 import { compile } from './compile'
 import { buildFunction } from './functions'
 import type { JSONQuery, JSONQueryCompileOptions } from './types'
+
+function isTestException(test: unknown): test is CompileTestException {
+  return !!test && typeof (test as Record<string, unknown>).throws === 'string'
+}
 
 const data = [
   { name: 'Chris', age: 23, city: 'New York' },
@@ -31,13 +35,20 @@ const testsByCategory = groupByCategory(suite.tests) as Record<string, CompileTe
 for (const [category, tests] of Object.entries(testsByCategory)) {
   describe(category, () => {
     for (const currentTest of tests) {
-      const { description, input, query, output } = currentTest
+      if (isTestException(currentTest)) {
+        test(currentTest.description, () => {
+          const { input, query, throws } = currentTest
 
-      test(description, () => {
-        const actualOutput = compile(query)(input)
+          expect(() => compile(query)(input)).toThrow(throws)
+        })
+      } else {
+        test(currentTest.description, () => {
+          const { input, query, output } = currentTest
+          const actualOutput = compile(query)(input)
 
-        expect({ input, query, output: actualOutput }).toEqual({ input, query, output })
-      })
+          expect({ input, query, output: actualOutput }).toEqual({ input, query, output })
+        })
+      }
     }
   })
 }
