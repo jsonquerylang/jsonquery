@@ -89,6 +89,83 @@
     },
     {
       "category": "function",
+      "description": "should parse all built-in functions",
+      "tests": [
+        {
+          "input": "pipe(.address, .city)",
+          "output": ["pipe", ["get", "address"], ["get", "city"]]
+        },
+        { "input": "{age: .age}", "output": ["object", { "age": ["get", "age"] }] },
+        { "input": "array(1, 2, 3)", "output": ["array", 1, 2, 3] },
+        { "input": "get(\"address\")", "output": ["get", "address"] },
+        { "input": "map(.address)", "output": ["map", ["get", "address"]] },
+        {
+          "input": "mapObject({key: .key, value: .value})",
+          "output": ["mapObject", ["object", { "key": ["get", "key"], "value": ["get", "value"] }]]
+        },
+        { "input": "mapKeys(\"#\" + get())", "output": ["mapKeys", ["add", "#", ["get"]]] },
+        { "input": "mapValues(get() * 2)", "output": ["mapValues", ["multiply", ["get"], 2]] },
+        { "input": "filter(.registered)", "output": ["filter", ["get", "registered"]] },
+        { "input": "sort(.name)", "output": ["sort", ["get", "name"]] },
+        { "input": "reverse()", "output": ["reverse"] },
+        { "input": "pick(.name, .city)", "output": ["pick", ["get", "name"], ["get", "city"]] },
+        { "input": "groupBy(.city)", "output": ["groupBy", ["get", "city"]] },
+        { "input": "keyBy(.city)", "output": ["keyBy", ["get", "city"]] },
+        { "input": "flatten()", "output": ["flatten"] },
+        { "input": "join(\", \")", "output": ["join", ", "] },
+        { "input": "split(.message)", "output": ["split", ["get", "message"]] },
+        {
+          "input": "substring(.message, 0, 10)",
+          "output": ["substring", ["get", "message"], 0, 10]
+        },
+        { "input": "uniq()", "output": ["uniq"] },
+        { "input": "uniqBy(.name)", "output": ["uniqBy", ["get", "name"]] },
+        { "input": "limit(100)", "output": ["limit", 100] },
+        { "input": "size()", "output": ["size"] },
+        { "input": "keys()", "output": ["keys"] },
+        { "input": "values()", "output": ["values"] },
+        { "input": "prod()", "output": ["prod"] },
+        { "input": "sum()", "output": ["sum"] },
+        { "input": "average()", "output": ["average"] },
+        { "input": "min()", "output": ["min"] },
+        { "input": "max()", "output": ["max"] },
+        { "input": "and(true, false)", "output": ["and", true, false] },
+        { "input": "or(true, false)", "output": ["or", true, false] },
+        { "input": "not(true)", "output": ["not", true] },
+        { "input": "exists(.address)", "output": ["exists", ["get", "address"]] },
+        {
+          "input": "if(.registered, true, false)",
+          "output": ["if", ["get", "registered"], true, false]
+        },
+        { "input": "in(.age, [16, 18])", "output": ["in", ["get", "age"], ["array", 16, 18]] },
+        {
+          "input": ".age not in [16, 18]",
+          "output": ["not in", ["get", "age"], ["array", 16, 18]]
+        },
+        {
+          "input": "regex(.message, \"like|awesome\", \"i\")",
+          "output": ["regex", ["get", "message"], "like|awesome", "i"]
+        },
+        { "input": "eq(2, 3)", "output": ["eq", 2, 3] },
+        { "input": "gt(2, 3)", "output": ["gt", 2, 3] },
+        { "input": "gte(2, 3)", "output": ["gte", 2, 3] },
+        { "input": "lt(2, 3)", "output": ["lt", 2, 3] },
+        { "input": "lte(2, 3)", "output": ["lte", 2, 3] },
+        { "input": "ne(2, 3)", "output": ["ne", 2, 3] },
+        { "input": "add(2, 3)", "output": ["add", 2, 3] },
+        { "input": "subtract(2, 3)", "output": ["subtract", 2, 3] },
+        { "input": "multiply(2, 3)", "output": ["multiply", 2, 3] },
+        { "input": "divide(2, 3)", "output": ["divide", 2, 3] },
+        { "input": "mod(2, 3)", "output": ["mod", 2, 3] },
+        { "input": "pow(2, 3)", "output": ["pow", 2, 3] },
+        { "input": "abs(-3)", "output": ["abs", -3] },
+        { "input": "round(3.14159, 2)", "output": ["round", 3.14159, 2] },
+        { "input": "number(\"42\")", "output": ["number", "42"] },
+        { "input": "string(42)", "output": ["string", 42] }
+      ]
+    },
+    {
+      "category": "function",
       "description": "should throw an error in case of an unknown function name",
       "tests": [{ "input": "foo(42)", "throws": "Unknown function 'foo' (pos: 4)" }]
     },
