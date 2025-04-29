@@ -730,7 +730,7 @@
     },
     {
       "category": "min",
-      "description": "should throw an error when calculating min of an empty array",
+      "description": "should return null when calculating min of an empty array",
       "input": [],
       "query": ["min"],
       "output": null
@@ -752,7 +752,7 @@
     },
     {
       "category": "max",
-      "description": "should throw an error when calculating max of an empty array",
+      "description": "should return null when calculating max of an empty array",
       "input": [],
       "query": ["max"],
       "output": null
