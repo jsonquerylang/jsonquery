@@ -142,9 +142,13 @@ export const functions: FunctionBuildersMap = {
     const sign = direction === 'desc' ? -1 : 1
 
     function compare(itemA: unknown, itemB: unknown) {
-      const a = getter(itemA)
-      const b = getter(itemB)
-      return gt(a, b) ? sign : lt(a, b) ? -sign : 0
+      try {
+        const a = getter(itemA)
+        const b = getter(itemB)
+        return gt(a, b) ? sign : lt(a, b) ? -sign : 0
+      } catch {
+        return 0 // leave unsortable contents as-is
+      }
     }
 
     return (data: T[]) => data.slice().sort(compare)
@@ -258,21 +262,16 @@ export const functions: FunctionBuildersMap = {
       data.length,
 
   keys: () => Object.keys,
-
   values: () => Object.values,
 
-  prod: () => (data: number[]) => data.reduce((a, b) => a * b),
+  prod: () => (data: number[]) => reduce(data, (a, b) => a * b),
+  sum: () => (data: number[]) => reduce(data, (a, b) => a + b, 0),
+  average: () => (data: number[]) => reduce(data, (a, b) => a + b) / data.length,
+  min: () => (data: number[]) => reduce(data, (a, b) => Math.min(a, b), null),
+  max: () => (data: number[]) => reduce(data, (a, b) => Math.max(a, b), null),
 
-  sum: () => (data: number[]) => data.reduce((a, b) => a + b),
-
-  average: () => (data: number[]) => (functions.sum()(data) as number) / data.length,
-
-  min: () => (data: number[]) => Math.min(...data),
-
-  max: () => (data: number[]) => Math.max(...data),
-
-  and: buildFunction((...args) => args.reduce((a, b) => !!(a && b))),
-  or: buildFunction((...args) => args.reduce((a, b) => !!(a || b))),
+  and: buildFunction((...args: unknown[]) => reduce(args, (a, b) => !!(a && b))),
+  or: buildFunction((...args: unknown[]) => reduce(args, (a, b) => !!(a || b))),
   not: buildFunction((a: unknown) => !a),
 
   exists: (queryGet: JSONQueryFunction) => {
@@ -343,3 +342,27 @@ export const functions: FunctionBuildersMap = {
 }
 
 const truthy = (x: unknown) => x !== null && x !== 0 && x !== false
+
+const reduce = <T>(
+  data: T[],
+  callback: (previousValue: T, currentValue: T) => T,
+  initialValue?: T
+): T => {
+  if (!isArray(data)) {
+    throwTypeError('Array expected')
+  }
+
+  if (initialValue !== undefined) {
+    return data.reduce(callback, initialValue)
+  }
+
+  if (data.length === 0) {
+    throwTypeError('Non-empty array expected')
+  }
+
+  return data.reduce(callback)
+}
+
+export const throwTypeError = (message: string) => {
+  throw new TypeError(message)
+}
