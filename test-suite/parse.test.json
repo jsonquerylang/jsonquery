@@ -89,11 +89,6 @@
     },
     {
       "category": "function",
-      "description": "should throw an error in case of an unknown function name",
-      "tests": [{ "input": "foo(42)", "throws": "Unknown function 'foo' (pos: 4)" }]
-    },
-    {
-      "category": "function",
       "description": "should throw an error when the end bracket is missing",
       "tests": [{ "input": "sort(.age, \"desc\"", "throws": "Character ')' expected (pos: 17)" }]
     },

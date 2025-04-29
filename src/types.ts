@@ -24,7 +24,6 @@ export interface JSONQueryStringifyOptions {
 }
 
 export interface JSONQueryParseOptions {
-  functions?: Record<string, boolean> | FunctionBuildersMap
   operators?: CustomOperator[]
 }
 

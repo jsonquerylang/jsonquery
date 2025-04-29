@@ -1,5 +1,5 @@
 import { compile } from './compile'
-import { isArray } from './is'
+import { isArray, isEqual } from './is'
 import type {
   Entry,
   FunctionBuilder,
@@ -26,6 +26,20 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
         : (data: unknown) => fn(...compiledArgs.map((arg) => arg(data)))
   }
 }
+
+const gt = (a: unknown, b: unknown) => {
+  if (
+    (typeof a === 'number' && typeof b === 'number') ||
+    (typeof a === 'string' && typeof b === 'string')
+  ) {
+    return a > b
+  }
+
+  throw new TypeError('Two numbers or two strings expected')
+}
+const gte = (a: unknown, b: unknown) => isEqual(a, b) || gt(a, b)
+const lt = (a: unknown, b: unknown) => gt(b, a)
+const lte = (a: unknown, b: unknown) => gte(b, a)
 
 export const functions: FunctionBuildersMap = {
   pipe: (...entries: JSONQuery[]) => {
@@ -130,7 +144,7 @@ export const functions: FunctionBuildersMap = {
     function compare(itemA: unknown, itemB: unknown) {
       const a = getter(itemA)
       const b = getter(itemB)
-      return a > b ? sign : a < b ? -sign : 0
+      return gt(a, b) ? sign : lt(a, b) ? -sign : 0
     }
 
     return (data: T[]) => data.slice().sort(compare)
@@ -216,7 +230,17 @@ export const functions: FunctionBuildersMap = {
 
   uniq:
     () =>
-    <T>(data: T[]) => [...new Set(data)],
+    <T>(data: T[]) => {
+      const res: T[] = []
+
+      for (const item of data) {
+        if (!res.find((resItem) => isEqual(resItem, item))) {
+          res.push(item)
+        }
+      }
+
+      return res
+    },
 
   uniqBy:
     <T>(path: JSONQueryProperty) =>
@@ -263,11 +287,16 @@ export const functions: FunctionBuildersMap = {
 
     return (data: unknown) => (truthy(_condition(data)) ? _valueIfTrue(data) : _valueIfFalse(data))
   },
-  in: (path: string, values: JSONQuery) => {
-    const getter = compile(path)
-    const _values = compile(values)
+  in: (value: JSONQuery, values: JSONQuery) => {
+    const getValue = compile(value)
+    const getValues = compile(values)
 
-    return (data: unknown) => (_values(data) as string[]).includes(getter(data) as string)
+    return (data: unknown) => {
+      const _value = getValue(data)
+      const _values = getValues(data) as unknown[]
+
+      return !!_values.find((item) => isEqual(item, _value))
+    }
   },
   'not in': (path: string, values: JSONQuery) => {
     const _in = functions.in(path, values)
@@ -281,12 +310,12 @@ export const functions: FunctionBuildersMap = {
     return (data: unknown) => regex.test(getter(data) as string)
   },
 
-  eq: buildFunction((a, b) => a === b),
-  gt: buildFunction((a, b) => a > b),
-  gte: buildFunction((a, b) => a >= b),
-  lt: buildFunction((a, b) => a < b),
-  lte: buildFunction((a, b) => a <= b),
-  ne: buildFunction((a, b) => a !== b),
+  eq: buildFunction(isEqual),
+  gt: buildFunction(gt),
+  gte: buildFunction(gte),
+  lt: buildFunction(lt),
+  lte: buildFunction(lte),
+  ne: buildFunction((a, b) => !isEqual(a, b)),
 
   add: buildFunction((a: number, b: number) => a + b),
   subtract: buildFunction((a: number, b: number) => a - b),
