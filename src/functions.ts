@@ -35,7 +35,7 @@ const gt = (a: unknown, b: unknown) => {
     return a > b
   }
 
-  throw new TypeError('Two numbers or two strings expected')
+  throwTypeError('Two numbers or two strings expected')
 }
 const gte = (a: unknown, b: unknown) => isEqual(a, b) || gt(a, b)
 const lt = (a: unknown, b: unknown) => gt(b, a)

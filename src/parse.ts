@@ -113,7 +113,7 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
           parseString() ??
             parseUnquotedString() ??
             parseInteger() ??
-            throwError('Property expected')
+            throwSyntaxError('Property expected')
         )
       }
 
@@ -163,7 +163,10 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
         }
 
         const key =
-          parseString() ?? parseUnquotedString() ?? parseInteger() ?? throwError('Key expected')
+          parseString() ??
+          parseUnquotedString() ??
+          parseInteger() ??
+          throwSyntaxError('Key expected')
 
         skipWhitespace()
         eatChar(':')
@@ -221,14 +224,14 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     }
 
     // end of the parsing chain
-    throwError('Value expected')
+    throwSyntaxError('Value expected')
   }
 
   const parseEnd = () => {
     skipWhitespace()
 
     if (i < query.length) {
-      throwError(`Unexpected part '${query.substring(i)}'`)
+      throwSyntaxError(`Unexpected part '${query.substring(i)}'`)
     }
   }
 
@@ -244,12 +247,12 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
 
   const eatChar = (char: string) => {
     if (query[i] !== char) {
-      throwError(`Character '${char}' expected`)
+      throwSyntaxError(`Character '${char}' expected`)
     }
     i++
   }
 
-  const throwError = (message: string, pos = i) => {
+  const throwSyntaxError = (message: string, pos = i) => {
     throw new SyntaxError(`${message} (pos: ${pos})`)
   }
 
