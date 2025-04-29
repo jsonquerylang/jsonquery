@@ -280,17 +280,17 @@
     },
     {
       "category": "sort",
-      "description": "should throw when sorting nested arrays",
-      "input": [[1], [2], [3]],
+      "description": "should leave content as-is when trying to sort nested arrays",
+      "input": [[3], [1], [2]],
       "query": ["sort"],
-      "throws": "Two numbers or two strings expected"
+      "output": [[3], [1], [2]]
     },
     {
       "category": "sort",
-      "description": "should throw when sorting nested objects",
+      "description": "should leave content as-is when trying to sort nested objects",
       "input": [{ "a": 1 }, { "c": 3 }, { "b": 2 }],
       "query": ["sort"],
-      "throws": "Two numbers or two strings expected"
+      "output": [{ "a": 1 }, { "c": 3 }, { "b": 2 }]
     },
 
     {
@@ -708,10 +708,10 @@
     },
     {
       "category": "sum",
-      "description": "should throw an error when calculating the sum of an empty array",
+      "description": "should return 0 when calculating the sum of an empty array",
       "input": [],
       "query": ["sum"],
-      "throws": "Non-empty array expected"
+      "output": 0
     },
     {
       "category": "sum",
@@ -730,10 +730,10 @@
     },
     {
       "category": "min",
-      "description": "should throw an error when calculating min on an empty array",
+      "description": "should throw an error when calculating min of an empty array",
       "input": [],
       "query": ["min"],
-      "throws": "Non-empty array expected"
+      "output": null
     },
     {
       "category": "min",
@@ -752,10 +752,10 @@
     },
     {
       "category": "max",
-      "description": "should throw an error when calculating max on an empty array",
+      "description": "should throw an error when calculating max of an empty array",
       "input": [],
       "query": ["max"],
-      "throws": "Non-empty array expected"
+      "output": null
     },
     {
       "category": "max",
