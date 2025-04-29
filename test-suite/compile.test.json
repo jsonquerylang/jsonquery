@@ -925,7 +925,7 @@
     },
     {
       "category": "sum",
-      "description": "should throw an error when calculating the sum a string",
+      "description": "should throw an error when calculating the sum of a string",
       "tests": [
         {
           "input": "abc",
