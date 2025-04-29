@@ -6,7 +6,6 @@ import schema from '../test-suite/compile.test.schema.json'
 import { compile } from './compile'
 import { buildFunction } from './functions'
 import type { JSONQuery, JSONQueryCompileOptions } from './types'
-import { parse } from './parse'
 
 function isTestException(test: unknown): test is CompileTestException {
   return !!test && typeof (test as Record<string, unknown>).throws === 'string'
