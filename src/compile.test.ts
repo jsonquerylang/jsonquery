@@ -30,25 +30,31 @@ function go(data: unknown, query: JSONQuery, options?: JSONQueryCompileOptions) 
 }
 
 const groupByCategory = compile(['groupBy', ['get', 'category']])
-const testsByCategory = groupByCategory(suite.tests) as Record<string, CompileTestSuite['tests']>
+const testsByCategory = groupByCategory(suite.groups) as Record<string, CompileTestSuite['groups']>
 
-for (const [category, tests] of Object.entries(testsByCategory)) {
+for (const [category, testGroups] of Object.entries(testsByCategory)) {
   describe(category, () => {
-    for (const currentTest of tests) {
-      if (isTestException(currentTest)) {
-        test(currentTest.description, () => {
-          const { input, query, throws } = currentTest
+    for (const group of testGroups) {
+      describe(group.description, () => {
+        for (const currentTest of group.tests) {
+          const description = `input = '${currentTest.input}'`
 
-          expect(() => compile(query)(input)).toThrow(throws)
-        })
-      } else {
-        test(currentTest.description, () => {
-          const { input, query, output } = currentTest
-          const actualOutput = compile(query)(input)
+          if (isTestException(currentTest)) {
+            test(description, () => {
+              const { input, query, throws } = currentTest
 
-          expect({ input, query, output: actualOutput }).toEqual({ input, query, output })
-        })
-      }
+              expect(() => compile(query)(input)).toThrow(throws)
+            })
+          } else {
+            test(description, () => {
+              const { input, query, output } = currentTest
+              const actualOutput = compile(query)(input)
+
+              expect({ input, query, output: actualOutput }).toEqual({ input, query, output })
+            })
+          }
+        }
+      })
     }
   })
 }
