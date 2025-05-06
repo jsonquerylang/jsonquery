@@ -339,7 +339,20 @@
     },
     {
       "category": "sort",
-      "description": "should sort an array objects",
+      "description": "should sort an array with booleans",
+      "tests": [
+        { "input": [true, false], "query": ["sort"], "output": [false, true] },
+        { "input": [false, true], "query": ["sort"], "output": [false, true] },
+        {
+          "input": [false, true, false, true],
+          "query": ["sort"],
+          "output": [false, false, true, true]
+        }
+      ]
+    },
+    {
+      "category": "sort",
+      "description": "should sort an array with objects",
       "tests": [
         {
           "input": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
@@ -350,7 +363,7 @@
     },
     {
       "category": "sort",
-      "description": "should sort an array objects (desc)",
+      "description": "should sort an array with objects (desc)",
       "tests": [
         {
           "input": [{ "score": -2 }, { "score": 5 }, { "score": 3 }],
@@ -385,16 +398,114 @@
       "category": "sort",
       "description": "should sort mixed types (boolean, number, string, other)",
       "tests": [
+        { "input": [true, 0], "query": ["sort"], "output": [true, 0] },
+        { "input": [0, false], "query": ["sort"], "output": [false, 0] },
+        { "input": [2.4, true], "query": ["sort"], "output": [true, 2.4] },
+        { "input": [3, "B"], "query": ["sort"], "output": [3, "B"] },
+        { "input": ["B", 3], "query": ["sort"], "output": [3, "B"] },
+        { "input": ["A", true], "query": ["sort"], "output": [true, "A"] },
+        { "input": [2, [1]], "query": ["sort"], "output": [2, [1]] },
+        { "input": [[1], 2], "query": ["sort"], "output": [2, [1]] },
+        { "input": [{ "id": 0 }, 2], "query": ["sort"], "output": [2, { "id": 0 }] },
+        { "input": [2, { "id": 0 }, 3], "query": ["sort"], "output": [2, 3, { "id": 0 }] },
+        {
+          "input": [{ "id": 2 }, { "id": 1 }],
+          "query": ["sort"],
+          "output": [{ "id": 2 }, { "id": 1 }]
+        },
+        { "input": [{ "id": 0 }, [1]], "query": ["sort"], "output": [{ "id": 0 }, [1]] },
+        { "input": [[1], { "id": 0 }], "query": ["sort"], "output": [[1], { "id": 0 }] },
+        { "input": [[2], [1]], "query": ["sort"], "output": [[2], [1]] },
         {
           "input": [3, "B", true, -1, false, { "id": 2 }, "A", [3], { "id": 1 }, [2], 2],
           "query": ["sort"],
           "output": [false, true, -1, 2, 3, "A", "B", { "id": 2 }, [3], { "id": 1 }, [2]]
+        }
+      ]
+    },
+    {
+      "category": "sort",
+      "description": "should sort mixed types (boolean, number, string, other) in ASC order",
+      "tests": [
+        { "input": [true, 0], "query": ["sort", ["get"], "asc"], "output": [true, 0] },
+        { "input": [0, false], "query": ["sort", ["get"], "asc"], "output": [false, 0] },
+        { "input": [2.4, true], "query": ["sort", ["get"], "asc"], "output": [true, 2.4] },
+        { "input": [3, "B"], "query": ["sort", ["get"], "asc"], "output": [3, "B"] },
+        { "input": ["B", 3], "query": ["sort", ["get"], "asc"], "output": [3, "B"] },
+        { "input": ["A", true], "query": ["sort", ["get"], "asc"], "output": [true, "A"] },
+        { "input": [2, [1]], "query": ["sort", ["get"], "asc"], "output": [2, [1]] },
+        { "input": [[1], 2], "query": ["sort", ["get"], "asc"], "output": [2, [1]] },
+        {
+          "input": [{ "id": 0 }, 2],
+          "query": ["sort", ["get"], "asc"],
+          "output": [2, { "id": 0 }]
         },
+        {
+          "input": [2, { "id": 0 }, 3],
+          "query": ["sort", ["get"], "asc"],
+          "output": [2, 3, { "id": 0 }]
+        },
+        {
+          "input": [{ "id": 2 }, { "id": 1 }],
+          "query": ["sort", ["get"], "asc"],
+          "output": [{ "id": 2 }, { "id": 1 }]
+        },
+        {
+          "input": [{ "id": 0 }, [1]],
+          "query": ["sort", ["get"], "asc"],
+          "output": [{ "id": 0 }, [1]]
+        },
+        {
+          "input": [[1], { "id": 0 }],
+          "query": ["sort", ["get"], "asc"],
+          "output": [[1], { "id": 0 }]
+        },
+        { "input": [[2], [1]], "query": ["sort", ["get"], "asc"], "output": [[2], [1]] },
         {
           "input": [3, "B", true, -1, false, { "id": 2 }, "A", [3], { "id": 1 }, [2], 2],
           "query": ["sort", ["get"], "asc"],
           "output": [false, true, -1, 2, 3, "A", "B", { "id": 2 }, [3], { "id": 1 }, [2]]
+        }
+      ]
+    },
+    {
+      "category": "sort",
+      "description": "should sort mixed types (boolean, number, string, other) in DESC order",
+      "tests": [
+        { "input": [true, 0], "query": ["sort", ["get"], "desc"], "output": [0, true] },
+        { "input": [0, false], "query": ["sort", ["get"], "desc"], "output": [0, false] },
+        { "input": [2.4, true], "query": ["sort", ["get"], "desc"], "output": [2.4, true] },
+        { "input": [3, "B"], "query": ["sort", ["get"], "desc"], "output": ["B", 3] },
+        { "input": ["B", 3], "query": ["sort", ["get"], "desc"], "output": ["B", 3] },
+        { "input": ["A", true], "query": ["sort", ["get"], "desc"], "output": ["A", true] },
+        { "input": [2, [1]], "query": ["sort", ["get"], "desc"], "output": [[1], 2] },
+        { "input": [[1], 2], "query": ["sort", ["get"], "desc"], "output": [[1], 2] },
+        {
+          "input": [{ "id": 0 }, 2],
+          "query": ["sort", ["get"], "desc"],
+          "output": [{ "id": 0 }, 2]
         },
+        {
+          "input": [2, { "id": 0 }, 3],
+          "query": ["sort", ["get"], "desc"],
+          "output": [{ "id": 0 }, 3, 2]
+        },
+        {
+          "input": [{ "id": 2 }, { "id": 1 }],
+          "query": ["sort", ["get"], "desc"],
+          "output": [{ "id": 2 }, { "id": 1 }]
+        },
+        {
+          "input": [{ "id": 0 }, [1]],
+          "query": ["sort", ["get"], "desc"],
+          "output": [{ "id": 0 }, [1]]
+        },
+        {
+          "input": [[1], { "id": 0 }],
+          "query": ["sort", ["get"], "desc"],
+          "output": [[1], { "id": 0 }]
+        },
+        { "input": [[2], [1]], "query": ["sort", ["get"], "desc"], "output": [[2], [1]] },
         {
           "input": [3, "B", true, -1, false, { "id": 2 }, "A", [3], { "id": 1 }, [2], 2],
           "query": ["sort", ["get"], "desc"],
