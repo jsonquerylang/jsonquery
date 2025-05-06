@@ -1189,12 +1189,22 @@
     },
     {
       "category": "gt",
+      "description": "should calculate greater than for booleans",
+      "tests": [
+        { "input": null, "query": ["gt", true, true], "output": false },
+        { "input": null, "query": ["gt", true, false], "output": true },
+        { "input": null, "query": ["gt", false, true], "output": false },
+        { "input": null, "query": ["gt", false, false], "output": false }
+      ]
+    },
+    {
+      "category": "gt",
       "description": "should throw when calculating greater than with mixed data types",
       "tests": [
         {
           "input": null,
           "query": ["gt", "3", 2],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1205,17 +1215,17 @@
         {
           "input": null,
           "query": ["gt", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["gt", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["gt", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1254,12 +1264,22 @@
     },
     {
       "category": "gte",
+      "description": "should calculate greater than or equal for booleans",
+      "tests": [
+        { "input": null, "query": ["gte", true, true], "output": true },
+        { "input": null, "query": ["gte", true, false], "output": true },
+        { "input": null, "query": ["gte", false, true], "output": false },
+        { "input": null, "query": ["gte", false, false], "output": true }
+      ]
+    },
+    {
+      "category": "gte",
       "description": "should throw when calculating greater than or equal to with mixed data types",
       "tests": [
         {
           "input": null,
           "query": ["gte", "3", 2],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1270,17 +1290,17 @@
         {
           "input": null,
           "query": ["gte", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["gte", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["gte", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1319,12 +1339,22 @@
     },
     {
       "category": "lt",
+      "description": "should calculate less than for booleans",
+      "tests": [
+        { "input": null, "query": ["lt", true, true], "output": false },
+        { "input": null, "query": ["lt", true, false], "output": false },
+        { "input": null, "query": ["lt", false, true], "output": true },
+        { "input": null, "query": ["lt", false, false], "output": false }
+      ]
+    },
+    {
+      "category": "lt",
       "description": "should throw when calculating less than with mixed data types",
       "tests": [
         {
           "input": null,
           "query": ["lt", 2, "3"],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1335,17 +1365,17 @@
         {
           "input": null,
           "query": ["lt", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["lt", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["lt", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1388,12 +1418,22 @@
     },
     {
       "category": "lte",
+      "description": "should calculate less than or equal for booleans",
+      "tests": [
+        { "input": null, "query": ["lte", true, true], "output": true },
+        { "input": null, "query": ["lte", true, false], "output": false },
+        { "input": null, "query": ["lte", false, true], "output": true },
+        { "input": null, "query": ["lte", false, false], "output": true }
+      ]
+    },
+    {
+      "category": "lte",
       "description": "should throw when calculating less than or equal to with mixed data types",
       "tests": [
         {
           "input": null,
           "query": ["lte", "3", 2],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },
@@ -1404,17 +1444,17 @@
         {
           "input": null,
           "query": ["lte", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["lte", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         },
         {
           "input": null,
           "query": ["lte", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers or two strings expected"
+          "throws": "Two numbers, strings, or booleans expected"
         }
       ]
     },

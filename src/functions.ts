@@ -27,16 +27,17 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
   }
 }
 
+const sortableTypes = { boolean: 0, number: 1, string: 2 }
+const otherTypes = 3
+
 const gt = (a: unknown, b: unknown) => {
-  if (
-    (typeof a === 'number' && typeof b === 'number') ||
-    (typeof a === 'string' && typeof b === 'string')
-  ) {
-    return a > b
+  if (typeof a !== typeof b || !((typeof a) in sortableTypes)) {
+    throwTypeError('Two numbers, strings, or booleans expected')
   }
 
-  throwTypeError('Two numbers or two strings expected')
+  return a > b
 }
+
 const gte = (a: unknown, b: unknown) => isEqual(a, b) || gt(a, b)
 const lt = (a: unknown, b: unknown) => gt(b, a)
 const lte = (a: unknown, b: unknown) => gte(b, a)
