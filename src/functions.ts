@@ -143,13 +143,24 @@ export const functions: FunctionBuildersMap = {
     const sign = direction === 'desc' ? -1 : 1
 
     function compare(itemA: unknown, itemB: unknown) {
-      try {
-        const a = getter(itemA)
-        const b = getter(itemB)
-        return gt(a, b) ? sign : lt(a, b) ? -sign : 0
-      } catch {
-        return 0 // leave unsortable contents as-is
+      const a = getter(itemA)
+      const b = getter(itemB)
+
+      // Order mixed types
+      if (typeof a !== typeof b) {
+        const aIndex = sortableTypes[typeof a] ?? otherTypes
+        const bIndex = sortableTypes[typeof b] ?? otherTypes
+
+        return aIndex > bIndex ? sign : aIndex < bIndex ? -sign : 0
       }
+
+      // Order two numbers, two strings, or two booleans
+      if ((typeof a) in sortableTypes) {
+        return a > b ? sign : a < b ? -sign : 0
+      }
+
+      // Leave arrays, objects, and unknown types ordered as is
+      return 0
     }
 
     return (data: T[]) => data.slice().sort(compare)

@@ -382,6 +382,27 @@
       ]
     },
     {
+      "category": "sort",
+      "description": "should sort mixed types (boolean, number, string, other)",
+      "tests": [
+        {
+          "input": [3, "B", true, -1, false, { "id": 2 }, "A", [3], { "id": 1 }, [2], 2],
+          "query": ["sort"],
+          "output": [false, true, -1, 2, 3, "A", "B", { "id": 2 }, [3], { "id": 1 }, [2]]
+        },
+        {
+          "input": [3, "B", true, -1, false, { "id": 2 }, "A", [3], { "id": 1 }, [2], 2],
+          "query": ["sort", ["get"], "asc"],
+          "output": [false, true, -1, 2, 3, "A", "B", { "id": 2 }, [3], { "id": 1 }, [2]]
+        },
+        {
+          "input": [3, "B", true, -1, false, { "id": 2 }, "A", [3], { "id": 1 }, [2], 2],
+          "query": ["sort", ["get"], "desc"],
+          "output": [{ "id": 2 }, [3], { "id": 1 }, [2], "B", "A", 3, 2, -1, true, false]
+        }
+      ]
+    },
+    {
       "category": "reverse",
       "description": "should reverse an array",
       "tests": [
