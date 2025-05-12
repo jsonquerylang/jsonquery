@@ -94,7 +94,11 @@ describe('error handling', () => {
         { name: 'Joe', age: 32, scores: [6.1, 8.1] }
       ]
     }
-    const query = ['pipe', ['get', 'participants'], ['map', ['pipe', ['get', 'scores'], ['sum']]]]
+    const query = [
+      'pipe',
+      ['get', 'participants'],
+      ['map', ['pipe', ['get', 'scores'], ['map', ['round']], ['sum']]]
+    ]
 
     let actualErr = undefined
     try {
@@ -103,15 +107,18 @@ describe('error handling', () => {
       actualErr = err
     }
 
-    expect(actualErr?.message).toBe('Array expected')
+    expect(actualErr?.message).toBe("Cannot read properties of null (reading 'map')")
     expect(actualErr?.jsonquery).toEqual([
       { data: scoreData, query },
       {
         data: scoreData.participants,
-        query: ['map', ['pipe', ['get', 'scores'], ['sum']]]
+        query: ['map', ['pipe', ['get', 'scores'], ['map', ['round']], ['sum']]]
       },
-      { data: { name: 'Emily', age: 19 }, query: ['pipe', ['get', 'scores'], ['sum']] },
-      { data: null, query: ['sum'] }
+      {
+        data: { name: 'Emily', age: 19 },
+        query: ['pipe', ['get', 'scores'], ['map', ['round']], ['sum']]
+      },
+      { data: null, query: ['map', ['round']] }
     ])
   })
 })

@@ -30,17 +30,15 @@ export function buildFunction(fn: (...args: unknown[]) => unknown): FunctionBuil
 const sortableTypes = { boolean: 0, number: 1, string: 2 }
 const otherTypes = 3
 
-const gt = (a: unknown, b: unknown) => {
-  if (typeof a !== typeof b || !((typeof a) in sortableTypes)) {
-    throwTypeError('Two numbers, strings, or booleans expected')
-  }
-
-  return a > b
-}
+const gt = (a: unknown, b: unknown) =>
+  typeof a === typeof b && (typeof a) in sortableTypes ? a > b : false
 
 const gte = (a: unknown, b: unknown) => isEqual(a, b) || gt(a, b)
-const lt = (a: unknown, b: unknown) => gt(b, a)
-const lte = (a: unknown, b: unknown) => gte(b, a)
+
+const lt = (a: unknown, b: unknown) =>
+  typeof a === typeof b && (typeof a) in sortableTypes ? a < b : false
+
+const lte = (a: unknown, b: unknown) => isEqual(a, b) || lt(a, b)
 
 export const functions: FunctionBuildersMap = {
   pipe: (...entries: JSONQuery[]) => {
@@ -277,13 +275,22 @@ export const functions: FunctionBuildersMap = {
   values: () => Object.values,
 
   prod: () => (data: number[]) => reduce(data, (a, b) => a * b),
-  sum: () => (data: number[]) => reduce(data, (a, b) => a + b, 0),
-  average: () => (data: number[]) => reduce(data, (a, b) => a + b) / data.length,
-  min: () => (data: number[]) => reduce(data, (a, b) => Math.min(a, b), null),
-  max: () => (data: number[]) => reduce(data, (a, b) => Math.max(a, b), null),
 
-  and: buildFunction((...args: unknown[]) => reduce(args, (a, b) => !!(a && b))),
-  or: buildFunction((...args: unknown[]) => reduce(args, (a, b) => !!(a || b))),
+  sum: () => (data: number[]) =>
+    isArray(data) ? data.reduce((a, b) => a + b, 0) : throwArrayExpected(),
+
+  average: () => (data: number[]) =>
+    isArray(data)
+      ? data.length > 0
+        ? data.reduce((a, b) => a + b) / data.length
+        : null
+      : throwArrayExpected(),
+
+  min: () => (data: number[]) => reduce(data, (a, b) => Math.min(a, b)),
+  max: () => (data: number[]) => reduce(data, (a, b) => Math.max(a, b)),
+
+  and: buildFunction((...data: unknown[]) => reduce(data, (a, b) => !!(a && b))),
+  or: buildFunction((...data: unknown[]) => reduce(data, (a, b) => !!(a || b))),
   not: buildFunction((a: unknown) => !a),
 
   exists: (queryGet: JSONQueryFunction) => {
@@ -355,24 +362,20 @@ export const functions: FunctionBuildersMap = {
 
 const truthy = (x: unknown) => x !== null && x !== 0 && x !== false
 
-const reduce = <T>(
-  data: T[],
-  callback: (previousValue: T, currentValue: T) => T,
-  initialValue?: T
-): T => {
+const reduce = <T>(data: T[], callback: (previousValue: T, currentValue: T) => T): T => {
   if (!isArray(data)) {
-    throwTypeError('Array expected')
-  }
-
-  if (initialValue !== undefined) {
-    return data.reduce(callback, initialValue)
+    throwArrayExpected()
   }
 
   if (data.length === 0) {
-    throwTypeError('Non-empty array expected')
+    return null
   }
 
   return data.reduce(callback)
+}
+
+const throwArrayExpected = () => {
+  throwTypeError('Array expected')
 }
 
 export const throwTypeError = (message: string) => {
