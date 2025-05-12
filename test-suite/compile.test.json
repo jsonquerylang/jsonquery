@@ -1127,12 +1127,12 @@
     },
     {
       "category": "prod",
-      "description": "should throw an error when calculating the prod of an empty array",
+      "description": "should return null when calculating the prod of an empty array",
       "tests": [
         {
           "input": [],
           "query": ["prod"],
-          "throws": "Non-empty array expected"
+          "output": null
         }
       ]
     },
@@ -1157,18 +1157,18 @@
     },
     {
       "category": "average",
-      "description": "should throw an error when calculating the average of an empty array",
+      "description": "should return null when calculating the average of an empty array",
       "tests": [
         {
           "input": [],
           "query": ["average"],
-          "throws": "Non-empty array expected"
+          "output": null
         }
       ]
     },
     {
       "category": "average",
-      "description": "should throw an error when calculating the average a string",
+      "description": "should throw an error when calculating the average of a string",
       "tests": [
         {
           "input": "abc",
@@ -1331,34 +1331,16 @@
     },
     {
       "category": "gt",
-      "description": "should throw when calculating greater than with mixed data types",
-      "tests": [
-        {
-          "input": null,
-          "query": ["gt", "3", 2],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
-      ]
+      "description": "should return false when calculating greater than with mixed data types",
+      "tests": [{ "input": null, "query": ["gt", "3", 2], "output": false }]
     },
     {
       "category": "gt",
-      "description": "should throw when calculating greater than with an unsupported data type",
+      "description": "should return false when calculating greater than with an unsupported data type",
       "tests": [
-        {
-          "input": null,
-          "query": ["gt", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
-        },
-        {
-          "input": null,
-          "query": ["gt", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
-        },
-        {
-          "input": null,
-          "query": ["gt", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
+        { "input": null, "query": ["gt", 2, ["array", 1, 2, 3]], "output": false },
+        { "input": null, "query": ["gt", ["array", 1, 2, 4], ["array", 1, 2, 3]], "output": false },
+        { "input": null, "query": ["gt", 2, ["object", { "a": 1 }]], "output": false }
       ]
     },
     {
@@ -1406,34 +1388,20 @@
     },
     {
       "category": "gte",
-      "description": "should throw when calculating greater than or equal to with mixed data types",
-      "tests": [
-        {
-          "input": null,
-          "query": ["gte", "3", 2],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
-      ]
+      "description": "should return false when calculating greater than or equal to with mixed data types",
+      "tests": [{ "input": null, "query": ["gte", "3", 2], "output": false }]
     },
     {
       "category": "gte",
-      "description": "should throw when calculating greater than or equal to with an unsupported data type",
+      "description": "should return false when calculating greater than or equal to with an unsupported data type",
       "tests": [
-        {
-          "input": null,
-          "query": ["gte", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
-        },
+        { "input": null, "query": ["gte", 2, ["array", 1, 2, 3]], "output": false },
         {
           "input": null,
           "query": ["gte", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
+          "output": false
         },
-        {
-          "input": null,
-          "query": ["gte", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
+        { "input": null, "query": ["gte", 2, ["object", { "a": 1 }]], "output": false }
       ]
     },
     {
@@ -1481,34 +1449,16 @@
     },
     {
       "category": "lt",
-      "description": "should throw when calculating less than with mixed data types",
-      "tests": [
-        {
-          "input": null,
-          "query": ["lt", 2, "3"],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
-      ]
+      "description": "should return false when calculating less than with mixed data types",
+      "tests": [{ "input": null, "query": ["lt", 2, "3"], "output": false }]
     },
     {
       "category": "lt",
-      "description": "should throw when calculating less than with an unsupported data type",
+      "description": "should return false when calculating less than with an unsupported data type",
       "tests": [
-        {
-          "input": null,
-          "query": ["lt", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
-        },
-        {
-          "input": null,
-          "query": ["lt", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
-        },
-        {
-          "input": null,
-          "query": ["lt", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
+        { "input": null, "query": ["lt", 2, ["array", 1, 2, 3]], "output": false },
+        { "input": null, "query": ["lt", ["array", 1, 2, 4], ["array", 1, 2, 3]], "output": false },
+        { "input": null, "query": ["lt", 2, ["object", { "a": 1 }]], "output": false }
       ]
     },
     {
@@ -1560,34 +1510,20 @@
     },
     {
       "category": "lte",
-      "description": "should throw when calculating less than or equal to with mixed data types",
-      "tests": [
-        {
-          "input": null,
-          "query": ["lte", "3", 2],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
-      ]
+      "description": "should return false when calculating less than or equal to with mixed data types",
+      "tests": [{ "input": null, "query": ["lte", "3", 2], "output": false }]
     },
     {
       "category": "lte",
-      "description": "should throw when calculating less than or equal to with an unsupported data type",
+      "description": "should return false when calculating less than or equal to with an unsupported data type",
       "tests": [
-        {
-          "input": null,
-          "query": ["lte", 2, ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
-        },
+        { "input": null, "query": ["lte", 2, ["array", 1, 2, 3]], "output": false },
         {
           "input": null,
           "query": ["lte", ["array", 1, 2, 4], ["array", 1, 2, 3]],
-          "throws": "Two numbers, strings, or booleans expected"
+          "output": false
         },
-        {
-          "input": null,
-          "query": ["lte", 2, ["object", { "a": 1 }]],
-          "throws": "Two numbers, strings, or booleans expected"
-        }
+        { "input": null, "query": ["lte", 2, ["object", { "a": 1 }]], "output": false }
       ]
     },
     {
@@ -1750,12 +1686,12 @@
     },
     {
       "category": "and",
-      "description": "should throw when calculating and with no arguments",
+      "description": "should return null calculating and with no arguments",
       "tests": [
         {
           "input": null,
           "query": ["and"],
-          "throws": "Non-empty array expected"
+          "output": null
         }
       ]
     },
@@ -1821,12 +1757,12 @@
     },
     {
       "category": "or",
-      "description": "should throw when calculating or with no arguments",
+      "description": "should return null when calculating or with no arguments",
       "tests": [
         {
           "input": null,
           "query": ["or"],
-          "throws": "Non-empty array expected"
+          "output": null
         }
       ]
     },
