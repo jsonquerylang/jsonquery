@@ -1195,29 +1195,34 @@
           "input": { "a": 3, "b": 2 },
           "query": ["eq", ["get", "a"], ["get", "b"]],
           "output": false
-        }
+        },
+        { "input": { "a": 0.1 }, "query": ["eq", ["get", "a"], 0.1], "output": true },
+        { "input": { "a": 0.1 }, "query": ["eq", ["get", "a"], 0.2], "output": false },
+        { "input": { "a": 0.1 }, "query": ["eq", ["get", "a"], -0.1], "output": false },
+        { "input": null, "query": ["eq", "a", "a"], "output": true },
+        { "input": null, "query": ["eq", "a", "b"], "output": false },
+        { "input": null, "query": ["eq", "a", "A"], "output": false },
+        { "input": null, "query": ["eq", "abc", "abc"], "output": true },
+        { "input": null, "query": ["eq", "abc", "ab"], "output": false },
+        { "input": null, "query": ["eq", true, true], "output": true },
+        { "input": null, "query": ["eq", true, false], "output": false },
+        { "input": null, "query": ["eq", false, true], "output": false },
+        { "input": null, "query": ["eq", false, true], "output": false },
+        { "input": null, "query": ["eq", null, null], "output": true }
       ]
     },
     {
       "category": "eq",
-      "description": "should calculate equal comparing array and number (no type coercion)",
+      "description": "should calculate equal comparing mixed types (no type coercion)",
       "tests": [
-        {
-          "input": null,
-          "query": ["eq", ["array", 2], 2],
-          "output": false
-        }
-      ]
-    },
-    {
-      "category": "eq",
-      "description": "should calculate equal comparing number and string (no type coercion)",
-      "tests": [
-        {
-          "input": null,
-          "query": ["eq", "2", 2],
-          "output": false
-        }
+        { "input": null, "query": ["eq", "2", 2], "output": false },
+        { "input": null, "query": ["eq", "", 0], "output": false },
+        { "input": null, "query": ["eq", 0, ""], "output": false },
+        { "input": null, "query": ["eq", "", null], "output": false },
+        { "input": null, "query": ["eq", null, ""], "output": false },
+        { "input": null, "query": ["eq", 0, null], "output": false },
+        { "input": null, "query": ["eq", ["array"], null], "output": false },
+        { "input": null, "query": ["eq", ["array", 2], 2], "output": false }
       ]
     },
     {
@@ -1550,24 +1555,13 @@
     },
     {
       "category": "ne",
-      "description": "should calculate not equal comparing array and number (no type coercion)",
+      "description": "should calculate not equal comparing mixed types (no type coercion)",
       "tests": [
-        {
-          "input": null,
-          "query": ["ne", ["array", 2], 2],
-          "output": true
-        }
-      ]
-    },
-    {
-      "category": "ne",
-      "description": "should calculate not equal comparing number and string (no type coercion)",
-      "tests": [
-        {
-          "input": null,
-          "query": ["ne", "2", 2],
-          "output": true
-        }
+        { "input": null, "query": ["ne", "2", 2], "output": true },
+        { "input": null, "query": ["ne", "", 0], "output": true },
+        { "input": null, "query": ["ne", "", null], "output": true },
+        { "input": null, "query": ["ne", 0, null], "output": true },
+        { "input": null, "query": ["ne", ["array", 2], 2], "output": true }
       ]
     },
     {

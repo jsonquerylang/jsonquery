@@ -1,7 +1,7 @@
 export const isArray = <T>(value: unknown): value is T[] => Array.isArray(value)
 
 export const isObject = (value: unknown): value is object =>
-  value && typeof value === 'object' && !isArray(value)
+  value !== null && typeof value === 'object' && !isArray(value)
 
 export const isString = (value: unknown): value is string => typeof value === 'string'
 
@@ -11,7 +11,7 @@ export const isEqual = <T>(a: T, b: T): boolean => {
     return true
   }
 
-  const bothObject = a && b && typeof a === 'object' && typeof b === 'object'
+  const bothObject = a !== null && b !== null && typeof a === 'object' && typeof b === 'object'
 
   return (
     bothObject &&

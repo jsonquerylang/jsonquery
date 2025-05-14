@@ -37,7 +37,7 @@ for (const [category, testGroups] of Object.entries(testsByCategory)) {
     for (const group of testGroups) {
       describe(group.description, () => {
         for (const currentTest of group.tests) {
-          const description = `input = '${currentTest.input}'`
+          const description = `input=${JSON.stringify(currentTest.input)}, query=${JSON.stringify(currentTest.query)}`
 
           if (isTestException(currentTest)) {
             test(description, () => {
