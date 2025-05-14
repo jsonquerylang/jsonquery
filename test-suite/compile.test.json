@@ -1138,7 +1138,7 @@
     },
     {
       "category": "prod",
-      "description": "should throw an error when calculating the prod a string",
+      "description": "should throw an error when calculating the prod of a string",
       "tests": [
         {
           "input": "abc",
