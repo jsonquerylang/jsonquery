@@ -207,6 +207,46 @@ describe('customization', () => {
     expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], 2], options)).toEqual(true)
     expect(go({ a: 2 }, ['aboutEq', ['get', 'a'], '2'], options)).toEqual(true)
   })
+
+  test('should use valueOf() in case of non-primitive types in all operators', () => {
+    class BigNumber {
+      public _value: string
+
+      constructor(public value: string) {
+        this._value = value
+      }
+
+      valueOf: () => number = () => Number.parseFloat(this.value)
+    }
+
+    const three = new BigNumber('3')
+    const six = new BigNumber('6')
+    const two = new BigNumber('2')
+    const anotherTwo = new BigNumber('2')
+
+    // Test whether we can use our BigNumber.valueOf()
+    // @ts-ignore
+    expect(two + three).toEqual(5)
+
+    expect(go(null, ['eq', three, two] as JSONQuery)).toEqual(false)
+    expect(go(null, ['eq', two, anotherTwo] as JSONQuery)).toEqual(true)
+    expect(go(null, ['ne', three, two] as JSONQuery)).toEqual(true)
+    expect(go(null, ['ne', two, anotherTwo] as JSONQuery)).toEqual(false)
+
+    expect(go(null, ['gt', three, two] as JSONQuery)).toEqual(true)
+    expect(go(null, ['gte', three, two] as JSONQuery)).toEqual(true)
+    expect(go(null, ['lt', three, two] as JSONQuery)).toEqual(false)
+    expect(go(null, ['lte', three, two] as JSONQuery)).toEqual(false)
+
+    expect(go(null, ['add', three, two] as JSONQuery)).toEqual(5)
+    expect(go(null, ['subtract', three, two] as JSONQuery)).toEqual(1)
+    expect(go(null, ['multiply', three, two] as JSONQuery)).toEqual(6)
+    expect(go(null, ['divide', six, two] as JSONQuery)).toEqual(3)
+    expect(go(null, ['pow', three, two] as JSONQuery)).toEqual(9)
+    expect(go(null, ['mod', three, two] as JSONQuery)).toEqual(1)
+
+    expect(go([three, two], ['sort'] as JSONQuery)).toEqual([two, three])
+  })
 })
 
 test('should validate the compile test-suite against its JSON schema', () => {

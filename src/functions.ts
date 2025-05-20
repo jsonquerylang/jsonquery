@@ -1,5 +1,5 @@
 import { compile } from './compile'
-import { isArray, isEqual } from './is'
+import { getValueOf, isArray, isEqual, typeOf } from './is'
 import type {
   Entry,
   FunctionBuilder,
@@ -31,12 +31,12 @@ const sortableTypes = { boolean: 0, number: 1, string: 2 }
 const otherTypes = 3
 
 const gt = (a: unknown, b: unknown) =>
-  typeof a === typeof b && (typeof a) in sortableTypes ? a > b : false
+  typeOf(a) === typeOf(b) && typeOf(a) in sortableTypes ? a > b : false
 
 const gte = (a: unknown, b: unknown) => isEqual(a, b) || gt(a, b)
 
 const lt = (a: unknown, b: unknown) =>
-  typeof a === typeof b && (typeof a) in sortableTypes ? a < b : false
+  typeOf(a) === typeOf(b) && typeOf(a) in sortableTypes ? a < b : false
 
 const lte = (a: unknown, b: unknown) => isEqual(a, b) || lt(a, b)
 
@@ -143,18 +143,23 @@ export const functions: FunctionBuildersMap = {
     function compare(itemA: unknown, itemB: unknown) {
       const a = getter(itemA)
       const b = getter(itemB)
+      const typeA = typeOf(a)
+      const typeB = typeOf(b)
 
       // Order mixed types
-      if (typeof a !== typeof b) {
-        const aIndex = sortableTypes[typeof a] ?? otherTypes
-        const bIndex = sortableTypes[typeof b] ?? otherTypes
+      if (typeA !== typeB) {
+        const aIndex = sortableTypes[typeA] ?? otherTypes
+        const bIndex = sortableTypes[typeB] ?? otherTypes
 
         return aIndex > bIndex ? sign : aIndex < bIndex ? -sign : 0
       }
 
       // Order two numbers, two strings, or two booleans
-      if ((typeof a) in sortableTypes) {
-        return a > b ? sign : a < b ? -sign : 0
+      if (typeA in sortableTypes) {
+        const _a = getValueOf(a)
+        const _b = getValueOf(b)
+
+        return _a > _b ? sign : _a < _b ? -sign : 0
       }
 
       // Leave arrays, objects, and unknown types ordered as is
