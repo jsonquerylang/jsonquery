@@ -321,8 +321,8 @@ export const functions: FunctionBuildersMap = {
       return !!_values.find((item) => isEqual(item, _value))
     }
   },
-  'not in': (path: string, values: JSONQuery) => {
-    const _in = functions.in(path, values)
+  'not in': (value: JSONQuery, values: JSONQuery) => {
+    const _in = functions.in(value, values)
 
     return (data: unknown) => !_in(data)
   },
