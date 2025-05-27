@@ -16,4 +16,21 @@ export { stringify } from './stringify'
 export { parse } from './parse'
 export { buildFunction } from './functions'
 
-export * from './types'
+export type {
+  CustomOperator,
+  Fun,
+  FunctionBuilder,
+  FunctionBuildersMap,
+  JSONPath,
+  JSONProperty,
+  JSONQuery,
+  JSONQueryCompileOptions,
+  JSONQueryFunction,
+  JSONQueryObject,
+  JSONQueryOptions,
+  JSONQueryParseOptions,
+  JSONQueryPipe,
+  JSONQueryPrimitive,
+  JSONQueryProperty,
+  JSONQueryStringifyOptions
+} from './types'
