@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.1/test-suite/compile.test.json",
-  "version": "5.0.1",
+  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.3/test-suite/compile.test.json",
+  "version": "5.0.3",
   "groups": [
     {
       "category": "value",
@@ -1844,11 +1844,16 @@
           "query": ["in", ["get", "score"], ["array", 1, 2, 5, 8]],
           "output": false
         },
-        {
-          "input": null,
-          "query": ["in", 5, ["array", 1, 2, 5, 8]],
-          "output": true
-        }
+        { "input": null, "query": ["in", 5, ["array", 1, 2, 5, 8]], "output": true },
+        { "input": null, "query": ["in", false, ["array", true, false]], "output": true },
+        { "input": null, "query": ["in", true, ["array", true, false]], "output": true },
+        { "input": null, "query": ["in", false, ["array", true]], "output": false },
+        { "input": null, "query": ["in", true, ["array", false]], "output": false },
+        { "input": null, "query": ["in", null, ["array", 1, 2, 3]], "output": false },
+        { "input": null, "query": ["in", null, ["array", null, 1, 2, 3]], "output": true },
+        { "input": null, "query": ["in", "", ["array", "A", "", "B"]], "output": true },
+        { "input": null, "query": ["in", 0, ["array", 1, 2, 3]], "output": false },
+        { "input": null, "query": ["in", 0, ["array", 0, 1, 2, 3]], "output": true }
       ]
     },
     {
@@ -1914,11 +1919,15 @@
           "query": ["not in", ["get", "score"], ["array", 1, 2, 5, 8]],
           "output": true
         },
-        {
-          "input": null,
-          "query": ["not in", 7, ["array", 1, 2, 5, 8]],
-          "output": true
-        }
+        { "input": null, "query": ["not in", 7, ["array", 1, 2, 5, 8]], "output": true },
+        { "input": null, "query": ["not in", true, ["array", true, false]], "output": false },
+        { "input": null, "query": ["not in", false, ["array", true]], "output": true },
+        { "input": null, "query": ["not in", true, ["array", false]], "output": true },
+        { "input": null, "query": ["not in", null, ["array", 1, 2, 3]], "output": true },
+        { "input": null, "query": ["not in", null, ["array", null, 1, 2, 3]], "output": false },
+        { "input": null, "query": ["not in", "", ["array", "A", "", "B"]], "output": false },
+        { "input": null, "query": ["not in", 0, ["array", 1, 2, 3]], "output": true },
+        { "input": null, "query": ["not in", 0, ["array", 0, 1, 2, 3]], "output": false }
       ]
     },
     {

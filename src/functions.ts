@@ -318,7 +318,7 @@ export const functions: FunctionBuildersMap = {
       const _value = getValue(data)
       const _values = getValues(data) as unknown[]
 
-      return !!_values.find((item) => isEqual(item, _value))
+      return _values.findIndex((item) => isEqual(item, _value)) !== -1
     }
   },
   'not in': (value: JSONQuery, values: JSONQuery) => {
