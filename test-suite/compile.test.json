@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/compile.test.json",
-  "version": "5.0.0",
+  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.1/test-suite/compile.test.json",
+  "version": "5.0.1",
   "groups": [
     {
       "category": "value",
@@ -961,6 +961,17 @@
       ]
     },
     {
+      "category": "uniq",
+      "description": "should get unique values from a list with mixed nullish types",
+      "tests": [
+        {
+          "input": [null, null, false, 0, "", null, false, 0, ""],
+          "query": ["uniq"],
+          "output": [null, false, 0, ""]
+        }
+      ]
+    },
+    {
       "category": "uniqBy",
       "description": "should get unique objects by key (keeping the first)",
       "tests": [
@@ -1208,7 +1219,10 @@
         { "input": null, "query": ["eq", true, false], "output": false },
         { "input": null, "query": ["eq", false, true], "output": false },
         { "input": null, "query": ["eq", false, true], "output": false },
-        { "input": null, "query": ["eq", null, null], "output": true }
+        { "input": null, "query": ["eq", false, false], "output": true },
+        { "input": null, "query": ["eq", null, null], "output": true },
+        { "input": null, "query": ["eq", 0, 0], "output": true },
+        { "input": null, "query": ["eq", "", ""], "output": true }
       ]
     },
     {
@@ -1550,7 +1564,11 @@
           "query": ["ne", ["get", "a"], ["get", "b"]],
           "output": true
         },
-        { "input": null, "query": ["ne", 3, 2], "output": true }
+        { "input": null, "query": ["ne", 3, 2], "output": true },
+        { "input": null, "query": ["ne", false, false], "output": false },
+        { "input": null, "query": ["ne", null, null], "output": false },
+        { "input": null, "query": ["ne", 0, 0], "output": false },
+        { "input": null, "query": ["ne", "", ""], "output": false }
       ]
     },
     {

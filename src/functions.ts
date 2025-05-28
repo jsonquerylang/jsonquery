@@ -248,7 +248,7 @@ export const functions: FunctionBuildersMap = {
       const res: T[] = []
 
       for (const item of data) {
-        if (!res.find((resItem) => isEqual(resItem, item))) {
+        if (res.findIndex((resItem) => isEqual(resItem, item)) === -1) {
           res.push(item)
         }
       }
