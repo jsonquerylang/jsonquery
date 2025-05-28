@@ -1235,6 +1235,7 @@
         { "input": null, "query": ["eq", "", null], "output": false },
         { "input": null, "query": ["eq", null, ""], "output": false },
         { "input": null, "query": ["eq", 0, null], "output": false },
+        { "input": null, "query": ["eq", 0, false], "output": false },
         { "input": null, "query": ["eq", ["array"], null], "output": false },
         { "input": null, "query": ["eq", ["array", 2], 2], "output": false }
       ]
@@ -1579,6 +1580,7 @@
         { "input": null, "query": ["ne", "", 0], "output": true },
         { "input": null, "query": ["ne", "", null], "output": true },
         { "input": null, "query": ["ne", 0, null], "output": true },
+        { "input": null, "query": ["ne", false, null], "output": true },
         { "input": null, "query": ["ne", ["array", 2], 2], "output": true }
       ]
     },
