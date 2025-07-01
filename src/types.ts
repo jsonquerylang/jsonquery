@@ -1,8 +1,7 @@
-export type JSONQueryPipe = JSONQuery[]
-export type JSONQueryFunction = [name: string, ...args: JSONQuery[]]
+export type JSONQueryFunction = [name: string, ...args: unknown[]]
 export type JSONQueryObject = { [key: string]: JSONQuery }
 export type JSONQueryPrimitive = string | number | boolean | null
-export type JSONQuery = JSONQueryFunction | JSONQueryPipe | JSONQueryObject | JSONQueryPrimitive
+export type JSONQuery = JSONQueryFunction | JSONQueryObject | JSONQueryPrimitive
 
 export type JSONProperty = string
 export type JSONPath = JSONProperty[]

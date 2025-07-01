@@ -130,7 +130,7 @@ export const functions: FunctionBuildersMap = {
     }
   },
 
-  filter: <T>(predicate: JSONQuery[]) => {
+  filter: <T>(predicate: JSONQuery) => {
     const _predicate = compile(predicate)
 
     return (data: T[]) => data.filter((item) => truthy(_predicate(item)))
@@ -171,7 +171,7 @@ export const functions: FunctionBuildersMap = {
 
   pick: (...properties: JSONQueryProperty[]) => {
     const getters = properties.map(
-      ([_get, ...path]) => [path[path.length - 1], functions.get(...path)] as Getter
+      ([_get, ...path]) => [path[path.length - 1], functions.get(...(path as JSONPath))] as Getter
     )
 
     const _pick = (object: Record<string, unknown>, getters: Getter[]): unknown => {
@@ -294,7 +294,7 @@ export const functions: FunctionBuildersMap = {
   not: buildFunction((a: unknown) => !a),
 
   exists: (queryGet: JSONQueryFunction) => {
-    const parentPath = queryGet.slice(1)
+    const parentPath = queryGet.slice(1) as JSONPath
     const key = parentPath.pop()
     const getter = functions.get(...parentPath)
 

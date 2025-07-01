@@ -29,7 +29,6 @@ export type {
   JSONQueryObject,
   JSONQueryOptions,
   JSONQueryParseOptions,
-  JSONQueryPipe,
   JSONQueryPrimitive,
   JSONQueryProperty,
   JSONQueryStringifyOptions
