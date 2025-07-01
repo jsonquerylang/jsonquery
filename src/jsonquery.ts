@@ -31,5 +31,6 @@ export type {
   JSONQueryParseOptions,
   JSONQueryPrimitive,
   JSONQueryProperty,
+  JSONQueryPipe,
   JSONQueryStringifyOptions
 } from './types'
