@@ -74,7 +74,7 @@ describe('error handling', () => {
   test('should throw a helpful error when passing an object {...} instead of function ["object", {...}]', () => {
     let actualErr = undefined
     const user = { name: 'Joe' }
-    const query = { name: ['get', 'name'] }
+    const query: JSONQuery = { name: ['get', 'name'] }
     try {
       go(user, query)
     } catch (err) {
@@ -94,7 +94,7 @@ describe('error handling', () => {
         { name: 'Joe', age: 32, scores: [6.1, 8.1] }
       ]
     }
-    const query = [
+    const query: JSONQuery = [
       'pipe',
       ['get', 'participants'],
       ['map', ['pipe', ['get', 'scores'], ['map', ['round']], ['sum']]]

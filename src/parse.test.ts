@@ -42,14 +42,10 @@ for (const [category, testGroups] of Object.entries(testsByCategory)) {
 
 describe('customization', () => {
   test('should parse a custom function', () => {
-    const options: JSONQueryParseOptions = {
-      functions: { customFn: () => () => 42 }
-    }
-
-    expect(parse('customFn(.age, "desc")', options)).toEqual(['customFn', ['get', 'age'], 'desc'])
+    expect(parse('customFn(.age, "desc")')).toEqual(['customFn', ['get', 'age'], 'desc'])
 
     // built-in functions should still be available
-    expect(parse('add(2, 3)', options)).toEqual(['add', 2, 3])
+    expect(parse('add(2, 3)')).toEqual(['add', 2, 3])
   })
 
   test('should parse a custom operator without vararg', () => {
