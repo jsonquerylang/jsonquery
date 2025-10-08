@@ -19,6 +19,7 @@ export interface CompileTestGroup {
 }
 
 export interface CompileTestSuite {
-  updated: string
+  source: string
+  version: string
   groups: CompileTestGroup[]
 }

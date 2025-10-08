@@ -17,6 +17,7 @@ export interface ParseTestGroup {
 }
 
 export interface ParseTestSuite {
-  updated: string
+  source: string
+  version: string
   groups: ParseTestGroup[]
 }

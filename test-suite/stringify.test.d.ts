@@ -13,6 +13,7 @@ export interface StringifyTestGroup {
 }
 
 export interface StringifyTestSuite {
-  updated: string
+  source: string
+  version: string
   groups: StringifyTestGroup[]
 }
