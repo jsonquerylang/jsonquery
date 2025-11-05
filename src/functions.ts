@@ -347,7 +347,7 @@ export const functions: FunctionBuildersMap = {
     const regex = new RegExp(expression, `${options ?? ''}g`)
     const getter = compile(path)
 
-    return (data: unknown) => (getter(data) as string).matchAll(regex).map(matchToJSON).toArray()
+    return (data: unknown) => Array.from((getter(data) as string).matchAll(regex)).map(matchToJSON)
   },
 
   eq: buildFunction(isEqual),
