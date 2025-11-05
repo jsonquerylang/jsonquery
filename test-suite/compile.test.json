@@ -2015,6 +2015,81 @@
       ]
     },
     {
+      "category": "match",
+      "description": "should extract a regular expression match from a string",
+      "tests": [
+        {
+          "input": null,
+          "query": ["match", "Hello World!", "[A-z]+"],
+          "output": { "matches": ["Hello"] }
+        },
+        {
+          "input": null,
+          "query": ["match", "Hello World!", "([A-Z])([a-z]+)"],
+          "output": { "matches": ["Hello", "H", "ello"] }
+        }
+      ]
+    },
+    {
+      "category": "match",
+      "description": "should extract a regular expression match with groups from a string",
+      "tests": [
+        {
+          "input": null,
+          "query": [
+            "match",
+            "I'm on holiday from 2025-07-18 till 2025-08-01",
+            "(?<year>\\d{4})-(?<month>\\d{2})-(?<date>\\d{2})"
+          ],
+          "output": {
+            "matches": ["2025-07-18", "2025", "07", "18"],
+            "groups": { "year": "2025", "month": "07", "date": "18" }
+          }
+        }
+      ]
+    },
+
+    {
+      "category": "matchAll",
+      "description": "should extract all regular expression matches from a string",
+      "tests": [
+        {
+          "input": null,
+          "query": ["matchAll", "Hello World!", "[A-z]+"],
+          "output": [{ "matches": ["Hello"] }, { "matches": ["World"] }]
+        },
+        {
+          "input": null,
+          "query": ["matchAll", "Hello World!", "([A-Z])([a-z]+)"],
+          "output": [{ "matches": ["Hello", "H", "ello"] }, { "matches": ["World", "W", "orld"] }]
+        }
+      ]
+    },
+    {
+      "category": "matchAll",
+      "description": "should extract all regular expression matches with groups from a string",
+      "tests": [
+        {
+          "input": null,
+          "query": [
+            "matchAll",
+            "I'm on holiday from 2025-07-18 till 2025-08-01",
+            "(?<year>\\d{4})-(?<month>\\d{2})-(?<date>\\d{2})"
+          ],
+          "output": [
+            {
+              "matches": ["2025-07-18", "2025", "07", "18"],
+              "groups": { "year": "2025", "month": "07", "date": "18" }
+            },
+            {
+              "matches": ["2025-08-01", "2025", "08", "01"],
+              "groups": { "year": "2025", "month": "08", "date": "01" }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "category": "add",
       "description": "should add two properties",
       "tests": [

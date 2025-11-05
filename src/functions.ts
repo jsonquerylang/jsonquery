@@ -333,6 +333,23 @@ export const functions: FunctionBuildersMap = {
     return (data: unknown) => regex.test(getter(data) as string)
   },
 
+  match: (path: JSONQuery, expression: string, options?: string) => {
+    const regex = new RegExp(expression, options)
+    const getter = compile(path)
+
+    return (data: unknown) => {
+      const result = (getter(data) as string).match(regex)
+      return result ? matchToJSON(result) : null
+    }
+  },
+
+  matchAll: (path: JSONQuery, expression: string, options?: string) => {
+    const regex = new RegExp(expression, `${options ?? ''}g`)
+    const getter = compile(path)
+
+    return (data: unknown) => (getter(data) as string).matchAll(regex).map(matchToJSON).toArray()
+  },
+
   eq: buildFunction(isEqual),
   gt: buildFunction(gt),
   gte: buildFunction(gte),
@@ -372,6 +389,13 @@ const reduce = <T>(data: T[], callback: (previousValue: T, currentValue: T) => T
   }
 
   return data.reduce(callback)
+}
+
+const matchToJSON = (result: RegExpMatchArray) => {
+  const matches = result.slice() // copy into a new array without the .groups property
+  const groups = result.groups
+
+  return groups ? { matches, groups } : { matches }
 }
 
 const throwArrayExpected = () => {
