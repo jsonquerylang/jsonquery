@@ -2011,6 +2011,11 @@
           "input": null,
           "query": ["regex", "Joe", "^[A-z]+$"],
           "output": true
+        },
+        {
+          "input": null,
+          "query": ["regex", "2025", "^[A-z]+$"],
+          "output": false
         }
       ]
     },
@@ -2022,6 +2027,11 @@
           "input": null,
           "query": ["match", "Hello World!", "[A-z]+"],
           "output": { "matches": ["Hello"] }
+        },
+        {
+          "input": null,
+          "query": ["match", "2025-11-05", "[A-z]+"],
+          "output": null
         },
         {
           "input": null,
@@ -2045,6 +2055,11 @@
             "matches": ["2025-07-18", "2025", "07", "18"],
             "groups": { "year": "2025", "month": "07", "date": "18" }
           }
+        },
+        {
+          "input": null,
+          "query": ["match", "Hello World!", "(?<year>\\d{4})-(?<month>\\d{2})-(?<date>\\d{2})"],
+          "output": null
         }
       ]
     },
@@ -2057,6 +2072,11 @@
           "input": null,
           "query": ["matchAll", "Hello World!", "[A-z]+"],
           "output": [{ "matches": ["Hello"] }, { "matches": ["World"] }]
+        },
+        {
+          "input": null,
+          "query": ["matchAll", "2025-05-11", "[A-z]+"],
+          "output": []
         },
         {
           "input": null,
@@ -2086,6 +2106,11 @@
               "groups": { "year": "2025", "month": "08", "date": "01" }
             }
           ]
+        },
+        {
+          "input": null,
+          "query": ["matchAll", "Hello World!", "(?<year>\\d{4})-(?<month>\\d{2})-(?<date>\\d{2})"],
+          "output": []
         }
       ]
     },
