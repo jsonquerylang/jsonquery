@@ -2063,7 +2063,27 @@
         }
       ]
     },
-
+    {
+      "category": "match",
+      "description": "should extract a regular expression match with flags from a string",
+      "tests": [
+        {
+          "input": null,
+          "query": ["match", "Hello World!", "world", ""],
+          "output": null
+        },
+        {
+          "input": null,
+          "query": ["match", "Hello World!", "world!", "i"],
+          "output": { "matches": ["World!"] }
+        },
+        {
+          "input": null,
+          "query": ["match", "Hello World!", "(?<group1>world)!", "i"],
+          "output": { "matches": ["World!", "World"], "groups": { "group1": "World" } }
+        }
+      ]
+    },
     {
       "category": "matchAll",
       "description": "should extract all regular expression matches from a string",
@@ -2111,6 +2131,22 @@
           "input": null,
           "query": ["matchAll", "Hello World!", "(?<year>\\d{4})-(?<month>\\d{2})-(?<date>\\d{2})"],
           "output": []
+        }
+      ]
+    },
+    {
+      "category": "matchAll",
+      "description": "should extract all regular expression matches with a flag from a string",
+      "tests": [
+        {
+          "input": null,
+          "query": ["matchAll", "Hello World!", "\\b[a-z]+\\b", ""],
+          "output": []
+        },
+        {
+          "input": null,
+          "query": ["matchAll", "Hello World!", "\\b[a-z]+\\b", "i"],
+          "output": [{ "matches": ["Hello"] }, { "matches": ["World"] }]
         }
       ]
     },
