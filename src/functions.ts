@@ -392,10 +392,14 @@ const reduce = <T>(data: T[], callback: (previousValue: T, currentValue: T) => T
 }
 
 const matchToJSON = (result: RegExpMatchArray) => {
-  const matches = result.slice() // copy into a new array without the .groups property
-  const groups = result.groups
+  const [value, ...groups] = result
+  const namedGroups = result.groups
 
-  return groups ? { matches, groups } : { matches }
+  return groups.length
+    ? namedGroups
+      ? { value, groups, namedGroups }
+      : { value, groups }
+    : { value }
 }
 
 const throwArrayExpected = () => {

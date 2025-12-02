@@ -2026,7 +2026,7 @@
         {
           "input": null,
           "query": ["match", "Hello World!", "[A-z]+"],
-          "output": { "matches": ["Hello"] }
+          "output": { "value": "Hello" }
         },
         {
           "input": null,
@@ -2036,7 +2036,10 @@
         {
           "input": null,
           "query": ["match", "Hello World!", "([A-Z])([a-z]+)"],
-          "output": { "matches": ["Hello", "H", "ello"] }
+          "output": {
+            "value": "Hello",
+            "groups": ["H", "ello"]
+          }
         }
       ]
     },
@@ -2052,8 +2055,9 @@
             "(?<year>\\d{4})-(?<month>\\d{2})-(?<date>\\d{2})"
           ],
           "output": {
-            "matches": ["2025-07-18", "2025", "07", "18"],
-            "groups": { "year": "2025", "month": "07", "date": "18" }
+            "value": "2025-07-18",
+            "groups": ["2025", "07", "18"],
+            "namedGroups": { "year": "2025", "month": "07", "date": "18" }
           }
         },
         {
@@ -2075,12 +2079,16 @@
         {
           "input": null,
           "query": ["match", "Hello World!", "world!", "i"],
-          "output": { "matches": ["World!"] }
+          "output": { "value": "World!" }
         },
         {
           "input": null,
           "query": ["match", "Hello World!", "(?<group1>world)!", "i"],
-          "output": { "matches": ["World!", "World"], "groups": { "group1": "World" } }
+          "output": {
+            "value": "World!",
+            "groups": ["World"],
+            "namedGroups": { "group1": "World" }
+          }
         }
       ]
     },
@@ -2091,7 +2099,7 @@
         {
           "input": null,
           "query": ["matchAll", "Hello World!", "[A-z]+"],
-          "output": [{ "matches": ["Hello"] }, { "matches": ["World"] }]
+          "output": [{ "value": "Hello" }, { "value": "World" }]
         },
         {
           "input": null,
@@ -2101,7 +2109,10 @@
         {
           "input": null,
           "query": ["matchAll", "Hello World!", "([A-Z])([a-z]+)"],
-          "output": [{ "matches": ["Hello", "H", "ello"] }, { "matches": ["World", "W", "orld"] }]
+          "output": [
+            { "value": "Hello", "groups": ["H", "ello"] },
+            { "value": "World", "groups": ["W", "orld"] }
+          ]
         }
       ]
     },
@@ -2118,12 +2129,14 @@
           ],
           "output": [
             {
-              "matches": ["2025-07-18", "2025", "07", "18"],
-              "groups": { "year": "2025", "month": "07", "date": "18" }
+              "value": "2025-07-18",
+              "groups": ["2025", "07", "18"],
+              "namedGroups": { "year": "2025", "month": "07", "date": "18" }
             },
             {
-              "matches": ["2025-08-01", "2025", "08", "01"],
-              "groups": { "year": "2025", "month": "08", "date": "01" }
+              "value": "2025-08-01",
+              "groups": ["2025", "08", "01"],
+              "namedGroups": { "year": "2025", "month": "08", "date": "01" }
             }
           ]
         },
@@ -2146,7 +2159,7 @@
         {
           "input": null,
           "query": ["matchAll", "Hello World!", "\\b[a-z]+\\b", "i"],
-          "output": [{ "matches": ["Hello"] }, { "matches": ["World"] }]
+          "output": [{ "value": "Hello" }, { "value": "World" }]
         }
       ]
     },
