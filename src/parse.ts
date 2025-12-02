@@ -120,7 +120,13 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
       return ['get', ...props]
     }
 
-    return parseFunction()
+    return parseChainedProperty()
+  }
+
+  const parseChainedProperty = () => {
+    // a function can be followed by a property, which is a shorthand for "fn() | .prop"
+    const result = parseFunction()
+    return query[i] === '.' ? ['pipe', result, parseProperty()] : result
   }
 
   const parseFunction = () => {
