@@ -47,6 +47,13 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
     while (true) {
       skipWhitespace()
 
+      if (query[i] === '.' && 'pipe' in currentOperators) {
+        // an implicitly piped property like "fn().prop"
+        const right = parseProperty()
+        left = left[0] === 'pipe' ? [...left, right] : ['pipe', left, right]
+        continue
+      }
+
       const start = i
       const name = parseOperatorName(currentOperators)
       if (!name) {
@@ -115,18 +122,14 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
             parseInteger() ??
             throwSyntaxError('Property expected')
         )
+
+        skipWhitespace()
       }
 
       return ['get', ...props]
     }
 
-    return parseChainedProperty()
-  }
-
-  const parseChainedProperty = () => {
-    // a function can be followed by a property, which is a shorthand for "fn() | .prop"
-    const result = parseFunction()
-    return query[i] === '.' ? ['pipe', result, parseProperty()] : result
+    return parseFunction()
   }
 
   const parseFunction = () => {
