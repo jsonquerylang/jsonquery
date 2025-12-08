@@ -60,6 +60,24 @@ for (const [category, testGroups] of Object.entries(testsByCategory)) {
 }
 
 describe('error handling', () => {
+  test('should throw an error when trying to get a property from something that is not a plain object', () => {
+    const obj = { value: 42 }
+    expect(() => compile(['get', 'constructor'])(obj)).toThrow('Unsafe property "constructor"')
+    expect(() => compile(['get', '__proto__'])(obj)).toThrow('Unsafe property "__proto__"')
+
+    const createdObj = Object.create(obj)
+    expect(compile(['get', 'value'])(createdObj)).toEqual(42)
+    expect(() => compile(['get', 'constructor'])(createdObj)).toThrow(
+      'Unsafe property "constructor"'
+    )
+    expect(() => compile(['get', '__proto__'])(createdObj)).toThrow('Unsafe property "__proto__"')
+
+    const arr = [40, 41, 42]
+    expect(() => compile(['get', 'constructor'])(arr)).toThrow('Unsafe property "constructor"')
+    expect(() => compile(['get', '__proto__'])(arr)).toThrow('Unsafe property "__proto__"')
+    expect(() => compile(['get', 'length'])(arr)).toThrow('Unsafe property "length"')
+  })
+
   test('should throw a helpful error when a pipe contains a compile time error', () => {
     let actualErr = undefined
     try {

@@ -65,10 +65,6 @@
         {
           "input": ".data | groupBy(.city).myCity",
           "output": ["pipe", ["get", "data"], ["groupBy", ["get", "city"]], ["get", "myCity"]]
-        },
-        {
-          "input": "\"hello\".length",
-          "output": ["pipe", "hello", ["get", "length"]]
         }
       ]
     },

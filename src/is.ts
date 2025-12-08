@@ -3,6 +3,10 @@ export const isArray = <T>(value: unknown): value is T[] => Array.isArray(value)
 export const isObject = (value: unknown): value is object =>
   value !== null && typeof value === 'object' && !isArray(value)
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && value.constructor === Object
+}
+
 export const isString = (value: unknown): value is string => typeof value === 'string'
 
 // source: https://stackoverflow.com/a/77278013/1262753
@@ -18,4 +22,20 @@ export const isEqual = <T>(a: T, b: T): boolean => {
     Object.keys(a).length === Object.keys(b).length &&
     Object.entries(a).every(([k, v]) => isEqual(v, b[k as keyof T]))
   )
+}
+
+export const isSafeProperty = (object: unknown, prop: string | number): boolean => {
+  return isPlainObject(object)
+    ? !(prop in Object.prototype)
+    : Array.isArray(object)
+      ? !(prop in Array.prototype)
+      : false
+}
+
+export const getSafeProperty = (object: unknown, prop: string | number): unknown => {
+  if (object && !isSafeProperty(object, prop)) {
+    throw new TypeError(`Unsafe property "${prop}"`)
+  }
+
+  return object?.[prop]
 }
