@@ -62,20 +62,25 @@ for (const [category, testGroups] of Object.entries(testsByCategory)) {
 describe('error handling', () => {
   test('should throw an error when trying to get a property from something that is not a plain object', () => {
     const obj = { value: 42 }
-    expect(() => compile(['get', 'constructor'])(obj)).toThrow('Unsafe property "constructor"')
-    expect(() => compile(['get', '__proto__'])(obj)).toThrow('Unsafe property "__proto__"')
+    expect(() => compile(['get', 'constructor'])(obj)).toThrow('Unsupported property "constructor"')
+    expect(() => compile(['get', '__proto__'])(obj)).toThrow('Unsupported property "__proto__"')
 
+    // we could technically support this, but we only support plain objects for now to keep the implementation simple
     const createdObj = Object.create(obj)
-    expect(compile(['get', 'value'])(createdObj)).toEqual(42)
+    expect(() => compile(['get', 'value'])(createdObj)).toThrow('Unsupported property "value"')
     expect(() => compile(['get', 'constructor'])(createdObj)).toThrow(
-      'Unsafe property "constructor"'
+      'Unsupported property "constructor"'
     )
-    expect(() => compile(['get', '__proto__'])(createdObj)).toThrow('Unsafe property "__proto__"')
+    expect(() => compile(['get', '__proto__'])(createdObj)).toThrow(
+      'Unsupported property "__proto__"'
+    )
 
     const arr = [40, 41, 42]
-    expect(() => compile(['get', 'constructor'])(arr)).toThrow('Unsafe property "constructor"')
-    expect(() => compile(['get', '__proto__'])(arr)).toThrow('Unsafe property "__proto__"')
-    expect(() => compile(['get', 'length'])(arr)).toThrow('Unsafe property "length"')
+    expect(() => compile(['get', 'constructor'])(arr)).toThrow('Unsupported property "constructor"')
+    expect(() => compile(['get', '__proto__'])(arr)).toThrow('Unsupported property "__proto__"')
+    expect(() => compile(['get', 'length'])(arr)).toThrow('Unsupported property "length"')
+
+    expect(() => compile(['get', 'length'])('text')).toThrow('Unsupported property "length"')
   })
 
   test('should throw a helpful error when a pipe contains a compile time error', () => {

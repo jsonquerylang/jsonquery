@@ -225,6 +225,14 @@
     },
     {
       "category": "get",
+      "description": "should get a path that has the same name as an unsupported property",
+      "tests": [
+        { "input": { "length": 42 }, "query": ["get", "length"], "output": 42 },
+        { "input": { "constructor": "yes" }, "query": ["get", "constructor"], "output": "yes" }
+      ]
+    },
+    {
+      "category": "get",
       "description": "should get a nested value that has the same name as a function",
       "tests": [
         {
