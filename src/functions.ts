@@ -1,5 +1,5 @@
 import { compile } from './compile'
-import { isArray, isEqual } from './is'
+import { getSafeProperty, isArray, isEqual } from './is'
 import type {
   Entry,
   FunctionBuilder,
@@ -72,14 +72,14 @@ export const functions: FunctionBuildersMap = {
 
     if (path.length === 1) {
       const prop = path[0]
-      return (data: unknown) => data?.[prop] ?? null
+      return (data: unknown) => getSafeProperty(data, prop) ?? null
     }
 
     return (data: unknown) => {
       let value = data
 
       for (const prop of path) {
-        value = value?.[prop]
+        value = getSafeProperty(value, prop)
       }
 
       return value ?? null
