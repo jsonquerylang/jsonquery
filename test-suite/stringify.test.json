@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/stringify.test.json",
-  "version": "5.0.0",
+  "source": "https://github.com/jsonquerylang/jsonquery/blob/v5.1.1/test-suite/stringify.test.json",
+  "version": "5.1.1",
   "groups": [
     {
       "category": "property",

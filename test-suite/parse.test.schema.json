@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/parse.test.schema.json",
+  "$id": "https://github.com/jsonquerylang/jsonquery/blob/v5.1.1/test-suite/parse.test.schema.json",
   "type": "object",
   "properties": {
     "source": {
-      "const": "https://github.com/jsonquerylang/jsonquery/blob/v5.0.0/test-suite/parse.test.json"
+      "const": "https://github.com/jsonquerylang/jsonquery/blob/v5.1.1/test-suite/parse.test.json"
     },
     "version": {
-      "const": "5.0.0"
+      "const": "5.1.1"
     },
     "groups": {
       "type": "array",
