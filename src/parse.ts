@@ -171,16 +171,23 @@ export function parse(query: string, options?: JSONQueryParseOptions): JSONQuery
           skipWhitespace()
         }
 
-        const key =
-          parseString() ??
-          parseUnquotedString() ??
-          parseInteger() ??
-          throwSyntaxError('Key expected')
+        if (query[i] === ".") {
+          const prop = parseProperty()
+          const key = prop[prop.length - 1]
+          object[key] = prop
+        } else {
+          const key =
+            parseString() ??
+            parseUnquotedString() ??
+            parseInteger() ??
+            throwSyntaxError('Key expected')
 
-        skipWhitespace()
-        eatChar(':')
+          skipWhitespace()
+          eatChar(':')
 
-        object[key] = parseOperator()
+          object[key] = parseOperator()
+        }
+
       }
 
       eatChar('}')
